@@ -31,6 +31,7 @@ def buscar_itens(request):
             'id': item.id,
             'nome': item.nome,
             'foto': item.foto.url,  # URL da imagem do item
+            'quantidade': item.quantidade,
         })
 
     return JsonResponse(resultados, safe=False)
@@ -71,9 +72,9 @@ def painel_vendas(request):
     carrinho, created = Carrinho.objects.get_or_create(user=request.user, ativo=True)
     itens_estoque = ItemEstoque.objects.all()
 
-    total = 0  # Inicializa o total do carrinho
+    total = 0.0  # Inicializa o total do carrinho
     for item_carrinho in carrinho.itens.all():
-        total += item_carrinho.total()  # Adiciona o total de cada item ao total geral
+        total += float(item_carrinho.total())  # Garante que cada total seja um número float
 
     if request.method == "POST":
         item_nome = request.POST.get("item")  # O nome do item será passado
@@ -108,6 +109,7 @@ def painel_vendas(request):
         messages.success(request, f"{item.nome} foi adicionado ao carrinho.")
         return redirect('painel-vendas')
 
+    # Passa o total como parâmetro para o template
     return render(request, 'core/painel_vendas.html', {'itens_estoque': itens_estoque, 'carrinho': carrinho, 'total': total})
 
 def cadastrar_cliente(request):
