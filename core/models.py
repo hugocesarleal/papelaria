@@ -16,6 +16,7 @@ class ItemEstoque(models.Model):
 class Carrinho(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Atualiza para usar o modelo de usuário configurado
     ativo = models.BooleanField(default=True)
+    comprovante_pix = models.ImageField(upload_to='comprovantes_pix/', null=True, blank=True)
 
     def __str__(self):
         return f"Carrinho de {self.user.username}"

@@ -20,6 +20,62 @@ from .models import ItemEstoque, Carrinho, ItemCarrinho
 from django.db.models import F
 from django.db import transaction
 from django.http import JsonResponse
+from user_agents import parse
+from django.core.files.storage import FileSystemStorage
+from datetime import datetime
+from django.utils.timezone import now
+from .models import Carrinho
+from django.utils.dateparse import parse_datetime
+from django.utils import timezone
+
+def buscar_comprovantes(request):
+    # Calcular a data limite (5 minutos atrás)
+    usuario = request.user.username
+    
+    # Caminho para o diretório onde os comprovantes são armazenados
+    comprovantes_dir = "media/comprovantes_pix"
+
+    # Listar arquivos do diretório que correspondem ao timestamp e pegar os comprovantes recentes
+    arquivos = [f for f in os.listdir(comprovantes_dir) if f.startswith(usuario)]
+    
+    if not arquivos:
+        return JsonResponse({"comprovantes": []})
+
+    # Ordena os arquivos pelo nome (que contém a data e hora) em ordem decrescente
+    arquivos.sort(reverse=True)
+    
+    # Pega o último arquivo
+    ultimo_comprovante = arquivos[0]
+
+    # Retorna o caminho completo do arquivo e outras informações necessárias
+    return JsonResponse({"comprovantes": [{"arquivo": ultimo_comprovante}]})
+
+@login_required
+def upload_comprovante(request):
+    if request.method == 'POST' and request.FILES.get('imagem'):
+        imagem = request.FILES['imagem']
+
+        # Encontrar o carrinho ativo do usuário
+        carrinho = Carrinho.objects.filter(user=request.user, ativo=True).first()
+        
+        if carrinho:
+            # Gerar o nome do arquivo com o nome do usuário e a data/hora
+            timestamp = now().strftime('%Y%m%d_%H%M%S')
+            user_name = request.user.username.replace(' ', '_')  # Substituir espaços por underscores, se houver
+            ext = imagem.name.split('.')[-1]  # Obtém a extensão do arquivo original
+            novo_nome = f"{user_name}_{timestamp}.{ext}"
+
+            # Salvar o arquivo no sistema de arquivos
+            fs = FileSystemStorage(location='media/comprovantes_pix/')  # Ajuste o caminho se necessário
+            filename = fs.save(novo_nome, imagem)
+
+            # Salvar o caminho no campo 'comprovante_pix' do carrinho
+            carrinho.comprovante_pix = f"comprovantes_pix/{novo_nome}"
+            carrinho.save()
+
+        return redirect('nova-pagina')  # Redireciona para a página de finalização de venda ou outra página relevante
+
+    return render(request, 'core/painel_mobile.html')
 
 def buscar_itens(request):
     query = request.GET.get('q', '')
@@ -69,48 +125,72 @@ def concluir_venda(request):
 @login_required
 def painel_vendas(request):
     # Obtém ou cria o carrinho ativo do usuário
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    user_agent_parsed = parse(user_agent)
+
+    # Verifica se o usuário está acessando pelo celular
+    if user_agent_parsed.is_mobile:
+        # Redireciona para a nova página para dispositivos móveis
+        return redirect('nova-pagina')
+
+    # Carrega ou cria o carrinho ativo do usuário
     carrinho, created = Carrinho.objects.get_or_create(user=request.user, ativo=True)
     itens_estoque = ItemEstoque.objects.all()
 
-    total = 0.0  # Inicializa o total do carrinho
-    for item_carrinho in carrinho.itens.all():
-        total += float(item_carrinho.total())  # Garante que cada total seja um número float
+    # Inicializa o total do carrinho
+    total = sum(float(item_carrinho.total()) for item_carrinho in carrinho.itens.all())
 
-    if request.method == "POST":
-        item_nome = request.POST.get("item")  # O nome do item será passado
-        quantidade = int(request.POST.get("quantidade"))
-        pagamento = request.POST.get("pagamento")
+    # Armazena o timestamp de carregamento da página na sessão
+    if 'page_load_time' not in request.session:
+        request.session['page_load_time'] = now().isoformat()
+
+    # Exibe comprovantes se PIX for selecionado
+    comprovantes = []
+    if request.method == "POST" and request.POST.get("pagamento") == "pix":
+        page_load_time = request.session.get('page_load_time')
+        if page_load_time:
+            page_load_time = now().fromisoformat(page_load_time)
+            fs = FileSystemStorage(location='media/comprovantes_pix/')
+            for filename in fs.listdir('')[1]:  # fs.listdir retorna (diretórios, arquivos)
+                if filename.startswith(request.user.username) and os.path.getmtime(fs.path(filename)) >= page_load_time.timestamp():
+                    comprovantes.append(fs.url(filename))
+
+    # Processa a adição de itens ao carrinho
+    if request.method == "POST" and request.POST.get("item"):
+        item_nome = request.POST.get("item")
+        quantidade = int(request.POST.get("quantidade", 0))
         
-        # Tentativa de encontrar o item pelo nome
+        # Valida o item no estoque
         try:
             item = ItemEstoque.objects.get(nome=item_nome)
         except ItemEstoque.DoesNotExist:
             messages.error(request, "O item não foi encontrado no estoque.")
             return redirect('painel-vendas')
 
-        # Verifica se a quantidade disponível é suficiente
+        # Verifica estoque
         if item.quantidade < quantidade:
             messages.error(request, "Quantidade insuficiente no estoque.")
             return redirect('painel-vendas')
 
-        # Adiciona o item ao carrinho
+        # Adiciona ao carrinho
         item_carrinho, created = ItemCarrinho.objects.get_or_create(
             carrinho=carrinho,
             item_estoque=item,
             defaults={'quantidade': quantidade, 'preco_unitario': item.valor}
         )
-
-        if not created:  # Caso o item já esteja no carrinho, atualiza a quantidade
+        if not created:
             item_carrinho.quantidade += quantidade
             item_carrinho.save()
-
-        item.save()
 
         messages.success(request, f"{item.nome} foi adicionado ao carrinho.")
         return redirect('painel-vendas')
 
-    # Passa o total como parâmetro para o template
-    return render(request, 'core/painel_vendas.html', {'itens_estoque': itens_estoque, 'carrinho': carrinho, 'total': total})
+    return render(request, 'core/painel_vendas.html', {
+        'itens_estoque': itens_estoque,
+        'carrinho': carrinho,
+        'total': total,
+        'comprovantes': comprovantes,
+    })
 
 def cadastrar_cliente(request):
     if request.method == 'POST':
@@ -121,8 +201,6 @@ def cadastrar_cliente(request):
     else:
         form = ClienteForm()
     return render(request, 'core/estoque/listar_estoque.html', {'form': form})
-
-
 
 def is_admin(user):
     return user.is_staff

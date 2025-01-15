@@ -106,7 +106,6 @@
                 {% if form.quantidade.errors %}
                     <div class="error">{{ form.quantidade.errors }}</div>
                 {% endif %}
-
                 <br><br>
 
                 <button type="submit">Adicionar ao Carrinho</button>
@@ -171,12 +170,22 @@
                     <p>Troco: R$ <span id="troco">0.00</span></p>
                 </div>
 
+                <div id="comprovante-container" style="display:none;">
+                    <p>Você selecionou pagamento via PIX. <br> Faça o upload do comprovante:</p>
+                    <h3>Comprovante de PIX:</h3>
+
+                    <button type="button" id="btn-atualizar" onclick="atualizarComprovantes()">Atualizar</button>
+                    <div id="comprovantes-list"></div>
+                </div>
+
                 <button type="submit">Finalizar Venda</button>
             </form>
         </div>
     </div>
 
     <script>
+        
+
         const alertBox = document.getElementById('alert-box');
 
         // Função para mostrar a mensagem de alerta com fade in
@@ -240,26 +249,32 @@
                 })
                 .catch(error => console.error('Erro ao buscar itens:', error));
         });
+        
 
         // Exibe ou esconde o campo de valor recebido e calcula o troco
-        const total = document.getElementById('total-t').getAttribute('data-total');
+    const total = document.getElementById('total-t').getAttribute('data-total');
 
     // Função para exibir o troco e outras funcionalidades
     function mostrarValorRecebido() {
         var pagamento = document.getElementById("pagamento").value;
         var valorRecebidoContainer = document.getElementById("valor-recebido-container");
         var trocoContainer = document.getElementById("troco-container");
+        var comprovanteContainer = document.getElementById('comprovante-container');
 
-        console.log(total);
         totalFloat = total.replace(',', '.');
-        console.log(totalFloat);
 
         if (pagamento === "dinheiro") {
             valorRecebidoContainer.style.display = "block";
             trocoContainer.style.display = "block";
+            comprovanteContainer.style.display = 'none';
+        } else if (pagamento === 'pix'){
+            comprovanteContainer.style.display = 'block';
+            valorRecebidoContainer.style.display = 'none';
+            trocoContainer.style.display = 'none';
         } else {
-            valorRecebidoContainer.style.display = "none";
-            trocoContainer.style.display = "none";
+            valorRecebidoContainer.style.display = 'none';
+            trocoContainer.style.display = 'none';
+            comprovanteContainer.style.display = 'none';
         }
 
         // Atualiza o valor do troco quando o valor recebido é alterado
@@ -280,6 +295,31 @@
     }
 
     mostrarValorRecebido();
+
+    function atualizarComprovantes() {
+            const comprovantesList = document.getElementById('comprovantes-list');
+
+            // Realiza uma requisição para o servidor e busca os comprovantes
+            fetch('/buscar-comprovantes-pix/')
+                .then(response => response.json())
+                .then(data => {
+                    comprovantesList.innerHTML = '';  // Limpa os antigos
+                    data.comprovantes.forEach(comprovante => {
+                        const div = document.createElement('div');
+                        div.innerHTML = `
+                            <p>Comprovante: <img src="/media/comprovantes_pix/${comprovante.arquivo}" alt="Comprovante PIX" style="max-width: 100%; height: auto;" /></p>
+
+                        `;
+                        comprovantesList.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar comprovantes:', error));
+        }
+
+        // Inicia a exibição de comprovantes ao carregar
+        if (document.getElementById('pagamento').value === 'pix') {
+            atualizarComprovantes();
+        }
     </script>
 </body>
 </html>
