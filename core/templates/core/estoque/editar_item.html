@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Item</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            max-width: 500px;
+            margin: auto;
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+        input, textarea, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Editar Item: {{ item.nome }}</h1>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div>
+            <label for="nome">Nome:</label>
+            {{ form.nome }}
+        </div>
+        
+        <div>
+            <label for="descricao">Descrição:</label>
+            {{ form.descricao }}
+        </div>
+
+        <div>
+            <label for="foto">Foto Atual:</label>
+            {% if item.foto %}
+                <div>
+                    <img src="{{ item.foto.url }}" alt="{{ item.nome }}" style="width: 300px; height: 300px;">
+                </div>
+            {% endif %}
+            <label for="foto">Alterar Foto (opcional):</label>
+            {{ form.foto }}
+        </div>
+        
+        <div>
+            <label for="valor">Valor:</label>
+            {{ form.valor }}
+        </div>
+        
+        <div>
+            <label for="quantidade">Quantidade:</label>
+            {{ form.quantidade }}
+        </div>
+
+        <button type="submit">Salvar Alterações</button>
+    </form>
+    <a href="{% url 'listar-estoque-admin' %}">Voltar para Estoque</a>
+</body>
+</html>

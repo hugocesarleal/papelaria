@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Admin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        ul li {
+            margin-bottom: 10px;
+        }
+        ul li a {
+            text-decoration: none;
+            color: #007BFF;
+        }
+        ul li a:hover {
+            text-decoration: underline;
+        }
+        a {
+            display: inline-block;
+            margin-top: 20px;
+            color: #007BFF;
+        }
+    </style>
+</head>
+<body>
+    <h2>Painel de Administração</h2>
+    <p>Bem-vindo, {{ user.username }}!</p>
+    <h3>Opções Administrativas</h3>
+    <ul>
+        <li><a href="{% url 'create-user' %}">Cadastrar Novo Usuário</a></li>
+        <li><a href="{% url 'user-list' %}">Lista de Usuários</a></li>
+        <li><a href="{% url 'listar-estoque-admin' %}">Estoque</a></li>
+        <li><a href="{% url 'admin-dashboard-clientes' %}">Gerenciar Clientes</a></li> <!-- Nova opção -->
+    </ul>
+    <a href="{% url 'logout' %}">Sair</a>
+</body>
+</html>

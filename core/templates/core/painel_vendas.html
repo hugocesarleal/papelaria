@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Vendas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .formulario, .carrinho {
+            width: 48%;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .formulario h3, .carrinho h3 {
+            text-align: center;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+        }
+        .autocomplete-suggestions {
+            border: 1px solid #3f3f3f;
+            max-height: 200px;
+            overflow-y: auto;
+            position: absolute;
+            background-color: white;
+            z-index: 1000;
+            width: 25%;
+        }
+        .autocomplete-suggestion {
+            padding: 10px;
+            cursor: pointer;
+        }
+        .autocomplete-suggestion:hover {
+            background-color: #f0f0f0;
+        }
+        .item-info {
+            display: flex;
+            align-items: center;
+        }
+        .item-info img {
+            width: 50px;
+            height: 50px;
+            margin-right: 10px;
+        }
+        .alert {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 9999;
+            display: none;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <h2>Painel de Vendas</h2>
+
+    <!-- Mensagem de alerta (será mostrada dinamicamente com JS) -->
+    <div id="alert-box" class="alert"></div>
+
+    <div class="container">
+        <!-- Formulário de adicionar itens -->
+        <div class="formulario">
+            <h3>Adicionar Itens ao Carrinho</h3>
+            <form method="POST">
+                {% csrf_token %}
+                <label for="item">Escolha o Item:</label>
+                <input type="text" id="item" name="item" autocomplete="off" placeholder="Digite o nome do item..." required>
+                {% if form.item.errors %}
+                    <div class="error">{{ form.item.errors }}</div>
+                {% endif %}
+                <div id="autocomplete-results" class="autocomplete-suggestions"></div><br><br>
+
+                <label for="quantidade">Quantidade:</label>
+                <input type="number" name="quantidade" min="1" required>
+                {% if form.quantidade.errors %}
+                    <div class="error">{{ form.quantidade.errors }}</div>
+                {% endif %}
+                <br><br>
+
+                <button type="submit">Adicionar ao Carrinho</button>
+            </form>
+        </div>
+
+        <!-- Carrinho de compras -->
+        <div class="carrinho">
+            <h3>Itens no Carrinho</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Quantidade</th>
+                        <th>Preço Unitário</th>
+                        <th>Total</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item_carrinho in carrinho.itens.all %}
+                        <tr>
+                            <td>{{ item_carrinho.item_estoque.nome }}</td>
+                            <td>{{ item_carrinho.quantidade }}</td>
+                            <td>R$ {{ item_carrinho.preco_unitario }}</td>
+                            <td>R$ {{ item_carrinho.total }}</td>
+                            <td>
+                                <form method="POST" action="{% url 'remover-item-carrinho' item_carrinho.id %}" style="display: inline;">
+                                    {% csrf_token %}
+                                    <button type="submit">Excluir</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="5">O carrinho está vazio.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <h4>Total: R$ {{ total }}</h4>
+            <form method="POST" action="{% url 'limpar-carrinho' %}" style="margin-top: 10px;">
+                {% csrf_token %}
+                <button type="submit">Limpar Carrinho</button>
+            </form>
+            <form method="POST" action="{% url 'concluir-venda' %}" style="margin-top: 10px;">
+                {% csrf_token %}
+                <label for="pagamento">Forma de Pagamento:</label>
+                <select name="pagamento" required>
+                    <option value="Cartão">Cartão</option>
+                    <option value="Dinheiro">Dinheiro</option>
+                    <option value="Pix">Pix</option>
+                </select><br><br>
+                <button type="submit">Concluir Venda</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const alertBox = document.getElementById('alert-box');
+
+        // Função para mostrar a mensagem de alerta com fade in
+        function showAlert(message, type) {
+            alertBox.innerHTML = message;
+            alertBox.classList.add(type);  // Adiciona a classe para cor (alert-success ou alert-error)
+            alertBox.style.display = 'block';
+            alertBox.style.opacity = 1; // Inicia com opacidade 1 para o fade-in
+
+            // Esconde a mensagem com fade out após 5 segundos
+            setTimeout(() => {
+                alertBox.style.opacity = 0; // Fade out
+                setTimeout(() => {
+                    alertBox.style.display = 'none'; // Esconde após o fade out
+                    alertBox.classList.remove(type);  // Remove a classe de cor após desaparecer
+                }, 1000);  // Espera o fade-out terminar
+            }, 5000);  // Exibe por 5 segundos
+        }
+
+        // Exibe a mensagem quando uma notificação for recebida
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    showAlert("{{ message }}", "alert-success");
+                {% else %}
+                    showAlert("{{ message }}", "alert-error");
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        const itemInput = document.getElementById('item');
+        const resultsDiv = document.getElementById('autocomplete-results');
+
+        itemInput.addEventListener('input', function() {
+            const query = itemInput.value;
+            if (query.length < 1) {
+                resultsDiv.innerHTML = '';
+                return;
+            }
+
+            fetch(`/buscar-itens/?q=${query}`)
+                .then(response => response.json())
+                .then(data => {
+                    resultsDiv.innerHTML = '';
+                    data.forEach(item => {
+                        const div = document.createElement('div');
+                        div.classList.add('autocomplete-suggestion');
+                        div.innerHTML = `
+                            <div class="item-info">
+                                <img src="${item.foto}" alt="${item.nome}">
+                                <span>${item.nome}</span>
+                            </div>
+                        `;
+                        div.addEventListener('click', function() {
+                            itemInput.value = item.nome;
+                            resultsDiv.innerHTML = '';  // Limpa as sugestões após selecionar
+                        });
+                        resultsDiv.appendChild(div);
+                    });
+                })
+                .catch(error => console.error('Erro ao buscar itens:', error));
+        });
+    </script>
+</body>
+</html>

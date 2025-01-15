@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Estoque</title>
+</head>
+<body>
+    <h1>Estoque</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Nome</th>
+                <th>Descrição</th>
+                <th>Valor</th>
+                <th>Quantidade</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in itens %}
+            <tr>
+                <td>
+                    {% if item.foto %}
+                    <img src="{{ item.foto.url }}" alt="{{ item.nome }}" style="width: 100px; height: 100px;">
+                    {% else %}
+                    <span>Sem imagem</span>
+                    {% endif %}
+                </td>
+                <td>{{ item.nome }}</td>
+                <td>{{ item.descricao }}</td>
+                <td>R$ {{ item.valor|floatformat:2 }}</td>
+                <td>{{ item.quantidade }}</td>
+                <td>
+                    <a href="{% url 'editar-item' item.id %}">Editar</a> |
+                    <a href="{% url 'remover-item' item.id %}">Remover</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'adicionar-item' %}">Adicionar Novo Item</a>
+</body>
+</html>
