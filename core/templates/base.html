@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sistema{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            background-color: #007BFF;
+            padding: 10px 20px;
+            color: white;
+        }
+
+        .navbar .user-icon {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .navbar .user-icon i {
+            font-size: 24px;
+            margin-right: 8px;
+        }
+
+        .dropdown {
+            position: absolute;
+            right: 20px;
+            top: 50px;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+            padding: 10px;
+            z-index: 1000;
+        }
+
+        .dropdown a {
+            display: block;
+            padding: 10px;
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        .dropdown a:hover {
+            background-color: #f4f4f9;
+        }
+
+        .show {
+            display: block;
+        }
+
+        /* Estilos gerais do conteúdo */
+        .content {
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <div class="logo">Meu Sistema</div>
+        <div class="user-icon" onclick="handleUserClick()">
+            <i class="fas fa-user"></i> 
+            <span id="username">{% if user.is_authenticated %}{{ user.username }}{% else %}Visitante{% endif %}</span>
+        </div>
+    </div>
+
+    <div class="dropdown" id="dropdown-menu">
+        {% if user.is_authenticated %}
+            <div>{{ user.username }}</div>
+            <a href="{% url 'logout' %}">Logout</a>
+        {% else %}
+            <a href="{% url 'login' %}">Fazer Login</a>
+        {% endif %}
+    </div>
+
+    <div class="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+
+    <script>
+        function handleUserClick() {
+            const dropdown = document.getElementById("dropdown-menu");
+            dropdown.classList.toggle("show");
+
+            // Redireciona para login se o usuário não estiver autenticado
+        
+        }
+    </script>
+</body>
+</html>

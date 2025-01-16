@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -44,6 +46,7 @@
         <li><a href="{% url 'admin-dashboard-clientes' %}">Gerenciar Clientes</a></li> 
         <li><a href="{% url 'consulta_pontos' %}">Consultar Registro de Ponto</a></li><!-- Nova opção -->
     </ul>
-    <a href="{% url 'logout' %}">Sair</a>
 </body>
 </html>
+
+{% endblock %}

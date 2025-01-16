@@ -8,7 +8,7 @@ urlpatterns = [
     path('login/', views.login_view, name='login'),
     path('admin-dashboard/', views.admin_dashboard, name='admin-dashboard'),
     path('user-dashboard/', views.painel_vendas, name='painel-vendas'),
-    path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
+    path('logout/', views.custom_logout, name='logout'),
     path('create-user/', views.create_user, name='create-user'),
     path('user-list/', views.user_list, name='user-list'),
     path('estoque/', views.listar_estoque_admin, name='listar-estoque-admin'),
@@ -25,4 +25,5 @@ urlpatterns = [
     path('buscar-comprovantes-pix/<int:carrinho_id>/', views.buscar_comprovantes, name='buscar-comprovantes-pix'),
     path('consulta-pontos/', views.consulta_pontos, name='consulta_pontos'),
     path('registrar-ponto/', views.registrar_ponto, name='registrar-ponto'),
+    path('base/', views.base, name='base'),
 ]

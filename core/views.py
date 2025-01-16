@@ -31,6 +31,11 @@ from .models import RegistroPonto, Configuracao
 from core.models import CustomUser
 from datetime import timedelta
 from django.http import HttpResponseForbidden
+from django.contrib.auth import logout
+
+def custom_logout(request):
+    logout(request)  # Isso faz o logout do usuário
+    return redirect('login')
 
 def is_admin(user):
     return user.is_staff
@@ -113,7 +118,7 @@ def registrar_ponto(request):
     ip_requisitante = request.META.get('REMOTE_ADDR')
     print(ip_requisitante)
     # Verificar se o IP da requisição é o IP permitido
-    if ip_requisitante != settings.ALLOWED_IP:
+    if ip_requisitante not in settings.ALLOWED_IP:
         return HttpResponseForbidden("IP não autorizado para registrar ponto.")
 
     registros = RegistroPonto.objects.filter(usuario=request.user).order_by('-data', '-entrada')
@@ -362,6 +367,9 @@ def create_user(request):
         form = CustomUserCreationForm()
 
     return render(request, 'core/create_user.html', {'form': form})
+
+def base(request):
+    return render(request, 'core/base.html')
 
 
 def login_view(request):
