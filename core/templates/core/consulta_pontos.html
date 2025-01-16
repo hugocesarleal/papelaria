@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Pontos</title>
+    <style>
+        /* Estilos gerais */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #007BFF;
+        }
+
+        /* Estilos para o formulário de filtro */
+        form {
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            width: 80%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            font-size: 16px;
+            margin-right: 10px;
+        }
+
+        input, select {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 200px;
+        }
+
+        input[type="number"] {
+            width: 150px;
+        }
+
+        button {
+            padding: 10px 15px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Estilos para a tabela */
+        table {
+            width: 80%;
+            margin: 30px auto;
+            border-collapse: collapse;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #007BFF;
+            color: #fff;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        /* Estilos para a seção de total a pagar */
+        .total-pagar {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #007BFF;
+        }
+
+        /* Estilos para o botão de limpar filtros */
+        .limpar-filtros {
+            padding: 10px 15px;
+            background-color: #6c757d;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .limpar-filtros:hover {
+            background-color: #5a6268;
+        }
+    </style>
+
+    <!-- Importando a biblioteca de máscara -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const valorHoraInput = document.getElementById('valor_hora');
+            Inputmask('currency', { prefix: 'R$ ', groupSeparator: '.', alias: 'numeric', rightAlign: false }).mask(valorHoraInput);
+        });
+    </script>
+</head>
+<body>
+    <h1>Consulta de Registros de Ponto</h1>
+
+    <form method="GET" action="">
+        <div class="filter-group">
+            <label for="usuario">Usuário:</label>
+            <select name="usuario" id="usuario">
+                <option value="">-- Selecione um usuário --</option>
+                {% for usuario in usuarios %}
+                    <option value="{{ usuario.id }}" {% if usuario.id == usuario_id %}selected{% endif %}>
+                        {{ usuario.username }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="data_inicio">Data Início:</label>
+            <input type="date" name="data_inicio" value="{{ data_inicio }}">
+        </div>
+        <div class="filter-group">
+            <label for="data_fim">Data Fim:</label>
+            <input type="date" name="data_fim" value="{{ data_fim }}">
+        </div>
+        <button type="submit">Filtrar</button>
+        <a href="?limpar_filtros=true" class="limpar-filtros">Limpar Filtros</a>
+    </form>
+    
+
+    <form method="POST">
+        {% csrf_token %}
+        <label for="valor_hora">Valor da Hora (R$):</label>
+        <input type="text" id="valor_hora" name="valor_hora" value="{{ valor_hora | floatformat:2 }}" required>
+
+        <button type="submit" name="atualizar_valor_hora">Atualizar Valor da Hora</button>
+    </form>
+
+    {% if registros %}
+        <h2>Registros de Ponto</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Usuário</th>
+                    <th>Data</th>
+                    <th>Entrada</th>
+                    <th>Saída</th>
+                    <th>Total Trabalhado</th>
+                    <th>Caixa de Entrada (R$)</th> <!-- Coluna para o valor de caixa de entrada -->
+                    <th>Caixa de Saída (R$)</th> <!-- Coluna para o valor de caixa de saída -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for registro in registros %}
+                    <tr>
+                        <td>{{ registro.usuario.username }}</td>
+                        <td>{{ registro.data }}</td>
+                        <td>{{ registro.entrada }}</td>
+                        <td>{{ registro.saida }}</td>
+                        <td>{{ registro.total_trabalhado }}</td>
+                        <td>{{ registro.valor_em_caixa_entrada|floatformat:2 }}</td> <!-- Exibindo o valor de caixa de entrada -->
+                        <td>{{ registro.valor_em_caixa_saida|floatformat:2 }}</td> <!-- Exibindo o valor de caixa de saída -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="total-pagar">
+            <h3>Total a pagar: R$ {{ total_a_pagar|floatformat:2 }}</h3>
+        </div>
+    {% else %}
+        <p style="text-align: center;">Nenhum registro encontrado para os filtros aplicados.</p>
+    {% endif %}
+</body>
+</html>

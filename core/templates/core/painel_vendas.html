@@ -156,7 +156,6 @@
                 <label for="pagamento">Forma de pagamento:</label>
                 <select id="pagamento" name="pagamento" onchange="mostrarValorRecebido()">
                     <option value="dinheiro">Dinheiro</option>
-                    <option value="cartao">Cartão</option>
                     <option value="pix">Pix</option>
                 </select>
 
@@ -167,24 +166,25 @@
                 </div><br>
 
                 <div id="troco-container" style="display:none;">
-                    <p>Troco: R$ <span id="troco">0.00</span></p>
+                    <p>Troco: <span id="troco">R$ 0.00</span></p>
                 </div>
 
                 <div id="comprovante-container" style="display:none;">
                     <p>Você selecionou pagamento via PIX. <br> Faça o upload do comprovante:</p>
                     <h3>Comprovante de PIX:</h3>
-
-                    <button type="button" id="btn-atualizar" onclick="atualizarComprovantes()">Atualizar</button>
-                    <div id="comprovantes-list"></div>
+                    
+                    <button type="button" id="btn-atualizar" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
+                    <div id="comprovantes-container"></div>
                 </div>
 
                 <button type="submit">Finalizar Venda</button>
+
+                <a href="{% url 'registrar-ponto' %}" class="btn">Registrar Ponto</a>
             </form>
         </div>
     </div>
 
     <script>
-        
 
         const alertBox = document.getElementById('alert-box');
 
@@ -206,15 +206,6 @@
         }
 
         // Exibe a mensagem quando uma notificação for recebida
-        {% if messages %}
-            {% for message in messages %}
-                {% if message.tags == 'success' %}
-                    showAlert("{{ message }}", "alert-success");
-                {% else %}
-                    showAlert("{{ message }}", "alert-error");
-                {% endif %}
-            {% endfor %}
-        {% endif %}
 
         const itemInput = document.getElementById('item');
         const resultsDiv = document.getElementById('autocomplete-results');
@@ -288,7 +279,7 @@
                 if (troco < 0) {
                     document.getElementById("troco").innerText = "Valor insuficiente!";
                 } else {
-                    document.getElementById("troco").innerText = troco.toFixed(2); // Exibe o troco com 2 casas decimais
+                    document.getElementById("troco").innerText = "R$ " + troco.toFixed(2); // Exibe o troco com 2 casas decimais
                 }
             }
         });
@@ -296,25 +287,33 @@
 
     mostrarValorRecebido();
 
-    function atualizarComprovantes() {
-            const comprovantesList = document.getElementById('comprovantes-list');
+    function atualizarComprovantes(carrinhoId) {
+    fetch(`/buscar-comprovantes-pix/${carrinhoId}`)
+        .then(response => response.json())
+        .then(data => {
+            const comprovantesContainer = document.getElementById('comprovantes-container');
+            comprovantesContainer.innerHTML = '';  // Limpa os comprovantes anteriores
 
-            // Realiza uma requisição para o servidor e busca os comprovantes
-            fetch('/buscar-comprovantes-pix/')
-                .then(response => response.json())
-                .then(data => {
-                    comprovantesList.innerHTML = '';  // Limpa os antigos
-                    data.comprovantes.forEach(comprovante => {
-                        const div = document.createElement('div');
-                        div.innerHTML = `
-                            <p>Comprovante: <img src="/media/comprovantes_pix/${comprovante.arquivo}" alt="Comprovante PIX" style="max-width: 100%; height: auto;" /></p>
+            if (data.comprovantes && data.comprovantes.length > 0) {
+                const comprovante = data.comprovantes[0];  // Pega o último comprovante
+                const imgElement = document.createElement('img');
+                imgElement.src = `/media/comprovantes_pix/${comprovante.arquivo}`;
+                imgElement.alt = "Comprovante PIX";
+                imgElement.style.maxWidth = "100%";
+                imgElement.style.height = "auto";
 
-                        `;
-                        comprovantesList.appendChild(div);
-                    });
-                })
-                .catch(error => console.error('Erro ao buscar comprovantes:', error));
-        }
+                const pElement = document.createElement('p');
+                pElement.innerHTML = `Comprovante: `;
+                pElement.appendChild(imgElement);
+
+                comprovantesContainer.appendChild(pElement);
+            } else {
+                comprovantesContainer.innerHTML = '<p>Não há comprovantes recentes.</p>';
+            }
+        })
+        .catch(error => console.error('Erro ao atualizar comprovantes:', error));
+}
+
 
         // Inicia a exibição de comprovantes ao carregar
         if (document.getElementById('pagamento').value === 'pix') {

@@ -21,6 +21,8 @@ urlpatterns = [
     path('buscar-itens/', views.buscar_itens, name='buscar-itens'),
     path('remover-item-carrinho/<int:item_id>/', views.remover_item_carrinho, name='remover-item-carrinho'),
     path('limpar-carrinho/', views.limpar_carrinho, name='limpar-carrinho'),
-    path('nova-pagina/', views.upload_comprovante, name='nova-pagina'),
-    path('buscar-comprovantes-pix/', views.buscar_comprovantes, name='buscar-comprovantes-pix'),
+    path('painel-mobile/', views.upload_comprovante, name='painel-mobile'),
+    path('buscar-comprovantes-pix/<int:carrinho_id>/', views.buscar_comprovantes, name='buscar-comprovantes-pix'),
+    path('consulta-pontos/', views.consulta_pontos, name='consulta_pontos'),
+    path('registrar-ponto/', views.registrar_ponto, name='registrar-ponto'),
 ]
