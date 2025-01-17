@@ -1,11 +1,8 @@
 {% extends 'base.html' %}
-{% block content %}      
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Painel de Vendas</title>
+   
+{% block title %}Painel de Vendas{% endblock %}
+
+{% block style %}
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -83,8 +80,8 @@
             border: 1px solid #f5c6cb;
         }
     </style>
-</head>
-<body>
+{% endblock %}
+{% block body %}
     <h2>Painel de Vendas</h2>
 
     <!-- Mensagem de alerta (será mostrada dinamicamente com JS) -->
@@ -185,8 +182,9 @@
             </form>
         </div>
     </div>
+{% endblock %}
 
-    <script>
+{% block script %}   
 
         const alertBox = document.getElementById('alert-box');
 
@@ -321,7 +319,4 @@
         if (document.getElementById('pagamento').value === 'pix') {
             atualizarComprovantes();
         }
-    </script>
-</body>
-</html>
 {% endblock %}

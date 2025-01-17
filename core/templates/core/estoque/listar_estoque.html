@@ -1,91 +1,162 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estoque - Papelaria</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            position: relative;
-            min-height: 100vh;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+
+{% block title %}Estoque - Papelaria{% endblock %}
+
+{% block style %}
+
+    .table-container {
+        margin: 20px auto;
+        max-width: 90%;
+    }
+    .form-container {
+        margin-top: 30px;
+        max-width: 500px;
+    }
+    table {
+        width: 100%; /* Faz a tabela ocupar toda a largura */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        font-size: 1.6rem; /* Aumenta o tamanho da fonte */
+    }
+    th, td {
+        vertical-align: middle; /* Centraliza o conteúdo verticalmente */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        padding: 10px; /* Adiciona padding para melhorar a legibilidade */
+    }
+    th {
+        font-weight: bold; /* Negrito nos cabeçalhos */
+    }
+    img {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: cover;
+    }
+
+    @media (max-width: 576px) {
+        img {
+            max-width: 150px;
+            max-height: 150px;
         }
         table {
-            width: 80%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
+            font-size: 1rem; /* Ajusta o tamanho da fonte para telas pequenas */
         }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        img {
-            max-width: 100px;
+        .form-container {
+            width: 250px; /* Menor largura em telas pequenas */
+            left: 50%;
+            transform: translateX(-50%); /* Centraliza a janela horizontalmente */
+            bottom: 10px; /* Distância menor da parte inferior */
         }
         
-        
-    </style>
-</head>
-<body>
-    <button class="login-button" onclick="window.location.href='{% url 'login' %}'">Login</button>
-    <h1>Estoque - Papelaria</h1>
-    <div class="container">
-        <table>
-            <thead>
+    }
+
+    .form-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px; /* Defina a largura que você deseja para a janela */
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: block; /* O formulário ficará visível ao carregar a página */
+        animation: slideUp 0.3s ease-in-out; /* Animação para aparecer */
+    }
+    
+    @keyframes slideUp {
+        0% {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .form-container .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #888;
+        cursor: pointer;
+    }
+    
+    .form-container .close-btn:hover {
+        color: red;
+    }
+
+    .textQuest{
+        font-size: 1.6rem;
+    }
+    
+
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <h1 class="text-center my-4">Estoque - Papelaria</h1>
+
+    <div class="table-container">
+        <table class="table table-striped table-bordered">
+            <thead class="table-primary">
                 <tr>
-                    <th>Foto</th>
-                    <th>Nome</th>
-                    <th>Descrição</th>
-                    <th>Valor</th>
-                    <th>Quantidade</th>
+                    <th scope="col">Foto</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Valor</th>
+                    <th scope="col">Quantidade</th>
                 </tr>
             </thead>
             <tbody>
                 {% for item in itens %}
                 <tr>
-                    <td><img src="{{ item.foto.url }}" alt="{{ item.nome }}"></td>
+                    <td><img src="{{ item.foto.url }}" alt="{{ item.nome }}" class="img-thumbnail"></td>
                     <td>{{ item.nome }}</td>
-                    <td>{{ item.descricao }}</td>
                     <td>R$ {{ item.valor }}</td>
                     <td>{{ item.quantidade }}</td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="5">Nenhum item disponível no estoque.</td>
+                    <td colspan="5" class="text-center">Nenhum item disponível no estoque.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <div class="form-container">
-        <h2>Cadastre-se</h2>
+    <div class="form-container" id="formContainer">
+        <button class="close-btn" id="closeForm">&times;</button>
+        <h2 class="text-center mb-3 textQuest">Cadastre-se para receber promoções exclusivas da papelaria e comunicados do DCE!!!</h2>
         <form method="POST" action="{% url 'cadastrar-cliente' %}">
             {% csrf_token %}
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" required>
+            <div class="mb-3">
+                <label for="nome" class="form-label">Nome:</label>
+                <input type="text" id="nome" name="nome" class="form-control" required>
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" required>
+            <div class="mb-3">
+                <label for="email" class="form-label">Email:</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
 
-            <label for="telefone">Telefone:</label>
-            <input type="tel" id="telefone" name="telefone" required>
+            <div class="mb-3">
+                <label for="telefone" class="form-label">Telefone:</label>
+                <input type="tel" id="telefone" name="telefone" class="form-control" required>
+            </div>
 
-            <button type="submit">Cadastrar</button>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary">Cadastrar</button>
+            </div>
         </form>
     </div>
-</body>
-</html>
+</div>
+{% endblock %}
+
+
+{% block script %}
+    document.getElementById("closeForm").onclick = function() {
+        document.getElementById("formContainer").style.display = "none";
+    };
 {% endblock %}

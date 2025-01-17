@@ -50,6 +50,8 @@ class Carrinho(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Atualiza para usar o modelo de usuário configurado
     ativo = models.BooleanField(default=True)
     comprovante_pix = models.ImageField(upload_to='comprovantes_pix/', null=True, blank=True)
+    data_venda = models.DateTimeField(null=True, blank=True)  # Data e hora da venda
+    valor_total = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Valor total da venda
 
     def __str__(self):
         return f"Carrinho de {self.user.username}"

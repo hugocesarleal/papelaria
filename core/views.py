@@ -1,44 +1,69 @@
+from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
+from django.contrib.auth.decorators import login_required, user_passes_test
+from .forms import ItemEstoqueForm, ClienteForm, CustomUserCreationForm
+from django.contrib.auth import get_user_model, logout as auth_logout
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib import messages
-from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
-from .models import CustomUser
-from django.contrib.auth import get_user_model
-from .forms import CustomUserCreationForm
-from django.contrib.auth.decorators import user_passes_test
-from .models import ItemEstoque
-from .forms import ItemEstoqueForm
-from django.conf import settings
-import os
-from .models import Cliente 
-from django.http import HttpResponseRedirect
-from .forms import ClienteForm
-from django.core.mail import send_mail
-from django.core.mail import EmailMessage
-from .models import ItemEstoque, Carrinho, ItemCarrinho
-from django.db.models import F
-from django.db import transaction
-from django.http import JsonResponse
-from user_agents import parse
 from django.core.files.storage import FileSystemStorage
-from datetime import datetime, date
-from django.utils.timezone import now
-from .models import Carrinho
+from django.core.mail import send_mail, EmailMessage
+from django.contrib.auth import authenticate, login
 from django.utils.dateparse import parse_datetime
+from datetime import datetime, date, timedelta
+from django.utils.dateparse import parse_date
+from django.utils.timezone import now
+from django.contrib import messages
+from django.db import transaction
 from django.utils import timezone
-from .models import RegistroPonto, Configuracao
-from core.models import CustomUser
-from datetime import timedelta
-from django.http import HttpResponseForbidden
-from django.contrib.auth import logout
+from django.conf import settings
+from django.db.models import F
+from django.db.models import Q
+from user_agents import parse
+from decimal import Decimal
+import os
 
 def custom_logout(request):
-    logout(request)  # Isso faz o logout do usuário
+    request.session.flush()
+    auth_logout(request)  # Isso faz o logout do usuário
     return redirect('login')
 
 def is_admin(user):
     return user.is_staff
+
+@user_passes_test(is_admin)
+def vendas_admin(request):
+    # Filtros básicos
+    filtros = Q()
+    data_inicial = request.GET.get('data_inicial')
+    data_final = request.GET.get('data_final')
+    usuario = request.GET.get('usuario')
+    item = request.GET.get('item')
+
+    # Aplicando filtro por data
+    if data_inicial:
+        filtros &= Q(data_venda__date__gte=parse_date(data_inicial))
+    if data_final:
+        filtros &= Q(data_venda__date__lte=parse_date(data_final))
+
+    # Aplicando filtro por usuário
+    if usuario:
+        filtros &= Q(user__username__icontains=usuario)
+
+    # Aplicando filtro por item vendido
+    if item:
+        filtros &= Q(itens__item_estoque__nome__icontains=item)
+
+    # Obtendo as vendas filtradas
+    vendas = Carrinho.objects.filter(filtros, ativo=False).distinct()
+
+    return render(request, 'core/vendas_admin.html', {
+        'vendas': vendas,
+        'filtros_aplicados': {
+            'data_inicial': data_inicial,
+            'data_final': data_final,
+            'usuario': usuario,
+            'item': item,
+        },
+    })
 
 @user_passes_test(is_admin)
 def consulta_pontos(request):
@@ -244,8 +269,19 @@ def concluir_venda(request):
     carrinho = Carrinho.objects.get(user=request.user, ativo=True)
 
     if request.method == "POST":
-        # Aqui você pode processar a venda
+        # Recebendo as informações de pagamento do formulário
+        valor_recebido = request.POST.get('valor_recebido', None)  # Valor recebido em dinheiro
+        comprovante_pix = carrinho.comprovante_pix  # Comprovante PIX
+
+        try:
+            valor_recebido = Decimal(valor_recebido) if valor_recebido else None
+        except:
+            valor_recebido = None  # Valor inválido ou não fornecido
+
         with transaction.atomic():  # Garante que todas as operações sejam atômicas
+            # Calcula o valor total da venda
+            valor_total = sum(item.total() for item in carrinho.itens.all())
+
             for item_carrinho in carrinho.itens.all():
                 item_estoque = item_carrinho.item_estoque
                 quantidade_vendida = item_carrinho.quantidade
@@ -261,10 +297,19 @@ def concluir_venda(request):
                         'quantidade': quantidade_vendida
                     })
 
-            # Após concluir a venda, você pode marcar o carrinho como inativo
+            # Salva as informações da venda no carrinho
             carrinho.ativo = False
-            print(carrinho.comprovante_pix)
+            carrinho.valor_recebido = valor_recebido
+            print(comprovante_pix)
+            carrinho.comprovante_pix = comprovante_pix
+            carrinho.data_venda = now()  # Data e hora da venda
+            carrinho.valor_total = valor_total
             carrinho.save()
+
+            # Opcional: Você pode criar registros históricos detalhados da venda
+            for item_carrinho in carrinho.itens.all():
+                item_carrinho.venda = carrinho  # Associa o item ao carrinho (se necessário)
+                item_carrinho.save()
 
             return redirect('painel-vendas')  # Ou para onde você quiser redirecionar após a venda ser concluída
 
@@ -454,8 +499,6 @@ def user_dashboard(request):
 
 @user_passes_test(is_admin)
 def listar_estoque_admin(request):
-    if not request.user.is_staff:
-        return redirect('user-dashboard')
     itens = ItemEstoque.objects.all()
     return render(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens})
 

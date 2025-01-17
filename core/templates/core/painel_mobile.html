@@ -1,12 +1,9 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <title>Upload de Foto</title>
-</head>
-<body>
+
+{% block title %}Upload de Foto{% endblock %}
+
+{% block body %}
+
     <h1>Envie uma Foto</h1>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -14,7 +11,5 @@
         <input type="file" accept="image/*" capture="camera" name="imagem">
         <button type="submit">Enviar Foto</button>
     </form>
-</body>
-</html>
 
 {% endblock %}
