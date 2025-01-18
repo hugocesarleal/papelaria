@@ -2,7 +2,16 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 from .models import ItemEstoque
-from .models import Cliente
+from .models import Cliente, Aviso
+
+class AvisoForm(forms.ModelForm):
+    class Meta:
+        model = Aviso
+        fields = ['texto', 'data_inicio', 'data_fim']
+        widgets = {
+            'data_inicio': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+            'data_fim': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
 
 class ClienteForm(forms.ModelForm):
     class Meta:

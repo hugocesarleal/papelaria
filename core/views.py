@@ -1,7 +1,7 @@
-from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser
+from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso, AvisoVisualizado
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import ItemEstoqueForm, ClienteForm, CustomUserCreationForm
+from .forms import ItemEstoqueForm, ClienteForm, CustomUserCreationForm, AvisoForm
 from django.contrib.auth import get_user_model, logout as auth_logout
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.files.storage import FileSystemStorage
@@ -30,39 +30,46 @@ def is_admin(user):
     return user.is_staff
 
 @user_passes_test(is_admin)
+def criar_aviso(request):
+    if request.method == 'POST':
+        form = AvisoForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('admin-dashboard')  # Redirecionar após a criação
+    else:
+        form = AvisoForm()
+
+    return render(request, 'core/criar_aviso.html', {'form': form})
+
+@user_passes_test(is_admin)
 def vendas_admin(request):
+
+    if 'limpar_filtros' in request.GET:
+        return redirect('vendas-admin')
     # Filtros básicos
-    filtros = Q()
-    data_inicial = request.GET.get('data_inicial')
-    data_final = request.GET.get('data_final')
-    usuario = request.GET.get('usuario')
-    item = request.GET.get('item')
+    data_inicial = request.GET.get('data_inicial', None)
+    data_final = request.GET.get('data_final', None)
+    usuario = request.GET.get('usuario', None)
 
     # Aplicando filtro por data
-    if data_inicial:
-        filtros &= Q(data_venda__date__gte=parse_date(data_inicial))
-    if data_final:
-        filtros &= Q(data_venda__date__lte=parse_date(data_final))
+    vendas = Carrinho.objects.all()
 
-    # Aplicando filtro por usuário
     if usuario:
-        filtros &= Q(user__username__icontains=usuario)
+        vendas = vendas.filter(user=usuario)
 
-    # Aplicando filtro por item vendido
-    if item:
-        filtros &= Q(itens__item_estoque__nome__icontains=item)
+    if data_inicial:
+        vendas = vendas.filter(data_venda__gte=data_inicial)
 
-    # Obtendo as vendas filtradas
-    vendas = Carrinho.objects.filter(filtros, ativo=False).distinct()
+    if data_final:
+        vendas = vendas.filter(data_venda__lte=data_final)
+
+    vendas = vendas.order_by('-data_venda')
+
+    usuarios = CustomUser.objects.all()
 
     return render(request, 'core/vendas_admin.html', {
         'vendas': vendas,
-        'filtros_aplicados': {
-            'data_inicial': data_inicial,
-            'data_final': data_final,
-            'usuario': usuario,
-            'item': item,
-        },
+        'usuarios': usuarios,
     })
 
 @user_passes_test(is_admin)
@@ -550,7 +557,11 @@ def remover_item(request, pk):
 
 def listar_estoque(request):
     itens = ItemEstoque.objects.all()
-    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens})
+
+    agora = timezone.now()
+    avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
+
+    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
 
 @login_required
 def remover_item_carrinho(request, item_id):

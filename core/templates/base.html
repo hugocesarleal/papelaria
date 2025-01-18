@@ -15,6 +15,7 @@
     <script src="{% static 'js/jquery-3.5.1.min.js' %}"></script>
     <script src="{% static 'js/popper.min.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/toastr.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <style>
@@ -141,12 +142,54 @@
     </div>
 
     <script>
+        
         function handleUserClick() {
             const dropdown = document.getElementById("dropdown-menu");
             dropdown.classList.toggle("show");
         }
         {% block script %}
         {% endblock %}
+        
+        $(document).ready(function () {
+            toastr.options = {
+                "closeButton": true,
+                "debug": false,
+                "newestOnTop": true,
+                "progressBar": true,
+                "positionClass": "toast-top-right",
+                "preventDuplicates": false,
+                "onclick": null,
+                "showDuration": "300",
+                "hideDuration": "1000",
+                "timeOut": "5000",
+                "extendedTimeOut": "1000",
+                "showEasing": "swing",
+                "hideEasing": "linear",
+                "showMethod": "fadeIn",
+                "hideMethod": "fadeOut"
+            };
+
+            {% if messages %}
+                {% for message in messages %}
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                        toastr.error("{{ message }}", "Erro");
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                        toastr.success("{{ message }}", "Sucesso");
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
+                        toastr.warning("{{ message }}", "Aviso");
+                    {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
+                        toastr.info("{{ message }}", "Atenção");
+                    {% endif %}
+                {% endfor %}
+            {% endif %}
+
+            $(document).ready(function() {
+                $('#btnEsqueciSenha').click(function(event) {
+                    event.preventDefault();
+                    toastr.info('Se você esqueceu sua senha contate o administrador do sistema.');
+                });
+            });
+        });
     </script>
 </body>
 </html>

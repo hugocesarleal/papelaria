@@ -27,4 +27,5 @@ urlpatterns = [
     path('registrar-ponto/', views.registrar_ponto, name='registrar-ponto'),
     path('base/', views.base, name='base'),
     path('vendas-admin/', views.vendas_admin, name='vendas-admin'),
+    path('criar-aviso/', views.criar_aviso, name='criar-aviso'),
 ]
