@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Adicionar Item</title>
-    <style>
+
+{% block title %}Adicionar Item{% endblock %}
+
+{% block style %}
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
@@ -34,9 +30,9 @@
         button:hover {
             background-color: #45a049;
         }
-    </style>
-</head>
-<body>
+{% endblock %}
+
+{% block body %}
     <h1>Adicionar Item ao Estoque</h1>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -44,6 +40,4 @@
         <button type="submit">Salvar</button>
     </form>
     <a href="{% url 'listar-estoque-admin' %}">Voltar para Estoque</a>
-</body>
-</html>
 {% endblock %}

@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Remover Item</title>
-    <style>
+
+{% block title %}Remover Item{% endblock %}
+
+{% block style %}
         body {
             font-family: Arial, sans-serif;
             text-align: center;
@@ -33,9 +29,9 @@
         .btn-cancel:hover {
             background-color: #45a049;
         }
-    </style>
-</head>
-<body>
+{% endblock %}
+
+{% block body %}
     <h1>Remover Item</h1>
     <p>Tem certeza de que deseja remover o item <strong>"{{ item.nome }}"</strong>?</p>
     <form method="POST">
@@ -43,6 +39,4 @@
         <button type="submit" class="btn-confirm">Sim, remover</button>
     </form>
     <a href="{% url 'listar-estoque-admin' %}" class="btn-cancel">Cancelar</a>
-</body>
-</html>
 {% endblock %}

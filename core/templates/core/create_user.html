@@ -1,13 +1,8 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Novo Usuário</title>
-</head>
-<body>
+
+{% block title %}Cadastrar Novo Usuário{% endblock %}
+
+{% block body %}
     <h2>Cadastrar Novo Usuário</h2>
     <form method="POST">
         {% csrf_token %}
@@ -15,7 +10,4 @@
         <button type="submit">Cadastrar</button>
     </form>
     <a href="{% url 'admin-dashboard' %}">Voltar ao painel</a>
-</body>
-</html>
-
 {% endblock %}

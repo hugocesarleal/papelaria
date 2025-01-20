@@ -1,13 +1,8 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lista de Usuários</title>
-</head>
-<body>
+
+{% block title %}Lista de Usuários{% endblock %}
+
+{% block body %}
     <h2>Lista de Usuários</h2>
     <ul>
         {% for user in users %}
@@ -16,7 +11,4 @@
     </ul>
     <a href="{% url 'create-user' %}">Cadastrar Novo Usuário</a>
     <a href="{% url 'admin-dashboard' %}">Voltar ao painel</a>
-</body>
-</html>
-
 {% endblock %}

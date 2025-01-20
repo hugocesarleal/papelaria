@@ -21,6 +21,12 @@ from user_agents import parse
 from decimal import Decimal
 import os
 
+
+
+
+def teste(request):
+    return render(request, 'core/teste.html')
+
 def custom_logout(request):
     request.session.flush()
     auth_logout(request)  # Isso faz o logout do usuário
@@ -396,10 +402,20 @@ def cadastrar_cliente(request):
     if request.method == 'POST':
         form = ClienteForm(request.POST)
         if form.is_valid():
+            # Salva os dados do cliente no banco
             form.save()
-            return redirect('listar-estoque')  # Volta para a página de estoque
+
+            # Define o cookie "email_cadastrado" para garantir que o formulário não será mostrado novamente
+            response = redirect('listar-estoque')  # Volta para a página de estoque
+
+            # Define o cookie "email_cadastrado" por 1 ano
+            response.set_cookie('email_cadastrado', 'true', max_age=60*60*24*365)
+            messages.success(request, 'Cliente cadastrado com sucesso!')
+            return response
     else:
         form = ClienteForm()
+    
+    # Renderiza a página com o formulário
     return render(request, 'core/estoque/listar_estoque.html', {'form': form})
 
 @user_passes_test(is_admin)

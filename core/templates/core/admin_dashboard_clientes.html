@@ -1,59 +1,55 @@
 {% extends 'base.html' %}
-{% block content %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Clientes</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        h2, h3 {
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #ddd;
-            padding: 8px;
-            text-align: left;
-        }
-        th {
-            background-color: #f4f4f4;
-        }
-        form {
-            border: 1px solid #ddd;
-            padding: 20px;
-        }
-        form input, form textarea, form button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-        }
-        form button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-        }
-        form button:hover {
-            background-color: #45a049;
-        }
-        a {
-            display: inline-block;
-            margin-top: 20px;
-            color: #007BFF;
-        }
-    </style>
-</head>
-<body>
+
+{% block title %}Gerenciar Clientes{% endblock %}
+
+{% block style %}
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    h2, h3 {
+        color: #333;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px;
+    }
+    th, td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    th {
+        background-color: #f4f4f4;
+    }
+    form {
+        border: 1px solid #ddd;
+        padding: 20px;
+    }
+    form input, form textarea, form button {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+    form button {
+        background-color: #4CAF50;
+        color: white;
+        border: none;
+    }
+    form button:hover {
+        background-color: #45a049;
+    }
+    a {
+        display: inline-block;
+        margin-top: 20px;
+        color: #007BFF;
+    }
+{% endblock %}
+
+{% block body%}
     <h2>Gerenciar Clientes</h2>
     <h3>Clientes Cadastrados</h3>
     <table>
@@ -96,6 +92,4 @@
     
 
     <a href="{% url 'admin-dashboard' %}">Voltar ao Painel de Admin</a>
-</body>
-</html>
 {% endblock %}    

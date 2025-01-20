@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-ir1$e_(r&7pymw=mxpv902pfoxspyz+ncub^5^#c@0i!dmmo_r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.96","127.0.0.1","10.60.62.1","10.60.83.134","10.60.62.197"]
+ALLOWED_HOSTS = ["192.168.1.96","127.0.0.1","10.60.62.1","10.60.83.134","10.60.62.197","192.168.128.153"]
 
 ALLOWED_IP = ["127.0.0.1","10.60.61.223"]
 
@@ -177,11 +177,17 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
+EMAIL_HOST_2 = "pop.gmail.com"  # Substitua pelo servidor IMAP do seu provedor
+EMAIL_PORT_2 = 995
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER_2 = os.getenv('EMAIL_HOST_USER_2')
+EMAIL_HOST_PASSWORD_2 = os.getenv('EMAIL_HOST_PASSWORD_2')
 
 from decouple import config
 
 EMAIL_HOST_USER = config('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST_USER_2 = config('EMAIL_HOST_USER_2')
+EMAIL_HOST_PASSWORD_2 = config('EMAIL_HOST_PASSWORD_2')

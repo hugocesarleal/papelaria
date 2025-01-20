@@ -1,12 +1,8 @@
 {% extends 'base.html' %}
-{% block body %}
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Pontos</title>
-    <style>
+
+{% block title %}Consulta de Pontos{% endblock %}
+
+{% block style %}
         /* Estilos gerais */
         body {
             font-family: Arial, sans-serif;
@@ -113,18 +109,12 @@
         .limpar-filtros:hover {
             background-color: #5a6268;
         }
-    </style>
+{% endblock %}
 
     <!-- Importando a biblioteca de máscara -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const valorHoraInput = document.getElementById('valor_hora');
-            Inputmask('currency', { prefix: 'R$ ', groupSeparator: '.', alias: 'numeric', rightAlign: false }).mask(valorHoraInput);
-        });
-    </script>
-</head>
-<body>
+    
+
+{% block body %}
     <h1>Consulta de Registros de Ponto</h1>
 
     <form method="GET" action="">
@@ -195,7 +185,15 @@
     {% else %}
         <p style="text-align: center;">Nenhum registro encontrado para os filtros aplicados.</p>
     {% endif %}
-</body>
-</html>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>
+{% endblock %}
+
+{% block script %}
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const valorHoraInput = document.getElementById('valor_hora');
+        Inputmask('currency', { prefix: 'R$ ', groupSeparator: '.', alias: 'numeric', rightAlign: false }).mask(valorHoraInput);
+    });
 
 {% endblock %}
