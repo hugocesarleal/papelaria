@@ -20,9 +20,9 @@ from django.db.models import Q
 from user_agents import parse
 from decimal import Decimal
 import os
-
-
-
+from django.conf.urls.static import static
+from django.contrib.auth import update_session_auth_hash
+from .forms import NovoPasswordForm
 
 def teste(request):
     return render(request, 'core/teste.html')
@@ -294,35 +294,35 @@ def concluir_venda(request):
         with transaction.atomic():  # Garante que todas as operações sejam atômicas
             # Calcula o valor total da venda
             valor_total = sum(item.total() for item in carrinho.itens.all())
+            if valor_total != 0:
+                for item_carrinho in carrinho.itens.all():
+                    item_estoque = item_carrinho.item_estoque
+                    quantidade_vendida = item_carrinho.quantidade
 
-            for item_carrinho in carrinho.itens.all():
-                item_estoque = item_carrinho.item_estoque
-                quantidade_vendida = item_carrinho.quantidade
+                    # Verifica se há estoque suficiente
+                    if item_estoque.quantidade >= quantidade_vendida:
+                        item_estoque.quantidade -= quantidade_vendida
+                        item_estoque.save()
+                    else:
+                        # Se não houver estoque suficiente, pode lançar um erro ou informar ao usuário
+                        return render(request, 'core/erro_estoque.html', {
+                            'item': item_estoque,
+                            'quantidade': quantidade_vendida
+                        })
 
-                # Verifica se há estoque suficiente
-                if item_estoque.quantidade >= quantidade_vendida:
-                    item_estoque.quantidade -= quantidade_vendida
-                    item_estoque.save()
-                else:
-                    # Se não houver estoque suficiente, pode lançar um erro ou informar ao usuário
-                    return render(request, 'core/erro_estoque.html', {
-                        'item': item_estoque,
-                        'quantidade': quantidade_vendida
-                    })
+                # Salva as informações da venda no carrinho
+                carrinho.ativo = False
+                carrinho.valor_recebido = valor_recebido
+                print(comprovante_pix)
+                carrinho.comprovante_pix = comprovante_pix
+                carrinho.data_venda = now()  # Data e hora da venda
+                carrinho.valor_total = valor_total
+                carrinho.save()
 
-            # Salva as informações da venda no carrinho
-            carrinho.ativo = False
-            carrinho.valor_recebido = valor_recebido
-            print(comprovante_pix)
-            carrinho.comprovante_pix = comprovante_pix
-            carrinho.data_venda = now()  # Data e hora da venda
-            carrinho.valor_total = valor_total
-            carrinho.save()
-
-            # Opcional: Você pode criar registros históricos detalhados da venda
-            for item_carrinho in carrinho.itens.all():
-                item_carrinho.venda = carrinho  # Associa o item ao carrinho (se necessário)
-                item_carrinho.save()
+                # Opcional: Você pode criar registros históricos detalhados da venda
+                for item_carrinho in carrinho.itens.all():
+                    item_carrinho.venda = carrinho  # Associa o item ao carrinho (se necessário)
+                    item_carrinho.save()
 
             return redirect('painel-vendas')  # Ou para onde você quiser redirecionar após a venda ser concluída
 
@@ -331,72 +331,77 @@ def concluir_venda(request):
 @login_required
 def painel_vendas(request):
     # Obtém ou cria o carrinho ativo do usuário
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    user_agent_parsed = parse(user_agent)
+    user = request.user
 
-    # Verifica se o usuário está acessando pelo celular
-    if user_agent_parsed.is_mobile:
-        # Redireciona para a nova página para dispositivos móveis
-        return redirect('painel-mobile')
+    if user.primeiro_acesso:
+        return redirect('trocar-senha')
+    else:
+        user_agent = request.META.get('HTTP_USER_AGENT', '')
+        user_agent_parsed = parse(user_agent)
 
-    # Carrega ou cria o carrinho ativo do usuário
-    carrinho, created = Carrinho.objects.get_or_create(user=request.user, ativo=True)
-    itens_estoque = ItemEstoque.objects.all()
+        # Verifica se o usuário está acessando pelo celular
+        if user_agent_parsed.is_mobile:
+            # Redireciona para a nova página para dispositivos móveis
+            return redirect('painel-mobile')
 
-    # Inicializa o total do carrinho
-    total = sum(float(item_carrinho.total()) for item_carrinho in carrinho.itens.all())
+        # Carrega ou cria o carrinho ativo do usuário
+        carrinho, created = Carrinho.objects.get_or_create(user=request.user, ativo=True)
+        itens_estoque = ItemEstoque.objects.all()
 
-    # Armazena o timestamp de carregamento da página na sessão
-    if 'page_load_time' not in request.session:
-        request.session['page_load_time'] = now().isoformat()
+        # Inicializa o total do carrinho
+        total = sum(float(item_carrinho.total()) for item_carrinho in carrinho.itens.all())
 
-    # Exibe comprovantes se PIX for selecionado
-    comprovantes = []
-    if request.method == "POST" and request.POST.get("pagamento") == "pix":
-        page_load_time = request.session.get('page_load_time')
-        if page_load_time:
-            page_load_time = now().fromisoformat(page_load_time)
-            fs = FileSystemStorage(location='media/comprovantes_pix/')
-            for filename in fs.listdir('')[1]:  # fs.listdir retorna (diretórios, arquivos)
-                if filename.startswith(request.user.username) and os.path.getmtime(fs.path(filename)) >= page_load_time.timestamp():
-                    comprovantes.append(fs.url(filename))
+        # Armazena o timestamp de carregamento da página na sessão
+        if 'page_load_time' not in request.session:
+            request.session['page_load_time'] = now().isoformat()
 
-    # Processa a adição de itens ao carrinho
-    if request.method == "POST" and request.POST.get("item"):
-        item_nome = request.POST.get("item")
-        quantidade = int(request.POST.get("quantidade", 0))
-        
-        # Valida o item no estoque
-        try:
-            item = ItemEstoque.objects.get(nome=item_nome)
-        except ItemEstoque.DoesNotExist:
-            messages.error(request, "O item não foi encontrado no estoque.")
+        # Exibe comprovantes se PIX for selecionado
+        comprovantes = []
+        if request.method == "POST" and request.POST.get("pagamento") == "pix":
+            page_load_time = request.session.get('page_load_time')
+            if page_load_time:
+                page_load_time = now().fromisoformat(page_load_time)
+                fs = FileSystemStorage(location='media/comprovantes_pix/')
+                for filename in fs.listdir('')[1]:  # fs.listdir retorna (diretórios, arquivos)
+                    if filename.startswith(request.user.username) and os.path.getmtime(fs.path(filename)) >= page_load_time.timestamp():
+                        comprovantes.append(fs.url(filename))
+
+        # Processa a adição de itens ao carrinho
+        if request.method == "POST" and request.POST.get("item"):
+            item_nome = request.POST.get("item")
+            quantidade = int(request.POST.get("quantidade", 0))
+            
+            # Valida o item no estoque
+            try:
+                item = ItemEstoque.objects.get(nome=item_nome)
+            except ItemEstoque.DoesNotExist:
+                messages.error(request, "O item não foi encontrado no estoque.")
+                return redirect('painel-vendas')
+
+            # Verifica estoque
+            if item.quantidade < quantidade:
+                messages.error(request, "Quantidade insuficiente no estoque.")
+                return redirect('painel-vendas')
+
+            # Adiciona ao carrinho
+            item_carrinho, created = ItemCarrinho.objects.get_or_create(
+                carrinho=carrinho,
+                item_estoque=item,
+                defaults={'quantidade': quantidade, 'preco_unitario': item.valor}
+            )
+            if not created:
+                item_carrinho.quantidade += quantidade
+                item_carrinho.save()
+
+            messages.success(request, f"{item.nome} foi adicionado ao carrinho.")
             return redirect('painel-vendas')
 
-        # Verifica estoque
-        if item.quantidade < quantidade:
-            messages.error(request, "Quantidade insuficiente no estoque.")
-            return redirect('painel-vendas')
-
-        # Adiciona ao carrinho
-        item_carrinho, created = ItemCarrinho.objects.get_or_create(
-            carrinho=carrinho,
-            item_estoque=item,
-            defaults={'quantidade': quantidade, 'preco_unitario': item.valor}
-        )
-        if not created:
-            item_carrinho.quantidade += quantidade
-            item_carrinho.save()
-
-        messages.success(request, f"{item.nome} foi adicionado ao carrinho.")
-        return redirect('painel-vendas')
-
-    return render(request, 'core/painel_vendas.html', {
-        'itens_estoque': itens_estoque,
-        'carrinho': carrinho,
-        'total': total,
-        'comprovantes': comprovantes,
-    })
+        return render(request, 'core/painel_vendas.html', {
+            'itens_estoque': itens_estoque,
+            'carrinho': carrinho,
+            'total': total,
+            'comprovantes': comprovantes,
+        })
 
 def cadastrar_cliente(request):
     if request.method == 'POST':
@@ -483,8 +488,6 @@ def admin_dashboard(request):
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
-    if not request.user.is_staff:
-        return redirect('user-dashboard')
 
     clientes = Cliente.objects.all()
 
@@ -523,6 +526,7 @@ def user_dashboard(request):
 @user_passes_test(is_admin)
 def listar_estoque_admin(request):
     itens = ItemEstoque.objects.all()
+    
     return render(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens})
 
 @user_passes_test(is_admin)
@@ -571,13 +575,41 @@ def remover_item(request, pk):
 
     return render(request, 'core/estoque/remover_item.html', {'item': item})
 
+@login_required
+def trocar_senha(request):
+    user = request.user
+    if user.primeiro_acesso:  # Verifica se é o primeiro acesso
+        if request.method == 'POST':
+            form = NovoPasswordForm(user, request.POST)
+            if form.is_valid():
+                form.save()  # Salva a nova senha
+                user.primeiro_acesso = False  # Marca como false após a troca de senha
+                user.save()  # Salva o usuário com a nova informação
+                update_session_auth_hash(request, user)  # Atualiza a sessão
+                messages.success(request, 'Senha alterada com sucesso!')
+                return redirect('listar-estoque')  # Redireciona para a página de sua escolha
+            else:
+                messages.error(request, 'Por favor, corrija os erros abaixo.')
+        else:
+            form = NovoPasswordForm(user)
+
+        return render(request, 'core/trocar_senha.html', {'form': form})
+
+    else:
+        return redirect('listar-estoque')  # Se não for primeiro acesso, redireciona para outra página
+
 def listar_estoque(request):
     itens = ItemEstoque.objects.all()
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    user_agent_parsed = parse(user_agent)
+    is_mobile = user_agent_parsed.is_mobile
 
-    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
+    base_template = 'base_mobile.html' if is_mobile else 'base.html'
+    
+    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_template})
 
 @login_required
 def remover_item_carrinho(request, item_id):

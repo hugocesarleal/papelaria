@@ -91,6 +91,7 @@ class Cliente(models.Model):
 
 class CustomUser(AbstractUser):
     is_admin = models.BooleanField(default=False)
+    primeiro_acesso = models.BooleanField(default=True)
 
     def __str__(self):
         return self.username

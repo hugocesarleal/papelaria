@@ -26,9 +26,9 @@ SECRET_KEY = "django-insecure-ir1$e_(r&7pymw=mxpv902pfoxspyz+ncub^5^#c@0i!dmmo_r
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["192.168.1.96","127.0.0.1","10.60.62.1","10.60.83.134","10.60.62.197","192.168.128.153"]
+ALLOWED_HOSTS = ["192.168.1.96","127.0.0.1","10.60.62.1","10.60.83.134","10.60.62.197","192.168.128.153","10.60.60.78","10.60.62.213","10.60.60.152"]
 
-ALLOWED_IP = ["127.0.0.1","10.60.61.223"]
+ALLOWED_IP = ["127.0.0.1","10.60.61.223","192.168.1.73"]
 
 # Application definition
 
@@ -53,7 +53,7 @@ MIDDLEWARE = [
     "config.middleware.NoCacheMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    
+    'config.middleware.DeviceDetectionMiddleware',
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -148,10 +148,8 @@ STATICFILES_FINDERS = [
 ]
 
 
-STATIC_URL = "/static/"
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "resources/static/"),
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 
 # Default primary key field type

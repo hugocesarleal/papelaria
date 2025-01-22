@@ -13,15 +13,24 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+print("Iniciando URLs")
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include  # Importando 'include' corretamente
+from django.views.static import serve
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('core.urls')),
+    path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+try:
+    media_patterns = static('/media/', document_root=r"C:\Users\Hugo\Desktop\django\papelaria\media")
+    print("Media Patterns:", media_patterns)
+except Exception as e:
+    print("Erro ao gerar media patterns:", str(e))
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+

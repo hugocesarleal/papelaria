@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_mobile.html' %}
 
 {% block title %}Registro de Ponto{% endblock %}
 
@@ -48,23 +48,8 @@
         .table th {
             background-color: #f8f9fa;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        ul li {
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 4px;
-        }
-        .success {
-            background-color: #d4edda;
-            color: #155724;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-        }
+        
+        
 {% endblock %}
 
 {% block body %}
@@ -87,15 +72,7 @@
                 <button type="submit" name="entrada" class="btn btn-primary">Registrar Entrada</button>
             {% endif %}
         </form>
-
-        <!-- Mensagens -->
-        {% if messages %}
-            <ul>
-                {% for message in messages %}
-                    <li class="{{ message.tags }}">{{ message }}</li>
-                {% endfor %}
-            </ul>
-        {% endif %}
+        
 
         <!-- Lista de Registros -->
         <h3>Seus Registros</h3>

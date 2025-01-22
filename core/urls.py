@@ -1,6 +1,8 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.conf import settings
+from django.conf.urls.static import static
 
 
 urlpatterns = [
@@ -29,4 +31,5 @@ urlpatterns = [
     path('vendas-admin/', views.vendas_admin, name='vendas-admin'),
     path('criar-aviso/', views.criar_aviso, name='criar-aviso'),
     path('teste/', views.teste, name='teste'),
+    path('trocar-senha/', views.trocar_senha, name='trocar-senha'),
 ]

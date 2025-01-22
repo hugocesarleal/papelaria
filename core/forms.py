@@ -3,6 +3,13 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import CustomUser
 from .models import ItemEstoque
 from .models import Cliente, Aviso
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import SetPasswordForm
+
+class NovoPasswordForm(SetPasswordForm):
+    class Meta:
+        model = User
+        fields = ['new_password1', 'new_password2']
 
 class AvisoForm(forms.ModelForm):
     class Meta:
@@ -30,7 +37,8 @@ class ItemEstoqueForm(forms.ModelForm):
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)
     is_admin = forms.BooleanField(required=False, initial=False)
+    primeiro_acesso = forms.BooleanField(required=False, initial=True)
 
     class Meta:
         model = CustomUser
-        fields = ('username', 'email', 'password1', 'password2', 'is_admin')
+        fields = ('username', 'email', 'password1', 'password2', 'is_admin', 'primeiro_acesso')
