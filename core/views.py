@@ -24,6 +24,14 @@ from django.conf.urls.static import static
 from django.contrib.auth import update_session_auth_hash
 from .forms import NovoPasswordForm
 
+def base_test(request):
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+    user_agent_parsed = parse(user_agent)
+    is_mobile = user_agent_parsed.is_mobile
+    base_template = 'base_mobile.html' if is_mobile else 'base.html'
+
+    return base_template
+
 def teste(request):
     return render(request, 'core/teste.html')
 
@@ -415,13 +423,13 @@ def cadastrar_cliente(request):
 
             # Define o cookie "email_cadastrado" por 1 ano
             response.set_cookie('email_cadastrado', 'true', max_age=60*60*24*365)
-            messages.success(request, 'Cliente cadastrado com sucesso!')
+            messages.success(request, "Cadastro feito com sucesso!")
             return response
     else:
         form = ClienteForm()
-    
-    # Renderiza a página com o formulário
-    return render(request, 'core/estoque/listar_estoque.html', {'form': form})
+      
+    response = redirect('listar-estoque')
+    return response
 
 @user_passes_test(is_admin)
 def user_list(request):
@@ -440,10 +448,6 @@ def create_user(request):
         form = CustomUserCreationForm()
 
     return render(request, 'core/create_user.html', {'form': form})
-
-def base(request):
-    return render(request, 'core/base.html')
-
 
 def login_view(request):
     if request.method == "POST":
@@ -599,17 +603,12 @@ def trocar_senha(request):
         return redirect('listar-estoque')  # Se não for primeiro acesso, redireciona para outra página
 
 def listar_estoque(request):
-    itens = ItemEstoque.objects.all()
+    itens = ItemEstoque.objects.all().order_by('nome')
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    user_agent_parsed = parse(user_agent)
-    is_mobile = user_agent_parsed.is_mobile
-
-    base_template = 'base_mobile.html' if is_mobile else 'base.html'
     
-    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_template})
+    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_test(request)})
 
 @login_required
 def remover_item_carrinho(request, item_id):

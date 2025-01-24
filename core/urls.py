@@ -27,7 +27,6 @@ urlpatterns = [
     path('buscar-comprovantes-pix/<int:carrinho_id>/', views.buscar_comprovantes, name='buscar-comprovantes-pix'),
     path('consulta-pontos/', views.consulta_pontos, name='consulta_pontos'),
     path('registrar-ponto/', views.registrar_ponto, name='registrar-ponto'),
-    path('base/', views.base, name='base'),
     path('vendas-admin/', views.vendas_admin, name='vendas-admin'),
     path('criar-aviso/', views.criar_aviso, name='criar-aviso'),
     path('teste/', views.teste, name='teste'),

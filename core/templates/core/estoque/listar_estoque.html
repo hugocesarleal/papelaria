@@ -199,6 +199,10 @@
     document.getElementById("closeForm").onclick = function() {
         document.getElementById("formContainer").style.display = "none";
     };
+
+    if (document.cookie.indexOf("email_cadastrado=true") !== -1) {
+        document.getElementById("formContainer").style.display = "none";
+    }
     
     {% if avisos_ativos %}
         document.addEventListener('DOMContentLoaded', function () {
@@ -207,9 +211,7 @@
         });
     {% endif%}
 
-    if (document.cookie.indexOf("email_cadastrado=true") !== -1) {
-        document.getElementById("formContainer").style.display = "none";
-    }
+    
 
     function filtrarItens() {
         var input = document.getElementById('searchInput');
