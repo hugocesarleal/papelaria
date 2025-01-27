@@ -49,7 +49,7 @@ def criar_aviso(request):
         form = AvisoForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('admin-dashboard')  # Redirecionar após a criação
+            return redirect('criar-aviso')  # Redirecionar após a criação
     else:
         form = AvisoForm()
 
@@ -430,24 +430,31 @@ def cadastrar_cliente(request):
       
     response = redirect('listar-estoque')
     return response
-
-@user_passes_test(is_admin)
-def user_list(request):
-    users = get_user_model().objects.all()
-    return render(request, 'core/user_list.html', {'users': users})
     
 @user_passes_test(is_admin)
-def create_user(request):
+def usuarios(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, 'Usuário criado com sucesso!')
-            return redirect('admin-dashboard')
+            return redirect('usuarios')
     else:
         form = CustomUserCreationForm()
 
-    return render(request, 'core/create_user.html', {'form': form})
+    users = get_user_model().objects.all()
+
+    return render(request, 'core/usuarios.html', {'form': form, 'users': users})
+
+@user_passes_test(is_admin)
+def excluir_usuario(request, pk):
+    user = get_object_or_404(get_user_model(), pk=pk)
+    if request.method == 'POST':
+        user.delete()
+        messages.success(request, 'Usuário excluído com sucesso!')
+        return redirect('usuarios')
+    
+    return render(request, 'core/excluir_usuario.html', {'user': user})
 
 def login_view(request):
     if request.method == "POST":
@@ -458,37 +465,25 @@ def login_view(request):
             login(request, user)
 
             if user.is_superuser:
-                return redirect('admin-dashboard')
+                return redirect('usuarios')
             else:
                 return redirect('painel-vendas')
         else:
-            return render(request, 'core/login.html', {'error': 'Credenciais inválidas'})
-    return render(request, 'core/login.html')
+            messages.error(request, 'Usuário ou senha inválidos.')
 
+            itens = ItemEstoque.objects.all().order_by('nome')
 
-@user_passes_test(is_admin)
-def admin_dashboard(request):
-    if not request.user.is_staff:
-        return redirect('user-dashboard')
+            agora = timezone.now()
+            avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
+            
+            return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_test(request)})
+    
+    itens = ItemEstoque.objects.all().order_by('nome')
 
-    clientes = Cliente.objects.all()
-
-    if request.method == "POST":
-        assunto = request.POST.get("assunto")
-        mensagem = request.POST.get("mensagem")
-        destinatarios = [cliente.email for cliente in clientes]
-
-        if assunto and mensagem:
-            send_mail(
-                assunto,
-                mensagem,
-                'seu_email@dominio.com',  # Substitua pelo e-mail do remetente
-                destinatarios,
-                fail_silently=False,
-            )
-            return redirect('admin-dashboard')
-
-    return render(request, 'core/admin_dashboard.html', {'clientes': clientes})
+    agora = timezone.now()
+    avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
+    
+    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_test(request)})
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
@@ -560,10 +555,8 @@ def editar_item(request, pk):
         form = ItemEstoqueForm(instance=item)
     return render(request, 'core/estoque/editar_item.html', {'form': form, 'item': item})
 
-@login_required
+@user_passes_test(is_admin)
 def remover_item(request, pk):
-    if not request.user.is_staff:
-        return redirect('user-dashboard')
     
     item = get_object_or_404(ItemEstoque, pk=pk)
     
@@ -577,7 +570,7 @@ def remover_item(request, pk):
         item.delete()
         return redirect('listar-estoque-admin')
 
-    return render(request, 'core/estoque/remover_item.html', {'item': item})
+    return render(request, 'core/estoque/remover_item.html', {'item': item})    
 
 @login_required
 def trocar_senha(request):

@@ -30,12 +30,136 @@
                 <td>R$ {{ item.valor|floatformat:2 }}</td>
                 <td>{{ item.quantidade }}</td>
                 <td>
-                    <a href="{% url 'editar-item' item.id %}">Editar</a> |
-                    <a href="{% url 'remover-item' item.id %}">Remover</a>
+                    <button class="btn btn-primary btn-editItem" data-toggle="modal" data-target="#modalEditItem" data-id="{{ item.id }}">Editar</button> |
+                    <button class="btn btn-danger btn-RemoveItem" data-toggle="modal" data-target="#modalRemoveItem" data-id="{{ item.id }}">Remover</button>
                 </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
-    <a href="{% url 'adicionar-item' %}">Adicionar Novo Item</a>
+
+    <button 
+        class="btn btn-primary btn-addItem" 
+        data-toggle="modal" 
+        data-target="#modalAddItem">
+        Adicionar item ao estoque
+    </button>
+
+    <div class="modal fade" id="modalAddItem" tabindex="-1" role="dialog" aria-labelledby="modalAddItem" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalComprovanteLabel3">Adicionar Item ao Estoque</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form method="POST" action="{% url 'adicionar-item' %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="id_nome">Nome:</label>
+                            <input type="text" class="form-control" id="id_nome" name="nome" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_descricao">Descrição:</label>
+                            <textarea class="form-control" id="id_descricao" name="descricao" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_foto">Foto:</label>
+                            <input type="file" class="form-control-file" id="id_foto" name="foto">
+                        </div>
+                        <div class="form-group">
+                            <label for="id_valor">Valor:</label>
+                            <input type="number" class="form-control" id="id_valor" name="valor" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="id_quantidade">Quantidade:</label>
+                            <input type="number" class="form-control" id="id_quantidade" name="quantidade" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalEditItem" tabindex="-1" role="dialog" aria-labelledby="modalEditItemLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalEditItemLabel">Editar Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- O conteúdo do formulário será carregado aqui via AJAX -->
+                    <div id="editItemFormContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="modalRemoveItem" tabindex="-1" role="dialog" aria-labelledby="modalRemoveItemLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalRemoveItemLabel">Remover Item</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- O conteúdo do formulário será carregado aqui via AJAX -->
+                    <div id="removeItemFormContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block script %}
+
+    $(document).ready(function() {
+        $('.btn-modal').click(function() {
+            const comprovanteUrl = $(this).data('comprovante');
+            $('#comprovanteImage').attr('src', comprovanteUrl);
+        });
+    });
+
+    $('.btn-editItem').click(function() {
+        const itemId = $(this).data('id');
+        const url = "{% url 'editar-item' 0 %}".replace('0', itemId);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                $('#editItemFormContainer').html(response);
+            },
+            error: function(xhr) {
+                console.error('Erro ao carregar o formulário de edição:', xhr);
+            }
+        });
+    });
+
+
+    $('.btn-RemoveItem').click(function() {
+        const itemId = $(this).data('id');
+        const url = "{% url 'remover-item' 0 %}".replace('0', itemId);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                $('#removeItemFormContainer').html(response);
+            },
+            error: function(xhr) {
+                console.error('Erro ao carregar o formulário de remoção:', xhr);
+            }
+        });
+    });
+
 {% endblock %}

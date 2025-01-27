@@ -272,52 +272,138 @@
         <h3>SideBar</h3>
         <strong>SB</strong>
       </div>
-    
+
+      {% if user.is_superuser %}
+
       <ul class="list-unstyled components">
-        <li class="active">
-          <a href="#">
-            <i class="fas fa-taxi"></i>
-            Richiedi
+        <li class="{% if request.path == '/' %}active{% endif %}">
+          <a href="{% url 'listar-estoque' %}">
+            <i class="fas fa-home"></i>
+            Home
           </a>
         </li>
-        <li>
-          <a href="#">
-            <i class="fas fa-calendar-alt"></i>
-            Prenota
+        <li class="{% if request.path == '/usuarios/' %}active{% endif %}">
+          <a href="{% url 'usuarios' %}">
+            <i class="fas fa-user"></i>
+            Usuários
           </a>
         </li>
-        <li>
-          <a href="#">
-            <i class="fas fa-history"></i>
-            Storico
+        <li class="{% if request.path == '/estoque/' %}active{% endif %}">
+          <a href="{% url 'listar-estoque-admin' %}">
+            <i class="fas fa-boxes"></i>
+            Estoque
           </a>
         </li>
-        <li>
-          <a href="#">
-            <i class="fas fa-book"></i>
-            Istruzioni
+        <li class="{% if request.path == '/admin-dashboard-clientes/' %}active{% endif %}">
+          <a href="{% url 'admin-dashboard-clientes' %}">
+            <i class="fas fa-users"></i>
+            Clientes
           </a>
         </li>
+        <li class="{% if request.path == '/consulta-pontos/' %}active{% endif %}">
+          <a href="{% url 'consulta_pontos' %}">
+            <i class="fas fa-clock"></i>
+            Pontos
+          </a>
+        </li>
+        <li class="{% if request.path == '/vendas-admin/' %}active{% endif %}">
+          <a href="{% url 'vendas-admin' %}">
+            <i class="fas fa-shopping-cart"></i>
+            Vendas
+          </a>
+        </li>
+        <li class="{% if request.path == '/criar-aviso/' %}active{% endif %}">
+          <a href="{% url 'criar-aviso' %}">
+            <i class="fas fa-bell"></i>
+            Criar Aviso
+          </a>
+        </li>
+        
+        
+        
+
+        
+      </ul>
+    
+      <ul class="list-unstyled CTAs">
         <li>
-          <a href="#">
+          <a href="{% url 'logout' %}">
             <i class="fas fa-sign-out-alt"></i>
             Logout
           </a>
         </li>
       </ul>
-    
-      <ul class="list-unstyled CTAs">
-        <li>
-          <a href="https://bootstrapious.com/tutorial/files/sidebar.zip" class="download">
-            Download source
-          </a>
-        </li>
-        <li>
-          <a href="https://bootstrapious.com/p/bootstrap-sidebar" class="article">
-            Back to article
-          </a>
-        </li>
-      </ul>
+      
+      {% elif user.is_authenticated %}
+        <ul class="list-unstyled components">
+          <li class="{% if request.path == '/' %}active{% endif %}">
+            <a href="{% url 'listar-estoque' %}">
+              <i class="fas fa-home"></i>
+              Home
+            </a>
+          </li>
+          <li class="{% if request.path == '/user-dashboard/' %}active{% endif %}">
+            <a href="{% url 'painel-vendas' %}">
+              <i class="fas fa-cash-register"></i>
+              Caixa
+            </a>
+          </li>
+          <li class="{% if request.path == '/registrar-ponto/' %}active{% endif %}">
+            <a href="{% url 'registrar-ponto' %}">
+              <i class="fas fa-receipt"></i>
+              Ponto
+            </a>
+          </li>
+        </ul>
+      
+        <ul class="list-unstyled CTAs">
+          <li>
+            <a href="{% url 'logout' %}">
+              <i class="fas fa-sign-out-alt"></i>
+              Logout
+            </a>
+          </li>
+        </ul>
+
+      {% else %}
+
+        <ul class="list-unstyled components">
+          <li class="{% if request.path == '/' %}active{% endif %}">
+            <a href="{% url 'listar-estoque' %}">
+              <i class="fas fa-home"></i>
+              Home
+            </a>
+          </li>
+            <li>
+            <a href="#" data-bs-toggle="modal" data-bs-target="#modalExemplo">
+              <i class="fas fa-bell"></i>
+              Avisos
+            </a>
+            </li>
+        </ul>
+        <ul class="list-unstyled CTAs">
+          <li>
+            <form method="POST" class="px-4 py-3" action="{% url 'login' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="username" class="form-label">Usuário:</label>
+                    <input type="text" class="form-control" name="username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Senha:</label>
+                    <input type="password" class="form-control" name="password" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Entrar</button>
+            </form>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <a class="dropdown-item" id="btnEsqueciSenha" style="cursor: pointer;">
+                  <i class="fas fa-question-circle"></i> Esqueceu a senha?
+                </a>
+            </li>
+          </li>
+        </ul>
+      {% endif %}
     </nav>
   
     <!-- Page Content  -->
@@ -334,6 +420,10 @@
     <script>
       {% block script %}
         {% endblock %}
+        $('#btnEsqueciSenha').click(function() {
+          toastr.info('Se você esqueceu sua senha, contate o administrador do sistema!.', 'Informação');
+        });
+
       document.addEventListener("DOMContentLoaded", function() {
         const sidebar = document.getElementById("sidebar");
     

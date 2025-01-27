@@ -206,10 +206,18 @@
     
     {% if avisos_ativos %}
         document.addEventListener('DOMContentLoaded', function () {
-            var modal = new bootstrap.Modal(document.getElementById('modalExemplo'));
-            modal.show();
+            if (document.cookie.indexOf("modal_exibido=true") === -1) {
+                var modal = new bootstrap.Modal(document.getElementById('modalExemplo'));
+                modal.show();
+
+                // Define o cookie para que o modal não apareça novamente por 1 minuto
+                var date = new Date();
+                date.setTime(date.getTime() + (1 * 60 * 1000)); // 1 minuto
+                var expires = "expires=" + date.toUTCString();
+                document.cookie = "modal_exibido=true; " + expires + "; path=/";
+            }
         });
-    {% endif%}
+    {% endif %}
 
     
 

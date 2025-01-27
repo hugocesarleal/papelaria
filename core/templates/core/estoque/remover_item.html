@@ -1,42 +1,60 @@
-{% extends 'base.html' %}
+<style>
+    .body-container {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        text-align: center;
+    }
+    .header-text {
+        color: #333;
+        font-size: 18px;
+        text-align: center; /* Centraliza o texto do cabeçalho */
+    }
+    .item-name {
+        font-weight: bold;
+    }
+    .form-container {
+        margin-top: 10px;
+        text-align: center; /* Centraliza os botões dentro do formulário */
+    }
+    .btn-confirm, .btn-cancel {
+        border-radius: 5px; /* Arredonda as bordas dos botões */
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease; /* Animação de hover */
+    }
+    .btn-confirm {
+        background-color: #d9534f;
+        color: white;
+        border: none;
+    }
+    .btn-confirm:hover {
+        background-color: #c9302c; /* Cor ao passar o mouse */
+    }
+    .btn-cancel {
+        background-color: #5bc0de;
+        color: white;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    .btn-cancel:hover {
+        background-color: #31b0d5; /* Cor ao passar o mouse */
+    }
+    .cancel-container {
+        text-align: center; /* Centraliza o link de cancelamento */
+    }
+</style>
 
-{% block title %}Remover Item{% endblock %}
-
-{% block style %}
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 20px;
-        }
-        button {
-            padding: 10px 20px;
-            margin: 10px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .btn-confirm {
-            background-color: #f44336;
-            color: white;
-        }
-        .btn-confirm:hover {
-            background-color: #d32f2f;
-        }
-        .btn-cancel {
-            background-color: #4CAF50;
-            color: white;
-        }
-        .btn-cancel:hover {
-            background-color: #45a049;
-        }
-{% endblock %}
-
-{% block body %}
-    <h1>Remover Item</h1>
-    <p>Tem certeza de que deseja remover o item <strong>"{{ item.nome }}"</strong>?</p>
-    <form method="POST">
+<body class="body-container">
+    <h4 class="header-text">Tem certeza de que deseja remover o item <strong class="item-name">"{{ item.nome }}"</strong>?</h4>
+    <form method="POST" action="{% url 'remover-item' item.pk %}" class="form-container">
         {% csrf_token %}
         <button type="submit" class="btn-confirm">Sim, remover</button>
     </form>
-    <a href="{% url 'listar-estoque-admin' %}" class="btn-cancel">Cancelar</a>
-{% endblock %}
+    <div class="cancel-container">
+        <button type="button" class="btn-cancel" data-dismiss="modal" aria-label="Close">
+            Cancelar
+        </button>
+    </div>
+</body>
