@@ -29,7 +29,7 @@ class ClienteForm(forms.ModelForm):
 class ItemEstoqueForm(forms.ModelForm):
     class Meta:
         model = ItemEstoque
-        fields = ['nome', 'descricao', 'foto', 'valor', 'quantidade']
+        fields = ['nome', 'foto', 'valor', 'quantidade']
         widgets = {
             'descricao': forms.Textarea(attrs={'rows': 3}),
         }

@@ -253,7 +253,20 @@
           background-color: #17a2b8 !important;
           color: #fff !important;
       }
-      
+
+      #togglePassword {
+        transition: all 0.3s;
+        background-color: white;
+        border: none;
+    }
+    
+    #togglePassword:hover {
+        background-color: #e9ecef;
+    }
+    
+    #togglePassword:hover i {
+        color: #343a40; /* Cor escura para o ícone */
+    }
       
       /* Exibe o conteúdo alternativo para dispositivos maiores */
       
@@ -337,22 +350,13 @@
       {% elif user.is_authenticated %}
         <ul class="list-unstyled components">
           <li class="{% if request.path == '/' %}active{% endif %}">
-            <a href="{% url 'listar-estoque' %}">
-              <i class="fas fa-home"></i>
-              Home
-            </a>
+            <a href="{% url 'listar-estoque' %}"><i class="fas fa-home"></i>Home</a>
           </li>
           <li class="{% if request.path == '/user-dashboard/' %}active{% endif %}">
-            <a href="{% url 'painel-vendas' %}">
-              <i class="fas fa-cash-register"></i>
-              Caixa
-            </a>
+            <a href="{% url 'painel-vendas' %}"><i class="fas fa-cash-register"></i>Caixa</a>
           </li>
           <li class="{% if request.path == '/registrar-ponto/' %}active{% endif %}">
-            <a href="{% url 'registrar-ponto' %}">
-              <i class="fas fa-receipt"></i>
-              Ponto
-            </a>
+            <a href="{% url 'registrar-ponto' %}"><i class="fas fa-receipt"></i>Ponto</a>
           </li>
         </ul>
       
@@ -390,9 +394,16 @@
                     <input type="text" class="form-control" name="username" required>
                 </div>
                 <div class="mb-3">
-                    <label for="password" class="form-label">Senha:</label>
-                    <input type="password" class="form-control" name="password" required>
-                </div>
+                  <label for="password" class="form-label">Senha:</label>
+                  <div class="input-group">
+                      <input type="password" class="form-control" name="password" id="password" required>
+                      <div class="input-group-append">
+                          <button class="btn" type="button" id="togglePassword">
+                              <i class="fas fa-eye"></i>
+                          </button>
+                      </div>
+                  </div>
+              </div>
                 <button type="submit" class="btn btn-primary w-100">Entrar</button>
             </form>
             <li><hr class="dropdown-divider"></li>
@@ -494,6 +505,22 @@
               {% endfor %}
             {% endif %}
         });
+
+
+          document.getElementById('togglePassword').addEventListener('click', function (e) {
+              const passwordInput = document.getElementById('password');
+              const icon = this.querySelector('i');
+              if (passwordInput.type === 'password') {
+                  passwordInput.type = 'text';
+                  icon.classList.remove('fa-eye');
+                  icon.classList.add('fa-eye-slash');
+              } else {
+                  passwordInput.type = 'password';
+                  icon.classList.remove('fa-eye-slash');
+                  icon.classList.add('fa-eye');
+              }
+          });
+
     </script>
 
 </html>

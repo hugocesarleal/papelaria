@@ -158,8 +158,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 #Configurações de variáveis globais
-NUMBER_GRID_PAGES = 20
-NUMBER_GRID_MODAL = 20
+NUMBER_GRID_PAGES = 3
+NUMBER_GRID_MODAL = 3
 
 # Duração da sessão (em segundos). Por padrão, 300 segundos (5 minutos).
 SESSION_COOKIE_AGE = 3600  # 24 horas (você pode ajustar conforme necessário)

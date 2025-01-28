@@ -51,7 +51,6 @@ class RegistroPonto(models.Model):
 
 class ItemEstoque(models.Model):
     nome = models.CharField(max_length=100)
-    descricao = models.TextField()
     foto = models.ImageField(upload_to='estoque/', null=False, default='path/to/default/image.jpg')  # Definindo uma imagem padrão
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     quantidade = models.IntegerField()

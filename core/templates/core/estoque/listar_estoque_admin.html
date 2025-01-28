@@ -9,7 +9,6 @@
             <tr>
                 <th>Foto</th>
                 <th>Nome</th>
-                <th>Descrição</th>
                 <th>Valor</th>
                 <th>Quantidade</th>
                 <th>Ações</th>
@@ -26,7 +25,6 @@
                     {% endif %}
                 </td>
                 <td>{{ item.nome }}</td>
-                <td>{{ item.descricao }}</td>
                 <td>R$ {{ item.valor|floatformat:2 }}</td>
                 <td>{{ item.quantidade }}</td>
                 <td>
@@ -60,10 +58,6 @@
                         <div class="form-group">
                             <label for="id_nome">Nome:</label>
                             <input type="text" class="form-control" id="id_nome" name="nome" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="id_descricao">Descrição:</label>
-                            <textarea class="form-control" id="id_descricao" name="descricao" required></textarea>
                         </div>
                         <div class="form-group">
                             <label for="id_foto">Foto:</label>

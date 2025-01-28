@@ -137,10 +137,12 @@
                 </tbody>
             </table>
             <h4>Total: R$ {{ total }}<div id="total-t" data-total="{{ total|floatformat:2|escapejs }}"></div></h4>
-            <form method="POST" action="{% url 'limpar-carrinho' %}" style="margin-top: 10px;">
-                {% csrf_token %}
-                <button type="submit">Limpar Carrinho</button>
-            </form>
+            {% if carrinho.itens.all %}
+                <form method="POST" action="{% url 'limpar-carrinho' %}" style="margin-top: 10px;">
+                    {% csrf_token %}
+                    <button type="submit">Limpar Carrinho</button>
+                </form>
+            {% endif %}
             <form method="POST" action="{% url 'concluir-venda' %}" style="margin-top: 10px;">
                 {% csrf_token %}
                 <label for="pagamento">Forma de pagamento:</label>

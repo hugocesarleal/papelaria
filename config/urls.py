@@ -26,11 +26,5 @@ urlpatterns = [
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
 
-try:
-    media_patterns = static('/media/', document_root=r"C:\Users\Hugo\Desktop\django\papelaria\media")
-    print("Media Patterns:", media_patterns)
-except Exception as e:
-    print("Erro ao gerar media patterns:", str(e))
-
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 

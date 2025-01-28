@@ -19,6 +19,7 @@ from django.db.models import F
 from django.db.models import Q
 from user_agents import parse
 from decimal import Decimal
+from django.core.paginator import Paginator
 import os
 from django.conf.urls.static import static
 from django.contrib.auth import update_session_auth_hash
@@ -302,7 +303,7 @@ def concluir_venda(request):
         with transaction.atomic():  # Garante que todas as operações sejam atômicas
             # Calcula o valor total da venda
             valor_total = sum(item.total() for item in carrinho.itens.all())
-            if valor_total != 0:
+            if valor_total != 0 and carrinho.itens.exists():
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
@@ -331,7 +332,10 @@ def concluir_venda(request):
                 for item_carrinho in carrinho.itens.all():
                     item_carrinho.venda = carrinho  # Associa o item ao carrinho (se necessário)
                     item_carrinho.save()
-
+            else:
+                messages.error(request, "O carrinho está vazio!")
+                return redirect('painel-vendas')
+            
             return redirect('painel-vendas')  # Ou para onde você quiser redirecionar após a venda ser concluída
 
     return render(request, 'core/painel_vendas.html', {'carrinho': carrinho})
