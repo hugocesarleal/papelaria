@@ -54,7 +54,7 @@ def criar_aviso(request):
     else:
         form = AvisoForm()
 
-    return render(request, 'core/criar_aviso.html', {'form': form})
+    return render(request, 'core/criar_aviso.html', {'form': form, 'base_template': base_test(request)})
 
 @user_passes_test(is_admin)
 def vendas_admin(request):
@@ -85,6 +85,7 @@ def vendas_admin(request):
     return render(request, 'core/vendas_admin.html', {
         'vendas': vendas,
         'usuarios': usuarios,
+        'base_template': base_test(request),
     })
 
 @user_passes_test(is_admin)
@@ -157,7 +158,8 @@ def consulta_pontos(request):
         'valor_hora': valor_hora,
         'total_a_pagar': total_a_pagar,
     }
-
+    
+    context['base_template'] = base_test(request)
     return render(request, 'core/consulta_pontos.html', context)
 
 @login_required
@@ -448,7 +450,7 @@ def usuarios(request):
 
     users = get_user_model().objects.all()
 
-    return render(request, 'core/usuarios.html', {'form': form, 'users': users})
+    return render(request, 'core/usuarios.html', {'form': form, 'users': users, 'base_template': base_test(request)})
 
 @user_passes_test(is_admin)
 def excluir_usuario(request, pk):
@@ -520,7 +522,7 @@ def admin_dashboard_clientes(request):
             # Redireciona após o envio
             return redirect('admin-dashboard-clientes')
 
-    return render(request, 'core/admin_dashboard_clientes.html', {'clientes': clientes})
+    return render(request, 'core/admin_dashboard_clientes.html', {'clientes': clientes,'base_template': base_test(request)})
 
 @login_required
 def user_dashboard(request):
@@ -530,7 +532,7 @@ def user_dashboard(request):
 def listar_estoque_admin(request):
     itens = ItemEstoque.objects.all()
     
-    return render(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens})
+    return render(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens, 'base_template': base_test(request)})
 
 @user_passes_test(is_admin)
 def adicionar_item(request):
@@ -594,7 +596,7 @@ def trocar_senha(request):
         else:
             form = NovoPasswordForm(user)
 
-        return render(request, 'core/trocar_senha.html', {'form': form})
+        return render(request, 'core/trocar_senha.html', {'form': form, 'base_template': base_test(request)})
 
     else:
         return redirect('listar-estoque')  # Se não for primeiro acesso, redireciona para outra página

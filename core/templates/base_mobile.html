@@ -22,136 +22,44 @@
 
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            margin: 0;
-            padding: 0;
+        
+        /* Ajustes para dispositivos móveis */
+        
+        .dropdown-menu {
+            left: 0; /* Alinhado à esquerda no celular */
+            right: auto;
         }
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #007BFF;
-            padding: 10px 20px;
-            color: white;
+        .navbar-nav {
+            justify-content: center; /* Centraliza os links no celular */
+            width: 100%;
+            flex-wrap: wrap; /* Garante que os itens se ajustem no celular */
         }
-
-        .navbar .user-icon {
-            display: flex;
-            align-items: center;
-            cursor: pointer;
-            font-size: 1.8rem;
-            margin-right: 8px;
-        }
-
-        .navbar-nav .nav-link {
-            font-size: 1.2rem;
-            padding: 8px 20px;
-            text-transform: uppercase;
-            color: white;
-            transition: background-color 0.3s ease, transform 0.3s ease;
+        .navbar-nav .nav-item {
             margin-right: 10px;
             margin-left: 10px;
         }
-
-        .navbar-nav .nav-item {
-            position: relative;
+        .navbar-toggler {
+            display: block;
         }
-
-        .navbar-nav .nav-link:hover {
-            background-color: #0056b3;
-            transform: scale(1.1);
-        }
-
+        /* Não aplica divisão entre os links no mobile */
         .navbar-nav .nav-item + .nav-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 50%;
-            width: 1px;
-            height: 50%;
-            background-color: #fff;
-            transform: translateY(-50%);
+            display: none;
         }
 
-        .navbar-nav .nav-item .fa {
-            font-size: 1.5rem;
-            margin-right: 8px;
+        .navbar-nav .nav-link {
+            font-size: 1.0em;
+            padding: 8px 0px;
+            
+            margin-right: 00px;
+            margin-left: 00px;
         }
 
-        .dropdown-menu {
-            width: 20px;
-            right: 0;
-            left: auto;
+        .navbar .user-icon {
+            font-size: 1.2rem;
+            margin-right: 5px;
+            margin-left: 8px;
         }
-
-        .custom-dropdown-menu {
-            min-width: 250px;
-            padding: 15px;
-        }
-
-        .customNavBar {
-            flex: 1;
-            display: flex;
-            justify-content: center;
-        }
-
-        .toast-success {
-            background-color: #28a745 !important;
-            color: #fff !important;
-          }
-          .toast-error {
-              background-color: #dc3545 !important;
-              color: #fff !important;
-          }
-          .toast-warning {
-              background-color: #ffc107 !important;
-              color: #212529 !important;
-          }
-          .toast-info {
-              background-color: #17a2b8 !important;
-              color: #fff !important;
-          }
-
-        /* Ajustes para dispositivos móveis */
-        @media (max-width: 576px) {
-            .dropdown-menu {
-                left: 0; /* Alinhado à esquerda no celular */
-                right: auto;
-            }
-            .navbar-nav {
-                justify-content: center; /* Centraliza os links no celular */
-                width: 100%;
-                flex-wrap: wrap; /* Garante que os itens se ajustem no celular */
-            }
-            .navbar-nav .nav-item {
-                margin-right: 10px;
-                margin-left: 10px;
-            }
-            .navbar-toggler {
-                display: block;
-            }
-            /* Não aplica divisão entre os links no mobile */
-            .navbar-nav .nav-item + .nav-item::before {
-                display: none;
-            }
-
-            .navbar-nav .nav-link {
-                font-size: 1.0em;
-                padding: 8px 0px;
-                
-                margin-right: 00px;
-                margin-left: 00px;
-            }
-
-            .navbar .user-icon {
-                font-size: 1.2rem;
-                margin-right: 5px;
-                margin-left: 8px;
-            }
-        }
+        
         {% block style %}
         {% endblock %}
     </style>
@@ -159,10 +67,42 @@
 <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">Meu Sistema</a>
+            <a class="navbar-brand" href="#" style="margin-left: 20px;">Meu Sistema</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
+            {% if user.is_superuser %}
+
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav me-auto customNavBar">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'listar-estoque' %}"><i class="fas fa-home"></i> Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/usuarios/' %}active{% endif %}" href="{% url 'usuarios' %}"><i class="fas fa-user"></i></i> Usuários</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/estoque/' %}active{% endif %}" href="{% url 'listar-estoque-admin' %}"><i class="fas fa-boxes"></i> Estoque</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/admin-dashboard-clientes/' %}active{% endif %}" href="{% url 'admin-dashboard-clientes' %}"><i class="fas fa-users"></i> Clientes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/consulta-pontos/' %}active{% endif %}" href="{% url 'consulta_pontos' %}"><i class="fas fa-clock"></i> Pontos</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/vendas-admin/' %}active{% endif %}" href="{% url 'vendas-admin' %}"><i class="fas fa-shopping-cart"></i> Vendas</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/criar-aviso/' %}active{% endif %}" href="{% url 'criar-aviso' %}"><i class="fas fa-bell"></i> Criar Aviso</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+            {% elif user.is_authenticated %}
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav me-auto customNavBar">
                     <li class="nav-item">
@@ -174,44 +114,54 @@
                     <li class="nav-item">
                         <a class="nav-link {% if request.path == '/contato/' %}active{% endif %}" href="{% url 'registrar-ponto' %}"><i class="fas fa-receipt"></i> Ponto</a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                    </li>
                 </ul>
-                <div class="d-flex align-items-center">
-                    <i class="fas fa-user-circle user-icon me-2"></i> <!-- Ícone de usuário -->
-                    <div class="dropdown">
-                        <button 
-                            class="btn btn-light dropdown-toggle" 
-                            type="button" 
-                            data-bs-toggle="dropdown" 
-                            aria-expanded="false">
-                            {% if user.is_authenticated %}{{ user.username }}{% else %}Visitante{% endif %}
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu">
-                            {% if user.is_authenticated %}
-                                <li>
-                                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
-                                </li>
-                            {% else %}
-                                <form method="POST" class="px-4 py-3" action="{% url 'login' %}">
-                                    {% csrf_token %}
-                                    <div class="mb-3">
-                                        <label for="username" class="form-label">Usuário:</label>
-                                        <input type="text" class="form-control" name="username" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="password" class="form-label">Senha:</label>
-                                        <input type="password" class="form-control" name="password" required>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary w-100">Entrar</button>
-                                </form>
-                                <li><hr class="dropdown-divider"></li>
-                                <li>
-                                    <a class="dropdown-item" id="btnEsqueciSenha">Esqueceu a senha?</a>
-                                </li>
-                            {% endif %}
-                        </ul>
+            </div>
+            {% else %}
+                <!--Não está logado-->
+                <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                    <ul class="navbar-nav me-auto customNavBar">
+                        <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'listar-estoque' %}"><i class="fas fa-home"></i> Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo"><i class="fas fa-bell"></i></i> Avisos</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-user-circle user-icon me-2"></i> <!-- Ícone de usuário -->
+                        <div class="dropdown">
+                            <button 
+                                class="btn btn-light dropdown-toggle" 
+                                type="button" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false">
+                                {% if user.is_authenticated %}{{ user.username }}{% else %}Login{% endif %}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end custom-dropdown-menu">
+                                    <form method="POST" class="px-4 py-3" action="{% url 'login' %}">
+                                        {% csrf_token %}
+                                        <div class="mb-3">
+                                            <label for="username" class="form-label">Usuário:</label>
+                                            <input type="text" class="form-control" name="username" required>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label for="password" class="form-label">Senha:</label>
+                                            <input type="password" class="form-control" name="password" required>
+                                        </div>
+                                        <button type="submit" class="btn btn-primary w-100">Entrar</button>
+                                    </form>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item" id="btnEsqueciSenha">Esqueceu a senha?</a>
+                                    </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </nav>
     <div class="content">
@@ -261,10 +211,9 @@
             {% endif %}
 
             $(document).ready(function() {
-                $('#btnEsqueciSenha').click(function(event) {
-                    event.preventDefault();
-                    toastr.info('Se você esqueceu sua senha contate o administrador do sistema.');
-                });
+                $('#btnEsqueciSenha').click(function() {
+                    toastr.info('Se você esqueceu sua senha, contate o administrador do sistema!.', 'Informação');
+                  });
             });
         });
     </script>

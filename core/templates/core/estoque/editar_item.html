@@ -1,31 +1,31 @@
 <form method="POST" enctype="multipart/form-data" action="{% url 'editar-item' item.pk %}">
     {% csrf_token %}
 
-    <div>
-        <label for="nome">Nome:</label>
-        {{ form.nome }}
+    <div class="mb-2">
+        <label for="nome" class="form-label">Nome:</label>
+        {{ form.nome}}
     </div>
 
-    <div>
-        <label for="foto">Foto Atual:</label>
+    <div class="mb-3">
+        <label for="foto" class="form-label">Foto Atual:</label>
         {% if item.foto %}
-            <div>
-                <img src="{{ item.foto.url }}" alt="{{ item.nome }}" style="width: 300px; height: 300px;">
+            <div class="mb-3">
+                <img src="{{ item.foto.url }}" alt="{{ item.nome }}" class="img-fluid" style="max-width: 150px; max-height: 150px;">
             </div>
         {% endif %}
-        <label for="foto">Alterar Foto (opcional):</label>
-        {{ form.foto }}
+        <label for="foto" class="form-label">Alterar Foto (opcional):</label>
+        {{ form.foto}}
     </div>
     
-    <div>
-        <label for="valor">Valor:</label>
-        {{ form.valor }}
+    <div class="mb-3">
+        <label for="valor" class="form-label">Valor:</label>
+        {{ form.valor}}
     </div>
     
-    <div>
-        <label for="quantidade">Quantidade:</label>
-        {{ form.quantidade }}
+    <div class="mb-3">
+        <label for="quantidade" class="form-label">Quantidade:</label>
+        {{ form.quantidade}}
     </div>
 
-    <button type="submit">Salvar Alterações</button>
+    <button type="submit" class="btn btn-cancel">Salvar Alterações</button>
 </form>

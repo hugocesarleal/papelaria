@@ -3,7 +3,6 @@
 {% block title %}Estoque - Papelaria{% endblock %}
 
 {% block style %}
-
     .table-container {
         margin: 20px auto;
         max-width: 90%;
@@ -26,6 +25,7 @@
         font-weight: bold; /* Negrito nos cabeçalhos */
     }
     img {
+        margin-top: 10px;
         max-width: 100px;
         max-height: 100px;
         object-fit: cover;
@@ -45,7 +45,14 @@
             transform: translateX(-50%); /* Centraliza a janela horizontalmente */
             bottom: 10px; /* Distância menor da parte inferior */
         }
-        
+        .card {
+            width: 150px; /* Ajusta a largura do card para telas pequenas */
+            height: 150px; /* Ajusta a altura do card para telas pequenas */
+        }
+        .card-img-top {
+            width: 75px; /* Ajusta a largura da imagem do card para telas pequenas */
+            height: 75px; /* Ajusta a altura da imagem do card para telas pequenas */
+        }
     }
 
     .form-container {
@@ -97,96 +104,50 @@
         margin: 0 auto; /* Garante centralização */
         width: 100%; /* Opcional, caso precise ajustar o alinhamento */
     }
-    
-    
-    @media (max-width: 576px) {
-        img {
-            max-width: 150px;
-            max-height: 150px;
-        }
-        table {
-            font-size: 1rem; /* Ajusta o tamanho da fonte para telas pequenas */
-        }
-        .form-container {
-            width: 250px; /* Menor largura em telas pequenas */
-            left: 50%;
-            transform: translateX(-50%); /* Centraliza a janela horizontalmente */
-            bottom: 10px; /* Distância menor da parte inferior */
-        }
-        .card {
-            width: calc(100% - 10px); /* Espaço igual entre as bordas da tela */
-            margin-left: 5px; /* Espaço entre os cards */
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-        }
-        .card img {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            margin-top: 10px;
-        }
-        .card-body {
-            padding: 10px;
-            text-align: center;
-        }
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-    }
-    
-    @media (min-width: 577px) {
-        .card {
-            width: 200px;
-            height: 250px;
-            margin: 0 auto;
-            border: 1px solid #ddd;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-        }
-    
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
-        }
-    
-        .card-img-top {
-            border-radius: 10px;
-            object-fit: cover;
-            width: 100px;
-            height: 100px;
-            margin-top: 20px;
-        }
-    
-        .card-body {
-            padding: 10px;
-        }
-    
-        .card-title {
-            font-size: 1.4rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-    
-        .card-text {
-            font-size: 1.2rem;
-            color: #555;
-        }
-    }
-    
 
+    .card {
+        width: 250px;
+        height: 250px;
+        margin: 0 auto;
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
+
+    .card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .card-img-top {
+        border-radius: 10px;
+        object-fit: cover;
+        width: 100px;
+        height: 100px;
+    }
+
+    .card-body {
+        padding: 10px;
+    }
+
+    .card-title {
+        font-size: 1.4rem;
+        font-weight: bold;
+        margin-bottom: 5px;
+    }
+
+    .card-text {
+        font-size: 1.2rem;
+        color: #555;
+    }
 {% endblock %}
+
 
 {% block body %}
 <div class="container">
@@ -195,29 +156,7 @@
     <div class="form-group mb-4">
         <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por nome do item..." onkeyup="filtrarItens()">
     </div>
-
-       
-        
-    {% if base_template == 'base_mobile.html'%}
-    <div class="row">
-        {% for item in itens %}
-        <div class="col-6 col-md-4 mb-4">
-            <div class="card h-100">
-                <img src="{{ item.foto.url }}" class="card-img-top" alt="{{ item.nome }}">
-                <div class="card-body text-center">
-                    <h5 class="card-title">{{ item.nome }}</h5>
-                    <p class="card-text">R$ {{ item.valor }}</p>
-                    <p class="card-text">Quantidade: {{ item.quantidade }}</p>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <p class="text-center">Nenhum item disponível no estoque.</p>
-        </div>
-        {% endfor %}
-    </div>
-    {% else %}
+    
     <div class="row">
         {% for item in itens %}
         <div class="col-md mb-4">
@@ -236,8 +175,6 @@
         </div>
         {% endfor %}
     </div>
-    {% endif %}
-    
 
     <div class="form-container" id="formContainer">
         <button class="close-btn" id="closeForm">&times;</button>
