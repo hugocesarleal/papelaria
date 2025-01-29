@@ -45,16 +45,65 @@ def is_admin(user):
     return user.is_staff
 
 @user_passes_test(is_admin)
-def criar_aviso(request):
+def editar_cliente(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    if request.method == 'POST':
+        form = ClienteForm(request.POST, instance=cliente)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Cliente atualizado com sucesso!')
+            return redirect('admin-dashboard-clientes')
+    else:
+        form = ClienteForm(instance=cliente)
+    return render(request, 'core/editar_cliente.html', {'form': form, 'cliente': cliente})
+
+@user_passes_test(is_admin)
+def excluir_cliente(request, pk):
+    cliente = get_object_or_404(Cliente, pk=pk)
+    if request.method == 'POST':
+        cliente.delete()
+        messages.success(request, 'Cliente excluído com sucesso!')
+        return redirect('admin-dashboard-clientes')
+    
+    return render(request, 'core/excluir_cliente.html', {'cliente': cliente})
+
+@user_passes_test(is_admin)
+def listar_avisos(request):
+    agora = timezone.now()
+    avisos = Aviso.objects.filter(data_fim__gte=agora)
     if request.method == 'POST':
         form = AvisoForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('criar-aviso')  # Redirecionar após a criação
+            messages.success(request, 'Aviso criado/atualizado com sucesso!')
+            return redirect('listar-avisos')
     else:
         form = AvisoForm()
+    return render(request, 'core/listar_avisos.html', {'avisos': avisos, 'form': form, 'base_template': base_test(request)})
 
-    return render(request, 'core/criar_aviso.html', {'form': form, 'base_template': base_test(request)})
+@user_passes_test(is_admin)
+def editar_aviso(request, pk):
+    aviso = get_object_or_404(Aviso, pk=pk)
+    if request.method == 'POST':
+        form = AvisoForm(request.POST, instance=aviso)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Aviso atualizado com sucesso!')
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = AvisoForm(instance=aviso)
+        return render(request, 'core/editar_aviso_form.html', {'form': form, 'aviso': aviso})
+
+@user_passes_test(is_admin)
+def excluir_aviso(request, pk):
+    aviso = get_object_or_404(Aviso, pk=pk)
+    if request.method == 'POST':
+        aviso.delete()
+        messages.success(request, 'Aviso excluído com sucesso!')
+        return redirect('listar-avisos')
+    return redirect('listar-avisos')
 
 @user_passes_test(is_admin)
 def vendas_admin(request):

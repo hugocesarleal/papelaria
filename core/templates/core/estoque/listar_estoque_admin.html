@@ -5,6 +5,7 @@
 {% block style %}
     <style>
         @media (max-width: 768px) {
+
             .table-responsive {
                 overflow-x: auto;
             }
@@ -61,19 +62,23 @@
                 <tbody>
                     {% for item in itens %}
                     <tr>
-                        <td class="text-center">
+                        <td class="align-middle text-center">
                             {% if item.foto %}
                             <img src="{{ item.foto.url }}" alt="{{ item.nome }}" class="img-fluid" style="max-width: 100px; max-height: 100px;">
                             {% else %}
                             <span>Sem imagem</span>
                             {% endif %}
                         </td>
-                        <td class="text-center">{{ item.nome }}</td>
-                        <td class="text-center">R$ {{ item.valor|floatformat:2 }}</td>
-                        <td class="text-center">{{ item.quantidade }}</td>
-                        <td class="text-center">
-                            <button class="btn btn-primary btn-sm btn-editItem" data-toggle="modal" data-target="#modalEditItem" data-id="{{ item.id }}">Editar</button>
-                            <button class="btn btn-danger btn-sm btn-RemoveItem" data-toggle="modal" data-target="#modalRemoveItem" data-id="{{ item.id }}">Remover</button>
+                        <td class="align-middle text-center">{{ item.nome }}</td>
+                        <td class="align-middle text-center">R$ {{ item.valor|floatformat:2 }}</td>
+                        <td class="align-middle text-center">{{ item.quantidade }}</td>
+                        <td class="align-middle text-center">
+                            <button class="btn btn-primary btn-sm btn-editItem" data-toggle="modal" data-target="#modalEditItem" data-id="{{ item.id }}" style="margin: 5px;">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger btn-sm btn-RemoveItem" data-toggle="modal" data-target="#modalRemoveItem" data-id="{{ item.id }}" style="margin: 5px;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
                         </td>
                     </tr>
                     {% endfor %}

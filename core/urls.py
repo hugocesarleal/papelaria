@@ -26,8 +26,12 @@ urlpatterns = [
     path('consulta-pontos/', views.consulta_pontos, name='consulta_pontos'),
     path('registrar-ponto/', views.registrar_ponto, name='registrar-ponto'),
     path('vendas-admin/', views.vendas_admin, name='vendas-admin'),
-    path('criar-aviso/', views.criar_aviso, name='criar-aviso'),
+    path('avisos/', views.listar_avisos, name='listar-avisos'),
+    path('avisos/editar/<int:pk>/', views.editar_aviso, name='editar-aviso'),
+    path('avisos/excluir/<int:pk>/', views.excluir_aviso, name='excluir-aviso'),
     path('teste/', views.teste, name='teste'),
     path('trocar-senha/', views.trocar_senha, name='trocar-senha'),
     path('usuarios/excluir/<int:pk>/', views.excluir_usuario, name='excluir-usuario'),
+    path('clientes/editar/<int:pk>/', views.editar_cliente, name='editar-cliente'),
+    path('clientes/excluir/<int:pk>/', views.excluir_cliente, name='excluir-cliente'),
 ]
