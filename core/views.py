@@ -218,6 +218,11 @@ def registrar_ponto(request):
     # Verificar se o IP da requisição é o IP permitido
     if ip_requisitante not in settings.ALLOWED_IP:
         return HttpResponseForbidden("IP não autorizado para registrar ponto.")
+    
+    user = request.user
+
+    if user.primeiro_acesso:
+        return redirect('trocar-senha')
 
     registros = RegistroPonto.objects.filter(usuario=request.user).order_by('-data', '-entrada')
 

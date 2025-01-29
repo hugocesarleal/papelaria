@@ -35,40 +35,50 @@
                 </tr>
             </thead>
             <tbody>
-                {% for aviso in avisos %}
-                    <tr>
-                        <td>{{ aviso.id }}</td>
-                        <td>{{ aviso.texto }}</td>
-                        <td>{{ aviso.data_inicio }}</td>
-                        <td>{{ aviso.data_fim }}</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal" data-id="{{ aviso.id }}"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluirModal{{ aviso.id }}"><i class="fas fa-trash-alt"></i></button>
-                        </td>
-                    </tr>
-
-                    <!-- Modal Excluir -->
-                    <div class="modal fade" id="excluirModal{{ aviso.id }}" tabindex="-1" aria-labelledby="excluirModalLabel{{ aviso.id }}" aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="excluirModalLabel{{ aviso.id }}">Excluir Aviso</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <p>Tem certeza que deseja excluir o aviso "{{ aviso.texto }}"?</p>
-                                </div>
-                                <div class="modal-footer">
-                                    <form method="POST" action="{% url 'excluir-aviso' aviso.id %}">
-                                        {% csrf_token %}
-                                        <button type="submit" class="btn btn-danger">Excluir</button>
-                                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
-                                    </form>
+                {% if avisos %}
+                    {% for aviso in avisos %}
+                        <tr>
+                            <td>{{ aviso.id }}</td>
+                            <td>{{ aviso.texto }}</td>
+                            <td>{{ aviso.data_inicio }}</td>
+                            <td>{{ aviso.data_fim }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal" data-id="{{ aviso.id }}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluirModal{{ aviso.id }}"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>   
+                                            <!-- Modal Excluir -->
+                        <div class="modal fade" id="excluirModal{{ aviso.id }}" tabindex="-1" aria-labelledby="excluirModalLabel{{ aviso.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="excluirModalLabel{{ aviso.id }}">Excluir Aviso</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Tem certeza que deseja excluir o aviso "{{ aviso.texto }}"?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="POST" action="{% url 'excluir-aviso' aviso.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Excluir</button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
+
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhum aviso ativo.</td>
+                    </tr>
+                {% endif %}
+
+
+                    
+
             </tbody>
         </table>
     </div>
