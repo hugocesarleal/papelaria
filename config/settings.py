@@ -54,6 +54,7 @@ MIDDLEWARE = [
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'config.middleware.DeviceDetectionMiddleware',
+    'core.middleware.BaseTemplateMiddleware',
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -78,6 +79,20 @@ TEMPLATES = [
         },
     },
 ]
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
+}
 
 #URL de redirecionamento apos login
 LOGIN_REDIRECT_URL = 'core:main'
@@ -173,7 +188,10 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_2 = 'imap.gmail.com'
 EMAIL_PORT = 587
+EMAIL_PORT_2 = 993
+EMAIL_USE_SSL = True
 EMAIL_USE_TLS = True
 EMAIL_HOST_2 = "pop.gmail.com"  # Substitua pelo servidor IMAP do seu provedor
 EMAIL_PORT_2 = 995

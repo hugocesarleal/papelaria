@@ -1,4 +1,4 @@
-from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso, AvisoVisualizado
+from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import ItemEstoqueForm, ClienteForm, CustomUserCreationForm, AvisoForm
@@ -24,14 +24,12 @@ import os
 from django.conf.urls.static import static
 from django.contrib.auth import update_session_auth_hash
 from .forms import NovoPasswordForm
-
-def base_test(request):
-    user_agent = request.META.get('HTTP_USER_AGENT', '')
-    user_agent_parsed = parse(user_agent)
-    is_mobile = user_agent_parsed.is_mobile
-    base_template = 'base_mobile.html' if is_mobile else 'base.html'
-
-    return base_template
+from django.utils.timezone import localtime, now
+from .models import HorarioFuncionamento, ExcecaoHorario
+from .forms import HorarioFuncionamentoForm, ExcecaoHorarioForm
+from .models import HorarioFuncionamento, ExcecaoHorario
+from .forms import HorarioFuncionamentoForm, ExcecaoHorarioForm
+from django.template.response import TemplateResponse
 
 def teste(request):
     return render(request, 'core/teste.html')
@@ -43,6 +41,107 @@ def custom_logout(request):
 
 def is_admin(user):
     return user.is_staff
+
+@user_passes_test(is_admin)
+def editar_horario(request, pk):
+    horario = get_object_or_404(HorarioFuncionamento, pk=pk)
+    if request.method == 'POST':
+        form = HorarioFuncionamentoForm(request.POST, instance=horario)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = HorarioFuncionamentoForm(instance=horario)
+        return render(request, 'core/editar_horario_form.html', {'form': form, 'horario': horario})
+
+@user_passes_test(is_admin)
+def excluir_horario(request, pk):
+    horario = get_object_or_404(HorarioFuncionamento, pk=pk)
+    if request.method == 'POST':
+        horario.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+@user_passes_test(is_admin)
+def editar_excecao(request, pk):
+    excecao = get_object_or_404(ExcecaoHorario, pk=pk)
+    if request.method == 'POST':
+        form = ExcecaoHorarioForm(request.POST, instance=excecao)
+        if form.is_valid():
+            form.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'errors': form.errors})
+    else:
+        form = ExcecaoHorarioForm(instance=excecao)
+        return render(request, 'core/editar_excecao_form.html', {'form': form, 'excecao': excecao})
+
+@user_passes_test(is_admin)
+def excluir_excecao(request, pk):
+    excecao = get_object_or_404(ExcecaoHorario, pk=pk)
+    if request.method == 'POST':
+        excecao.delete()
+        return JsonResponse({'success': True})
+    return JsonResponse({'success': False})
+
+def papelaria_aberta():
+    # Pega o horário atual
+    hora_atual = timezone.localtime(timezone.now()).time()
+    dia_semana_atual = timezone.localtime(timezone.now()).weekday()
+
+    # Obtém os horários cadastrados
+    horarios = HorarioFuncionamento.objects.filter(dia_semana=dia_semana_atual)
+
+    # Verifica se há exceções para o horário de hoje
+    excecoes = ExcecaoHorario.objects.filter(data=timezone.localtime(timezone.now()).date())
+
+    for horario in horarios:
+        # Se a hora atual está dentro do horário de funcionamento
+        if horario.abertura <= hora_atual <= horario.fechamento:
+            # Verifica se há exceções para esse horário
+            for excecao in excecoes:
+                if excecao.horario == horario:  # Comparando com o horário específico
+                    return False  # A papelaria está fechada por causa da exceção
+
+            # Se não houve exceção, a papelaria está aberta
+            return True
+
+    # Se não encontrou nenhum horário válido, a papelaria está fechada
+    return False
+
+@user_passes_test(is_admin)
+def gerenciar_horarios(request):
+    # Ordena os horários pela ordem do dia da semana e horário de abertura
+    horarios = HorarioFuncionamento.objects.all().order_by('dia_semana', 'abertura')
+
+    # Ordena as exceções pela data e horário de abertura
+    excecoes = ExcecaoHorario.objects.all().order_by('data', 'horario__abertura')
+
+    if request.method == 'POST':
+        if 'adicionar_horario' in request.POST:
+            horario_form = HorarioFuncionamentoForm(request.POST)
+            if horario_form.is_valid():
+                horario_form.save()
+                return redirect('gerenciar-horarios')
+
+        elif 'adicionar_excecao' in request.POST:
+            excecao_form = ExcecaoHorarioForm(request.POST)
+            if excecao_form.is_valid():
+                excecao_form.save()
+                return redirect('gerenciar-horarios')
+
+    else:
+        horario_form = HorarioFuncionamentoForm()
+        excecao_form = ExcecaoHorarioForm()
+
+    return TemplateResponse(request, "core/gerenciar_horarios.html", {
+        "horarios": horarios,
+        "excecoes": excecoes,
+        "horario_form": horario_form,
+        "excecao_form": excecao_form,
+    })
 
 @user_passes_test(is_admin)
 def editar_cliente(request, pk):
@@ -79,7 +178,7 @@ def listar_avisos(request):
             return redirect('listar-avisos')
     else:
         form = AvisoForm()
-    return render(request, 'core/listar_avisos.html', {'avisos': avisos, 'form': form, 'base_template': base_test(request)})
+    return TemplateResponse(request, 'core/listar_avisos.html', {'avisos': avisos, 'form': form})
 
 @user_passes_test(is_admin)
 def editar_aviso(request, pk):
@@ -131,10 +230,9 @@ def vendas_admin(request):
 
     usuarios = CustomUser.objects.all()
 
-    return render(request, 'core/vendas_admin.html', {
+    return TemplateResponse(request, 'core/vendas_admin.html', {
         'vendas': vendas,
         'usuarios': usuarios,
-        'base_template': base_test(request),
     })
 
 @user_passes_test(is_admin)
@@ -208,8 +306,7 @@ def consulta_pontos(request):
         'total_a_pagar': total_a_pagar,
     }
     
-    context['base_template'] = base_test(request)
-    return render(request, 'core/consulta_pontos.html', context)
+    return TemplateResponse(request, 'core/consulta_pontos.html', context)
 
 @login_required
 def registrar_ponto(request):
@@ -504,7 +601,7 @@ def usuarios(request):
 
     users = get_user_model().objects.all()
 
-    return render(request, 'core/usuarios.html', {'form': form, 'users': users, 'base_template': base_test(request)})
+    return TemplateResponse(request, 'core/usuarios.html', {'form': form, 'users': users})
 
 @user_passes_test(is_admin)
 def excluir_usuario(request, pk):
@@ -536,14 +633,14 @@ def login_view(request):
             agora = timezone.now()
             avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
             
-            return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_test(request)})
+            return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
     
     itens = ItemEstoque.objects.all().order_by('nome')
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
     
-    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_test(request)})
+    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
@@ -576,7 +673,7 @@ def admin_dashboard_clientes(request):
             # Redireciona após o envio
             return redirect('admin-dashboard-clientes')
 
-    return render(request, 'core/admin_dashboard_clientes.html', {'clientes': clientes,'base_template': base_test(request)})
+    return TemplateResponse(request, 'core/admin_dashboard_clientes.html', {'clientes': clientes})
 
 @login_required
 def user_dashboard(request):
@@ -586,7 +683,7 @@ def user_dashboard(request):
 def listar_estoque_admin(request):
     itens = ItemEstoque.objects.all()
     
-    return render(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens, 'base_template': base_test(request)})
+    return TemplateResponse(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens})
 
 @user_passes_test(is_admin)
 def adicionar_item(request):
@@ -650,7 +747,7 @@ def trocar_senha(request):
         else:
             form = NovoPasswordForm(user)
 
-        return render(request, 'core/trocar_senha.html', {'form': form, 'base_template': base_test(request)})
+        return TemplateResponse(request, 'core/trocar_senha.html', {'form': form})
 
     else:
         return redirect('listar-estoque')  # Se não for primeiro acesso, redireciona para outra página
@@ -661,7 +758,9 @@ def listar_estoque(request):
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
     
-    return render(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, 'base_template': base_test(request)})
+    aberta = papelaria_aberta()
+
+    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, "papelaria_aberta": aberta})
 
 @login_required
 def remover_item_carrinho(request, item_id):

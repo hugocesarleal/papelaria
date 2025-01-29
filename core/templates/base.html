@@ -1,4 +1,5 @@
 {% load static %}
+{% load custom_tags %}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -276,6 +277,21 @@
     </style>
 </head>
 <body>
+  
+<div style="position: absolute; top: 10px; right: 10px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo">
+  {% is_papelaria_aberta as papelaria_aberta %}
+  {% if papelaria_aberta %}
+    <div class="alert alert-success d-flex align-items-center" role="alert">
+      <i class="fas fa-door-open me-2" style="font-size: 1.5em;"></i>
+      <div>Papelaria Aberta</div>
+    </div>
+  {% else %}
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+      <i class="fas fa-door-closed me-2" style="font-size: 1.5em;"></i>
+      <div>Papelaria Fechada</div>
+    </div>
+  {% endif %}
+</div>
 
 <div class="sidebar-desktop">
   <div class="wrapper">
@@ -325,10 +341,16 @@
             Vendas
           </a>
         </li>
-        <li class="{% if request.path == '/criar-aviso/' %}active{% endif %}">
+        <li class="{% if request.path == '/avisos/' %}active{% endif %}">
           <a href="{% url 'listar-avisos' %}">
             <i class="fas fa-bell"></i>
             Criar Aviso
+          </a>
+        </li>
+        <li class="{% if request.path == '/horarios/' %}active{% endif %}">
+          <a href="{% url 'gerenciar-horarios' %}">
+            <i class="fas fa-clock"></i>
+            Horários
           </a>
         </li>
       </ul>

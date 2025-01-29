@@ -34,4 +34,9 @@ urlpatterns = [
     path('usuarios/excluir/<int:pk>/', views.excluir_usuario, name='excluir-usuario'),
     path('clientes/editar/<int:pk>/', views.editar_cliente, name='editar-cliente'),
     path('clientes/excluir/<int:pk>/', views.excluir_cliente, name='excluir-cliente'),
+    path('horarios/', views.gerenciar_horarios, name='gerenciar-horarios'),
+    path('horarios/editar/<int:pk>/', views.editar_horario, name='editar-horario'),
+    path('horarios/excluir/<int:pk>/', views.excluir_horario, name='excluir-horario'),
+    path('excecoes/editar/<int:pk>/', views.editar_excecao, name='editar-excecao'),
+    path('excecoes/excluir/<int:pk>/', views.excluir_excecao, name='excluir-excecao'),
 ]
