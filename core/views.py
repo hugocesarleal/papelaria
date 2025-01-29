@@ -30,6 +30,84 @@ from .forms import HorarioFuncionamentoForm, ExcecaoHorarioForm
 from .models import HorarioFuncionamento, ExcecaoHorario
 from .forms import HorarioFuncionamentoForm, ExcecaoHorarioForm
 from django.template.response import TemplateResponse
+from .forms import CustomUserChangeForm
+from django.views.decorators.csrf import csrf_exempt
+import json
+from .models import Duvida
+from .forms import ResponderDuvidaForm
+import difflib
+from django.core.mail import BadHeaderError, send_mail
+
+@csrf_exempt
+def chatbot(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        message = data.get('message', '').lower()
+
+        # Respostas padronizadas
+        respostas = {
+            'horário de funcionamento': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'horário': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'aberto': 'Para saber se a papelaria está aberta, basta conferir o aviso no canto superior direito da página.',
+            'endereço': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
+            'localização': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
+            'valores': 'Os valores dos itens vendidos podem ser consultados na página inicial.',
+            'preços': 'Os valores dos itens vendidos podem ser consultados na página inicial.',
+            'contato': 'Você pode nos contatar pelo email dce.guytorres@gmail.com.',
+            'formas de pagamento': 'Aceitamos pagamentos em dinheiro e PIX.',
+            'promoções': 'Cadastre seu email no site para saber sobre promoções e descontos.',
+            'ajuda': 'Se precisar de ajuda, entre em contato conosco pelo email dce.guytorres@gmail.com.'
+        }
+
+        # Verifica se a mensagem contém alguma palavra-chave ou similar
+        for chave, resposta in respostas.items():
+            if difflib.get_close_matches(chave, [message], cutoff=0.6):
+                return JsonResponse({'response': resposta})
+
+        # Se não encontrar uma resposta, solicita o email do usuário
+        return JsonResponse({'response': None})
+    return JsonResponse({'response': 'Método não permitido.'}, status=405)
+
+@csrf_exempt
+def save_question(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            name = data.get('name')
+            email = data.get('email')
+            message = data.get('message')
+
+            # Verifica se os dados foram recebidos corretamente
+            if not name or not email or not message:
+                return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
+
+            # Salva a dúvida no banco de dados
+            duvida = Duvida(nome=name, email=email, mensagem=message)
+            duvida.save()
+
+            # Enviar notificação para o administrador
+            subject = 'Nova dúvida registrada'
+            notification_message = f"""
+            Uma nova dúvida foi registrada no sistema.
+
+            Nome: {name}
+            Email: {email}
+            Mensagem: {message}
+
+            Acesse o painel de administração para responder a dúvida.
+            """
+            send_mail(
+                subject,
+                notification_message,
+                'dce.guytorres@gmail.com',
+                ['hugocesarleal@gmail.com'],
+                fail_silently=False,
+            )
+
+            return JsonResponse({'success': True})
+        except json.JSONDecodeError:
+            return JsonResponse({'success': False, 'error': 'Erro ao decodificar JSON'}, status=400)
+    return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
 
 def teste(request):
     return render(request, 'core/teste.html')
@@ -41,6 +119,67 @@ def custom_logout(request):
 
 def is_admin(user):
     return user.is_staff
+
+@user_passes_test(is_admin)
+def responder_duvidas(request):
+    duvidas = Duvida.objects.filter(respondida=False)
+    if request.method == 'POST':
+        form = ResponderDuvidaForm(request.POST)
+        if form.is_valid():
+            duvida_id = request.POST.get('duvida_id')
+            duvida = get_object_or_404(Duvida, id=duvida_id)
+            duvida.resposta = form.cleaned_data['resposta']
+            duvida.respondida = True
+            duvida.save()
+            # Enviar email para o cliente
+            subject = 'Resposta à sua dúvida'
+            message = f"""
+            Olá {duvida.nome},
+
+            Você nos enviou a seguinte dúvida:
+            {duvida.mensagem}
+
+            Nossa resposta:
+            {duvida.resposta}
+
+            Se você tiver mais alguma dúvida, não hesite em nos contatar.
+
+            Atenciosamente,
+            Equipe Papelaria
+            """
+            try:
+                send_mail(
+                    subject,
+                    message,
+                    'admin@papelaria.com',
+                    [duvida.email],
+                    fail_silently=False,
+                )
+            except BadHeaderError:
+                messages.error(request, 'Erro ao enviar o email. A dúvida foi marcada como respondida, mas o email não pôde ser enviado.')
+                return redirect('responder_duvidas')
+            except Exception as e:
+                messages.error(request, f'Erro ao enviar o email. A dúvida foi marcada como respondida, mas o email não pôde ser enviado.')
+                return redirect('responder_duvidas')
+
+            messages.success(request, 'Dúvida respondida e email enviado com sucesso.')
+            return redirect('responder_duvidas')
+    else:
+        form = ResponderDuvidaForm()
+    return TemplateResponse(request, 'core/responder_duvidas.html', {'duvidas': duvidas, 'form': form})
+
+@user_passes_test(is_admin)
+def editar_usuario(request, pk):
+    user = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        form = CustomUserChangeForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Usuário atualizado com sucesso!')
+            return redirect('usuarios')
+    else:
+        form = CustomUserChangeForm(instance=user)
+    return render(request, 'core/editar_usuario_form.html', {'form': form, 'user': user})
 
 @user_passes_test(is_admin)
 def editar_horario(request, pk):
@@ -759,8 +898,17 @@ def listar_estoque(request):
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
     
     aberta = papelaria_aberta()
+    horarios = HorarioFuncionamento.objects.all().order_by('dia_semana', 'abertura')
+    for horario in horarios:
+        horario.abertura = horario.abertura.strftime('%H:%M')
+        horario.fechamento = horario.fechamento.strftime('%H:%M')
 
-    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos, "papelaria_aberta": aberta})
+    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {
+        'itens': itens,
+        'avisos_ativos': avisos_ativos,
+        'papelaria_aberta': aberta,
+        'horarios': horarios
+    })
 
 @login_required
 def remover_item_carrinho(request, item_id):

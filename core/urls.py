@@ -39,4 +39,8 @@ urlpatterns = [
     path('horarios/excluir/<int:pk>/', views.excluir_horario, name='excluir-horario'),
     path('excecoes/editar/<int:pk>/', views.editar_excecao, name='editar-excecao'),
     path('excecoes/excluir/<int:pk>/', views.excluir_excecao, name='excluir-excecao'),
+    path('usuarios/editar/<int:pk>/', views.editar_usuario, name='editar-usuario'),
+    path('chatbot/', views.chatbot, name='chatbot'),
+    path('save_question/', views.save_question, name='save_question'),
+    path('responder-duvidas/', views.responder_duvidas, name='responder_duvidas'),
 ]

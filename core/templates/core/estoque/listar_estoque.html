@@ -184,6 +184,170 @@
             color: #555;
         }
     }
+
+    .chat-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px; /* Tamanho fixo */
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background-color: white;
+        display: none; /* Inicialmente escondido */
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Animação */
+        transform: translateY(100%); /* Fora da tela inicialmente */
+        opacity: 0; /* Invisível inicialmente */
+        z-index: 1000;
+    }
+    
+    .chat-container.open {
+        transform: translateY(0); /* Dentro da tela */
+        opacity: 1; /* Visível */
+    }
+    .chat-header {
+        position: relative;
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        text-align: center;
+        font-weight: bold;
+    }
+    .chat-header button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+    .chat-header button:hover {
+        color: red;
+    }
+    .chat-messages {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    .chat-input {
+        display: flex;
+        align-items: center;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+    }
+    .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        margin-right: 10px;
+        font-size: 0.9rem;
+    }
+    .chat-input button {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 24px;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+    }
+    .chat-input button.animate {
+        transform: translateY(-10px) translateX(10px);
+    }
+    .chat-input button:hover {
+        color: #0056b3;
+    }
+    .message {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+        word-wrap: break-word;
+        opacity: 0;
+        animation: fadeIn 0.5s forwards;
+        font-size: 0.9rem;
+        
+    }
+    
+    .message.user {
+        background-color: #dcf8c6;
+        align-self: flex-end;
+        margin-left: auto;
+        text-align: right;
+    }
+    
+    .message.bot {
+        background-color: #f1f0f0;
+        align-self: flex-start;
+        margin-right: auto;
+        text-align: left;
+    }
+
+    .message.form {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        align-self: flex-start;
+        margin-right: auto;
+        text-align: left;
+        
+    }
+    
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+   
+    .email-form {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        font-size: 0.9rem;
+    }
+    .email-form input, .email-form textarea {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .email-form button {
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .email-form button:hover {
+        background-color: #0056b3;
+    }
+    .chat-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 500;
+    }
+    .chat-toggle i {
+        color: white;
+        font-size: 24px;
+    }
+
+    // Adicione isso ao seu bloco de estilos existente
+    
     
 
 {% endblock %}
@@ -196,7 +360,21 @@
         <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por nome do item..." onkeyup="filtrarItens()">
     </div>
 
-       
+    <div class="chat-toggle" id="chatToggle">
+        <i class="fas fa-comments"></i>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+        <div class="chat-header">
+            Assistente Virtual
+            <button aria-label="Close" id="closeChat"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="chat-messages" id="chatMessages"></div>
+        <div class="chat-input">
+            <input type="text" id="chatInput" placeholder="Digite sua mensagem..." onkeypress="if(event.key === 'Enter') sendMessage()">
+            <button id="sendButton" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
         
     {% if base_template == 'base_mobile.html'%}
     <div class="row">
@@ -326,22 +504,136 @@
 
     
 
-    function filtrarItens() {
-        var input = document.getElementById('searchInput');
-        var filter = input.value.toLowerCase();
-        var cards = document.querySelectorAll('.card');
-        
-        cards.forEach(function(card) {
-            var cardTitle = card.querySelector('.card-title');
-            if (cardTitle) {
-                var textValue = cardTitle.textContent || cardTitle.innerText;
-                if (textValue.toLowerCase().indexOf(filter) > -1) {
-                    card.parentElement.style.display = ''; // Exibe o card
+    document.getElementById("chatInput").addEventListener("input", function() {
+        const chatMessages = document.getElementById("chatMessages");
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    document.getElementById("chatToggle").onclick = function() {
+        const chatContainer = document.getElementById("chatContainer");
+        chatContainer.style.display = "flex";
+        setTimeout(() => {
+            chatContainer.classList.add("open");
+        }, 10); // Pequeno atraso para permitir a transição
+        document.getElementById("chatToggle").style.display = "none";
+
+        // Verifica se há mensagens no contêiner de mensagens do chat
+        const chatMessages = document.getElementById("chatMessages");
+        if (chatMessages.children.length === 0) {
+            // Adiciona a mensagem inicial após a animação do chat
+            setTimeout(() => {
+                addMessage('bot', 'Olá! Por favor, descreva sua dúvida.');
+            }, 300); // Tempo da transição
+        }
+    };
+
+    document.getElementById("closeChat").onclick = function() {
+        const chatContainer = document.getElementById("chatContainer");
+        chatContainer.classList.remove("open");
+        setTimeout(() => {
+            chatContainer.style.display = "none";
+            document.getElementById("chatToggle").style.display = "flex";
+        }, 300); // Tempo da transição
+    };
+
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (message) {
+            
+            const sendButton = document.getElementById('sendButton');
+            sendButton.classList.add('animate');
+            setTimeout(() => {
+                sendButton.classList.remove('animate');
+            }, 300);
+
+            addMessage('user', message);
+            input.value = '';
+            // Enviar mensagem para o backend
+            fetch("{% url 'chatbot' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    addMessage('bot', data.response);
                 } else {
-                    card.parentElement.style.display = 'none'; // Oculta o card
+                    addFormMessage();
                 }
-            }
-        });
+            });
+        }
+    }
+
+    function sendEmail() {
+        const name = document.getElementById('userName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const message = document.getElementById('userMessage').value.trim();
+        if (name && email && message) {
+            fetch("{% url 'save_question' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ name: name, email: email, message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessage('bot', 'Sua dúvida foi encaminhada para o administrador. Você receberá uma resposta em breve.');
+                    document.getElementById('emailForm').style.display = 'none';
+                    const formMessage = document.querySelector('.message.form');
+                    if (formMessage) {
+                        formMessage.remove();
+                    }
+                } else {
+                    console.error('Erro ao enviar dúvida:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar dúvida:', error);
+            });
+        } else {
+            console.error('Preencha todos os campos do formulário.');
+        }
+    }
+
+    function addMessage(sender, message) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender);
+        chatMessages.appendChild(messageDiv);
+        typeMessage(messageDiv, message);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function addFormMessage() {
+        const chatMessages = document.getElementById('chatMessages');
+        const formDiv = document.createElement('div');
+        formDiv.classList.add('message', 'form');
+        formDiv.innerHTML = `
+            <div class="email-form" id="emailForm">
+                <input type="text" id="userName" placeholder="Digite seu nome..." required>
+                <input type="email" id="userEmail" placeholder="Digite seu email..." required>
+                <textarea id="userMessage" placeholder="Detalhe sua dúvida..." required></textarea>
+                <button onclick="sendEmail()">Enviar</button>
+            </div>
+        `;
+        chatMessages.appendChild(formDiv);
+        addMessage('bot', 'Descreva melhor sua dúvida, e em breve um de nossos administradores irá te responder.');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function typeMessage(element, message, index = 0) {
+        if (index < message.length) {
+            element.textContent += message.charAt(index);
+            setTimeout(() => typeMessage(element, message, index + 1), 30); // Ajuste o tempo conforme necessário
+        }
     }
 
 {% endblock %}

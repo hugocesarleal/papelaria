@@ -51,7 +51,7 @@
                         <form method="post" class="mb-4">
                             {% csrf_token %}
                             {{ horario_form.as_p }}
-                            <button type="submit" class="btn btn-success" name="adicionar_horario">Adicionar</button>
+                            <button type="submit" class="btn btn-primary my-4" name="adicionar_horario">Adicionar</button>
                         </form>
                     </div>
                 </div>
@@ -105,14 +105,13 @@
                         <form method="post" class="mb-4">
                             {% csrf_token %}
                             {{ excecao_form.as_p }}
-                            <button type="submit" class="btn btn-success" name="adicionar_excecao">Adicionar</button>
+                            <button type="submit" class="btn btn-primary my-4" name="adicionar_excecao">Adicionar</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
 
-        <a href="{% url 'listar-estoque' %}" class="btn btn-secondary mt-4">Voltar</a>
     </div>
 
     <!-- Modais de Edição e Exclusão para Horários -->

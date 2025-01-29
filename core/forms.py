@@ -6,6 +6,18 @@ from .models import Cliente, Aviso
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import SetPasswordForm
 from .models import HorarioFuncionamento, ExcecaoHorario
+from django.contrib.auth.forms import UserChangeForm
+from .models import Duvida
+
+class ResponderDuvidaForm(forms.ModelForm):
+    class Meta:
+        model = Duvida
+        fields = ['resposta']
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = CustomUser
+        fields = ('username', 'email', 'is_staff', 'primeiro_acesso')
 
 class HorarioFuncionamentoForm(forms.ModelForm):
     class Meta:

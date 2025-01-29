@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Responder Dúvidas{% endblock %}
+
+{% block style %}
+#loadingModal .modal-dialog,
+    #modalEditCliente .modal-dialog,
+    #confirmDeleteModal .modal-dialog {
+        max-width: 300px; /* Ajuste o tamanho conforme necessário */
+    }
+    #loadingModal .modal-content,
+    #modalEditCliente .modal-content,
+    #confirmDeleteModal .modal-content {
+        padding: 10px;
+    }
+    .loader {
+        position: relative;
+        border-style: solid;
+        box-sizing: border-box;
+        border-width: 40px 60px 30px 60px;
+        border-color: #3760C9 #96DDFC #96DDFC #36BBF7;
+        animation: envFloating 1s ease-in infinite alternate;
+    }
+    .loader:after {
+        content: "";
+        position: absolute;
+        right: 62px;
+        top: -40px;
+        height: 70px;
+        width: 50px;
+        background-image:
+            linear-gradient(#42464d 45px, transparent 0),
+            linear-gradient(#42464d 45px, transparent 0),
+            linear-gradient(#42464d 45px, transparent 0);
+        background-repeat: no-repeat;
+        background-size: 30px 4px;
+        background-position: 0px 11px, 8px 35px, 0px 60px;
+        animation: envDropping 0.75s linear infinite;
+    }
+    @keyframes envFloating {
+        0% { transform: translate(-2px, -5px) }
+        100% { transform: translate(0, 5px) }
+    }
+    @keyframes envDropping {
+        0% { background-position: 100px 11px, 115px 35px, 105px 60px; opacity: 1; }
+        50% { background-position: 0px 11px, 20px 35px, 5px 60px; }
+        60% { background-position: -30px 11px, 0px 35px, -10px 60px; }
+        75%, 100% { background-position: -30px 11px, -30px 35px, -30px 60px; opacity: 0; }
+    }
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="text-center">Responder Dúvidas</h1>
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            {% for duvida in duvidas %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">{{ duvida.nome }}</h5>
+                    <p class="card-text">{{ duvida.mensagem }}</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <input type="hidden" name="duvida_id" value="{{ duvida.id }}">
+                        <div class="form-group">
+                            <label for="resposta_{{ duvida.id }}">Sua Resposta</label>
+                            <textarea id="resposta_{{ duvida.id }}" name="resposta" class="form-control" rows="4"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Responder</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="loadingModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                <span class="loader"></span>
+                <p style="margin-top: 10px;">Enviando a resposta<span id="loadingDots">...</span></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+$(document).ready(function() {
+    $('form').submit(function() {
+        $('#loadingModal').modal('show');
+    });
+});
+{% endblock %}
