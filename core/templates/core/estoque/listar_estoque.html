@@ -502,6 +502,24 @@
         });
     {% endif %}
 
+    function filtrarItens() {
+        var input = document.getElementById('searchInput');
+        var filter = input.value.toLowerCase();
+        var cards = document.querySelectorAll('.card');
+        
+        cards.forEach(function(card) {
+            var cardTitle = card.querySelector('.card-title');
+            if (cardTitle) {
+                var textValue = cardTitle.textContent || cardTitle.innerText;
+                if (textValue.toLowerCase().indexOf(filter) > -1) {
+                    card.parentElement.style.display = ''; // Exibe o card
+                } else {
+                    card.parentElement.style.display = 'none'; // Oculta o card
+                }
+            }
+        });
+    }
+
     
 
     document.getElementById("chatInput").addEventListener("input", function() {

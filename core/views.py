@@ -48,6 +48,7 @@ def chatbot(request):
         respostas = {
             'horário de funcionamento': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
             'horário': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'abre': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
             'aberto': 'Para saber se a papelaria está aberta, basta conferir o aviso no canto superior direito da página.',
             'endereço': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
             'localização': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
