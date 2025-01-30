@@ -673,4 +673,14 @@
         }
     }
 
+    function cleanItemName(name) {
+        return name.replace(/[.:]/g, '');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.card-title').forEach(function(title) {
+            title.textContent = cleanItemName(title.textContent);
+        });
+    });
+
 {% endblock %}

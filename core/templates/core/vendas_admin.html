@@ -117,4 +117,14 @@
             $('#comprovanteImage').attr('src', comprovanteUrl);
         });
     });
+
+    function cleanItemName(name) {
+        return name.replace(/[.:]/g, '');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('td ul li').forEach(function(li) {
+            li.textContent = cleanItemName(li.textContent);
+        });
+    });
 {% endblock %}

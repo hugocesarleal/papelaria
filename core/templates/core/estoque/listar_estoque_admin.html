@@ -224,4 +224,14 @@
                 }
             });
         }
+
+        function cleanItemName(name) {
+            return name.replace(/[.:]/g, '');
+        }
+    
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('td:nth-child(2)').forEach(function(td) {
+                td.textContent = cleanItemName(td.textContent);
+            });
+        });
 {% endblock %}
