@@ -213,9 +213,22 @@
         background-color: #007bff;
         color: white;
         padding: 10px;
-        text-align: center;
         font-weight: bold;
+        display: flex;
+        align-items: center; /* Centraliza o conteúdo verticalmente */
+        justify-content: center; /* Centraliza o conteúdo horizontalmente */
     }
+    
+    .chat-header .mascote {
+        position: absolute;
+        left: 10px; /* Alinha o mascote à esquerda */
+    }
+    
+    .chat-header .header-title {
+        flex-grow: 1;
+        text-align: center; /* Centraliza o título */
+    }
+    
     .chat-header button {
         position: absolute;
         top: 10px;
@@ -228,6 +241,39 @@
     }
     .chat-header button:hover {
         color: red;
+        transform: scale(1.2);
+        transition: transform 0.3s ease-in;
+    }
+
+    .chat-header button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.3s ease-out;
+    }
+    .chat-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 500;
+    }
+    .chat-toggle i {
+        color: white;
+        font-size: 24px;
     }
     .chat-messages {
         flex: 1;
@@ -326,25 +372,7 @@
     .email-form button:hover {
         background-color: #0056b3;
     }
-    .chat-toggle {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        width: 50px;
-        height: 50px;
-        background-color: #007bff;
-        border-radius: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        cursor: pointer;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        z-index: 500;
-    }
-    .chat-toggle i {
-        color: white;
-        font-size: 24px;
-    }
+    
 
     // Adicione isso ao seu bloco de estilos existente
     
@@ -361,12 +389,13 @@
     </div>
 
     <div class="chat-toggle" id="chatToggle">
-        <i class="fas fa-comments"></i>
+        <i class="fas fa-robot mascote"></i>
     </div>
 
     <div class="chat-container" id="chatContainer">
         <div class="chat-header">
-            Assistente Virtual
+            <i class="fas fa-robot mascote"></i> <!-- Ícone de mascote -->
+            <span class="header-title">Assistente Virtual</span> <!-- Título centralizado -->
             <button aria-label="Close" id="closeChat"><i class="fas fa-times"></i></button>
         </div>
         <div class="chat-messages" id="chatMessages"></div>

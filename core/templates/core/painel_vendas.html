@@ -1,243 +1,242 @@
 {% extends 'base.html' %}
-   
+
 {% block title %}Painel de Vendas{% endblock %}
 
 {% block style %}
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
-        .container {
-            display: flex;
-            justify-content: space-between;
-        }
-        .formulario, .carrinho {
-            width: 48%;
-            border: 1px solid #ccc;
-            padding: 20px;
-            border-radius: 5px;
-        }
-        .formulario h3, .carrinho h3 {
-            text-align: center;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-        th, td {
-            padding: 10px;
-            text-align: left;
-        }
-        .autocomplete-suggestions {
-            border: 1px solid #3f3f3f;
-            max-height: 200px;
-            overflow-y: auto;
-            position: absolute;
-            background-color: white;
-            z-index: 1000;
-            width: 25%;
-        }
-        .autocomplete-suggestion {
-            padding: 10px;
-            cursor: pointer;
-        }
-        .autocomplete-suggestion:hover {
-            background-color: #f0f0f0;
-        }
-        .item-info {
-            display: flex;
-            align-items: center;
-        }
-        .item-info img {
-            width: 50px;
-            height: 50px;
-            margin-right: 10px;
-        }
-        .alert {
-            position: fixed;
-            top: 10px;
-            right: 10px;
-            padding: 10px;
-            border-radius: 5px;
-            z-index: 9999;
-            display: none;
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-        }
-
-    </style>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+    }
+    .container {
+        display: flex;
+        justify-content: space-between;
+    }
+    .formulario, .carrinho {
+        width: 48%;
+        border: 1px solid #ccc;
+        padding: 20px;
+        border-radius: 5px;
+    }
+    .formulario h3, .carrinho h3 {
+        text-align: center;
+    }
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+    table, th, td {
+        border: 1px solid #ddd;
+    }
+    th, td {
+        padding: 10px;
+        text-align: left;
+    }
+    .autocomplete-suggestions {
+        border: 1px solid #3f3f3f;
+        max-height: 200px;
+        overflow-y: auto;
+        position: absolute;
+        background-color: white;
+        z-index: 1000;
+        width: 25%;
+    }
+    .autocomplete-suggestion {
+        padding: 10px;
+        cursor: pointer;
+    }
+    .autocomplete-suggestion:hover {
+        background-color: #f0f0f0;
+    }
+    .item-info {
+        display: flex;
+        align-items: center;
+    }
+    .item-info img {
+        width: 50px;
+        height: 50px;
+        margin-right: 10px;
+    }
+    .alert {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        padding: 10px;
+        border-radius: 5px;
+        z-index: 9999;
+        display: none;
+        opacity: 0;
+        transition: opacity 1s ease-in-out;
+    }
+</style>
 {% endblock %}
+
 {% block body %}
-    <h2>Painel de Vendas</h2>
+<h2>Painel de Vendas</h2>
 
-    <!-- Mensagem de alerta (será mostrada dinamicamente com JS) -->
-    <div id="alert-box" class="alert"></div>
+<!-- Mensagem de alerta (será mostrada dinamicamente com JS) -->
+<div id="alert-box" class="alert"></div>
 
-    <div class="container">
-        <!-- Formulário de adicionar itens -->
-        <div class="formulario">
-            <h3>Adicionar Itens ao Carrinho</h3>
-            <form method="POST">
-                {% csrf_token %}
-                <label for="item">Escolha o Item:</label>
-                <input type="text" id="item" name="item" autocomplete="off" placeholder="Digite o nome do item..." required>
-                {% if form.item.errors %}
-                    <div class="error">{{ form.item.errors }}</div>
-                {% endif %}
-                <div id="autocomplete-results" class="autocomplete-suggestions"></div><br><br>
-
-                <label for="quantidade">Quantidade:</label>
-                <input type="number" name="quantidade" min="1" required>
-                {% if form.quantidade.errors %}
-                    <div class="error">{{ form.quantidade.errors }}</div>
-                {% endif %}
-                <br><br>
-
-                <button type="submit">Adicionar ao Carrinho</button>
-            </form>
-        </div>
-
-        <!-- Carrinho de compras -->
-        <div class="carrinho">
-            <h3>Itens no Carrinho</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Item</th>
-                        <th>Quantidade</th>
-                        <th>Preço Unitário</th>
-                        <th>Total</th>
-                        <th>Ações</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for item_carrinho in carrinho.itens.all %}
-                        <tr>
-                            <td>{{ item_carrinho.item_estoque.nome }}</td>
-                            <td>{{ item_carrinho.quantidade }}</td>
-                            <td>R$ {{ item_carrinho.preco_unitario }}</td>
-                            <td>R$ {{ item_carrinho.total }}</td>
-                            <td>
-                                <form method="POST" action="{% url 'remover-item-carrinho' item_carrinho.id %}" style="display: inline;">
-                                    {% csrf_token %}
-                                    <button type="submit">Excluir</button>
-                                </form>
-                            </td>
-                        </tr>
-                    {% empty %}
-                        <tr>
-                            <td colspan="5">O carrinho está vazio.</td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <h4>Total: R$ {{ total }}<div id="total-t" data-total="{{ total|floatformat:2|escapejs }}"></div></h4>
-            {% if carrinho.itens.all %}
-                <form method="POST" action="{% url 'limpar-carrinho' %}" style="margin-top: 10px;">
-                    {% csrf_token %}
-                    <button type="submit">Limpar Carrinho</button>
-                </form>
+<div class="container">
+    <!-- Formulário de adicionar itens -->
+    <div class="formulario">
+        <h3>Adicionar Itens ao Carrinho</h3>
+        <form method="POST">
+            {% csrf_token %}
+            <label for="item">Escolha o Item:</label>
+            <input type="text" id="item" name="item" autocomplete="off" placeholder="Digite o nome do item..." required>
+            {% if form.item.errors %}
+                <div class="error">{{ form.item.errors }}</div>
             {% endif %}
-            <form method="POST" action="{% url 'concluir-venda' %}" style="margin-top: 10px;">
-                {% csrf_token %}
-                <label for="pagamento">Forma de pagamento:</label>
-                <select id="pagamento" name="pagamento" onchange="mostrarValorRecebido()">
-                    <option value="dinheiro">Dinheiro</option>
-                    <option value="pix">Pix</option>
-                </select>
+            <div id="autocomplete-results" class="autocomplete-suggestions"></div><br><br>
 
-                <!-- Campo de valor recebido -->
-                <div id="valor-recebido-container" style="display:none;">
-                    <label for="valor_recebido">Valor recebido:</label>
-                    <input type="number" id="valor_recebido" name="valor_recebido" min="0" step="0.01">
-                </div><br>
+            <label for="quantidade">Quantidade:</label>
+            <input type="number" name="quantidade" min="1" required>
+            {% if form.quantidade.errors %}
+                <div class="error">{{ form.quantidade.errors }}</div>
+            {% endif %}
+            <br><br>
 
-                <div id="troco-container" style="display:none;">
-                    <p>Troco: <span id="troco">R$ 0.00</span></p>
-                </div>
-
-                <div id="comprovante-container" style="display:none;">
-                    <p>Você selecionou pagamento via PIX. <br> Faça o upload do comprovante:</p>
-                    <h3>Comprovante de PIX:</h3>
-                    
-                    <button type="button" id="btn-atualizar" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
-                    <div id="comprovantes-container"></div>
-                </div>
-
-                <button type="submit">Finalizar Venda</button>
-            </form>
-        </div>
+            <button type="submit">Adicionar ao Carrinho</button>
+        </form>
     </div>
+
+    <!-- Carrinho de compras -->
+    <div class="carrinho">
+        <h3>Itens no Carrinho</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário</th>
+                    <th>Total</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item_carrinho in carrinho.itens.all %}
+                    <tr>
+                        <td>{{ item_carrinho.item_estoque.nome }}</td>
+                        <td>{{ item_carrinho.quantidade }}</td>
+                        <td>R$ {{ item_carrinho.preco_unitario }}</td>
+                        <td>R$ {{ item_carrinho.total }}</td>
+                        <td>
+                            <form method="POST" action="{% url 'remover-item-carrinho' item_carrinho.id %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit">Excluir</button>
+                            </form>
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">O carrinho está vazio.</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <h4>Total: R$ {{ total }}<div id="total-t" data-total="{{ total|floatformat:2|escapejs }}"></div></h4>
+        {% if carrinho.itens.all %}
+            <form method="POST" action="{% url 'limpar-carrinho' %}" style="margin-top: 10px;">
+                {% csrf_token %}
+                <button type="submit">Limpar Carrinho</button>
+            </form>
+        {% endif %}
+        <form method="POST" action="{% url 'concluir-venda' %}" style="margin-top: 10px;">
+            {% csrf_token %}
+            <label for="pagamento">Forma de pagamento:</label>
+            <select id="pagamento" name="pagamento" onchange="mostrarValorRecebido()">
+                <option value="dinheiro">Dinheiro</option>
+                <option value="pix">Pix</option>
+            </select>
+
+            <!-- Campo de valor recebido -->
+            <div id="valor-recebido-container" style="display:none;">
+                <label for="valor_recebido">Valor recebido:</label>
+                <input type="number" id="valor_recebido" name="valor_recebido" min="0" step="0.01">
+            </div><br>
+
+            <div id="troco-container" style="display:none;">
+                <p>Troco: <span id="troco">R$ 0.00</span></p>
+            </div>
+
+            <div id="comprovante-container" style="display:none;">
+                <p>Você selecionou pagamento via PIX. <br> Faça o upload do comprovante:</p>
+                <h3>Comprovante de PIX:</h3>
+                
+                <button type="button" id="btn-atualizar" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
+                <div id="comprovantes-container"></div>
+            </div>
+
+            <button type="submit">Finalizar Venda</button>
+        </form>
+    </div>
+</div>
 {% endblock %}
 
-{% block script %}  
+{% block script %}
+<script>
+    function cleanItemName(name) {
+        return name.replace(/[.:]/g, '');
+    }
 
-function cleanItemName(name) {
-    return name.replace(/[.:]/g, '');
-}
+    const alertBox = document.getElementById('alert-box');
 
-        const alertBox = document.getElementById('alert-box');
+    // Função para mostrar a mensagem de alerta com fade in
+    function showAlert(message, type) {
+        alertBox.innerHTML = message;
+        alertBox.classList.add(type);  // Adiciona a classe para cor (alert-success ou alert-error)
+        alertBox.style.display = 'block';
+        alertBox.style.opacity = 1; // Inicia com opacidade 1 para o fade-in
 
-        // Função para mostrar a mensagem de alerta com fade in
-        function showAlert(message, type) {
-            alertBox.innerHTML = message;
-            alertBox.classList.add(type);  // Adiciona a classe para cor (alert-success ou alert-error)
-            alertBox.style.display = 'block';
-            alertBox.style.opacity = 1; // Inicia com opacidade 1 para o fade-in
-
-            // Esconde a mensagem com fade out após 5 segundos
+        // Esconde a mensagem com fade out após 5 segundos
+        setTimeout(() => {
+            alertBox.style.opacity = 0; // Fade out
             setTimeout(() => {
-                alertBox.style.opacity = 0; // Fade out
-                setTimeout(() => {
-                    alertBox.style.display = 'none'; // Esconde após o fade out
-                    alertBox.classList.remove(type);  // Remove a classe de cor após desaparecer
-                }, 1000);  // Espera o fade-out terminar
-            }, 3000);  // Exibe por 5 segundos
+                alertBox.style.display = 'none'; // Esconde após o fade out
+                alertBox.classList.remove(type);  // Remove a classe de cor após desaparecer
+            }, 1000);  // Espera o fade-out terminar
+        }, 3000);  // Exibe por 5 segundos
+    }
+
+    // Exibe a mensagem quando uma notificação for recebida
+
+    const itemInput = document.getElementById('item');
+    const resultsDiv = document.getElementById('autocomplete-results');
+
+    itemInput.addEventListener('input', function() {
+        const query = itemInput.value;
+        if (query.length < 1) {
+            resultsDiv.innerHTML = '';
+            return;
         }
 
-        // Exibe a mensagem quando uma notificação for recebida
-
-        const itemInput = document.getElementById('item');
-        const resultsDiv = document.getElementById('autocomplete-results');
-
-        itemInput.addEventListener('input', function() {
-            const query = itemInput.value;
-            if (query.length < 1) {
+        fetch(`/buscar-itens/?q=${query}`)
+            .then(response => response.json())
+            .then(data => {
                 resultsDiv.innerHTML = '';
-                return;
-            }
-
-            fetch(`/buscar-itens/?q=${query}`)
-                .then(response => response.json())
-                .then(data => {
-                    resultsDiv.innerHTML = '';
-                    data.forEach(item => {
-                        const div = document.createElement('div');
-                        div.classList.add('autocomplete-suggestion');
-                        div.innerHTML = `
-                            <div class="item-info">
-                                <img src="${item.foto}" alt="${cleanItemName(item.nome)}">
-                                <span>${cleanItemName(item.nome)}</span>
-                                <span>(${item.quantidade})</span>
-                            </div>
-                        `;
-                        div.addEventListener('click', function() {
-                            itemInput.value = item.nome;
-                            resultsDiv.innerHTML = '';  // Limpa as sugestões após selecionar
-                        });
-                        resultsDiv.appendChild(div);
+                data.forEach(item => {
+                    const div = document.createElement('div');
+                    div.classList.add('autocomplete-suggestion');
+                    div.innerHTML = `
+                        <div class="item-info">
+                            <img src="${item.foto}" alt="${cleanItemName(item.nome)}">
+                            <span>${cleanItemName(item.nome)}</span>
+                            <span>(${item.quantidade})</span>
+                        </div>
+                    `;
+                    div.addEventListener('click', function() {
+                        itemInput.value = item.nome;
+                        resultsDiv.innerHTML = '';  // Limpa as sugestões após selecionar
                     });
-                })
-                .catch(error => console.error('Erro ao buscar itens:', error));
-        });
-        
+                    resultsDiv.appendChild(div);
+                });
+            })
+            .catch(error => console.error('Erro ao buscar itens:', error));
+    });
 
-        // Exibe ou esconde o campo de valor recebido e calcula o troco
+    // Exibe ou esconde o campo de valor recebido e calcula o troco
     const total = document.getElementById('total-t').getAttribute('data-total');
 
     // Função para exibir o troco e outras funcionalidades
@@ -283,44 +282,42 @@ function cleanItemName(name) {
     mostrarValorRecebido();
 
     function atualizarComprovantes(carrinhoId) {
-    fetch(`/buscar-comprovantes-pix/${carrinhoId}`)
-        .then(response => response.json())
-        .then(data => {
-            const comprovantesContainer = document.getElementById('comprovantes-container');
-            comprovantesContainer.innerHTML = '';  // Limpa os comprovantes anteriores
+        fetch(`/buscar-comprovantes-pix/${carrinhoId}`)
+            .then(response => response.json())
+            .then(data => {
+                const comprovantesContainer = document.getElementById('comprovantes-container');
+                comprovantesContainer.innerHTML = '';  // Limpa os comprovantes anteriores
 
-            if (data.comprovantes && data.comprovantes.length > 0) {
-                const comprovante = data.comprovantes[0];  // Pega o último comprovante
-                const imgElement = document.createElement('img');
-                imgElement.src = `/media/comprovantes_pix/${comprovante.arquivo}`;
-                imgElement.alt = "Comprovante PIX";
-                imgElement.style.maxWidth = "100%";
-                imgElement.style.height = "auto";
+                if (data.comprovantes && data.comprovantes.length > 0) {
+                    const comprovante = data.comprovantes[0];  // Pega o último comprovante
+                    const imgElement = document.createElement('img');
+                    imgElement.src = `/media/comprovantes_pix/${comprovante.arquivo}`;
+                    imgElement.alt = "Comprovante PIX";
+                    imgElement.style.maxWidth = "100%";
+                    imgElement.style.height = "auto";
 
-                const pElement = document.createElement('p');
-                pElement.innerHTML = `Comprovante: `;
-                pElement.appendChild(imgElement);
+                    const pElement = document.createElement('p');
+                    pElement.innerHTML = `Comprovante: `;
+                    pElement.appendChild(imgElement);
 
-                comprovantesContainer.appendChild(pElement);
-            } else {
-                comprovantesContainer.innerHTML = '<p>Não há comprovantes recentes.</p>';
-            }
-        })
-        .catch(error => console.error('Erro ao atualizar comprovantes:', error));
-}
+                    comprovantesContainer.appendChild(pElement);
+                } else {
+                    comprovantesContainer.innerHTML = '<p>Não há comprovantes recentes.</p>';
+                }
+            })
+            .catch(error => console.error('Erro ao atualizar comprovantes:', error));
+    }
 
+    // Inicia a exibição de comprovantes ao carregar
+    if (document.getElementById('pagamento').value === 'pix') {
+        atualizarComprovantes();
+    }
 
-        // Inicia a exibição de comprovantes ao carregar
-        if (document.getElementById('pagamento').value === 'pix') {
-            atualizarComprovantes();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Limpa os nomes dos itens na tabela
-            document.querySelectorAll('td').forEach(function(td) {
-                td.textContent = cleanItemName(td.textContent);
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        // Limpa os nomes dos itens na tabela
+        document.querySelectorAll('td').forEach(function(td) {
+            td.textContent = cleanItemName(td.textContent);
         });
-
-        
+    });
+</script>
 {% endblock %}
