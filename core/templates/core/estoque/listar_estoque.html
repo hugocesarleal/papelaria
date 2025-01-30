@@ -625,6 +625,17 @@
         const chatMessages = document.getElementById('chatMessages');
         const messageDiv = document.createElement('div');
         messageDiv.classList.add('message', sender);
+    
+        // Calcular largura do balão de mensagem com base na quantidade de caracteres
+        const charCount = message.length;
+        const minWidth = 50; // largura mínima em pixels
+        const maxWidth = 800; // largura máxima em pixels
+        const charWidth = 8; // largura média de um caractere em pixels
+        const calculatedWidth = Math.min(maxWidth, Math.max(minWidth, charCount * charWidth));
+        messageDiv.style.width = calculatedWidth + 'px';
+        messageDiv.style.whiteSpace = 'normal';
+        messageDiv.style.wordWrap = 'break-word';
+    
         chatMessages.appendChild(messageDiv);
         typeMessage(messageDiv, message);
         chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -638,11 +649,19 @@
             <div class="email-form" id="emailForm">
                 <input type="text" id="userName" placeholder="Digite seu nome..." required>
                 <input type="email" id="userEmail" placeholder="Digite seu email..." required>
-                <textarea id="userMessage" placeholder="Detalhe sua dúvida..." required></textarea>
+                <textarea id="userMessage" placeholder="Detalhe sua dúvida..." required style="overflow: hidden; resize: none;"></textarea>
                 <button onclick="sendEmail()">Enviar</button>
             </div>
         `;
         chatMessages.appendChild(formDiv);
+    
+        // Selecionar a textarea e adicionar evento de input para ajustar a altura
+        const textarea = formDiv.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    
         addMessage('bot', 'Descreva melhor sua dúvida, e em breve um de nossos administradores irá te responder.');
         chatMessages.scrollTop = chatMessages.scrollHeight;
     }

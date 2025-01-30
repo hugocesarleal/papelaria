@@ -37,6 +37,7 @@ from .models import Duvida
 from .forms import ResponderDuvidaForm
 import difflib
 from django.core.mail import BadHeaderError, send_mail
+import re
 
 @csrf_exempt
 def chatbot(request):
@@ -49,6 +50,7 @@ def chatbot(request):
             'horário de funcionamento': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
             'horário': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
             'abre': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'abrir': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
             'aberto': 'Para saber se a papelaria está aberta, basta conferir o aviso no canto superior direito da página.',
             'endereço': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
             'localização': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
@@ -62,10 +64,9 @@ def chatbot(request):
 
         # Verifica se a mensagem contém alguma palavra-chave ou similar
         for chave, resposta in respostas.items():
-            if difflib.get_close_matches(chave, [message], cutoff=0.6):
+            if re.search(r'\b' + re.escape(chave) + r'\b', message):
                 return JsonResponse({'response': resposta})
 
-        # Se não encontrar uma resposta, solicita o email do usuário
         return JsonResponse({'response': None})
     return JsonResponse({'response': 'Método não permitido.'}, status=405)
 
