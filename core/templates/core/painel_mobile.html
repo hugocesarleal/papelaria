@@ -2,14 +2,80 @@
 
 {% block title %}Upload de Foto{% endblock %}
 
+{% block style %}
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+h1 {
+    text-align: center;
+    color: #333;
+    margin-top: 20px;
+}
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: #fff;
+    margin: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+input[type="file"] {
+    margin: 20px 0;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    max-width: 300px;
+}
+button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+button:hover {
+    background-color: #0056b3;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    margin-top: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+{% endblock %}
+
 {% block body %}
 
-    <h1>Envie uma Foto</h1>
+    <h1 class="mt-4 ml-1 mr-1">Tire uma foto do Comprovante Pix</h1>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ form.as_p }}
-        <input type="file" accept="image/*" capture="camera" name="imagem">
-        <button type="submit">Enviar Foto</button>
+        <input type="file" accept="image/*" capture="camera" name="imagem" id="imagemInput">
+        <img id="imagemPreview" src="#" alt="Pré-visualização da Imagem" style="display: none;">
+        <button class="mt-2" type="submit">Enviar Foto</button>
     </form>
+
+{% endblock %}
+
+{% block script %}
+
+    document.getElementById('imagemInput').addEventListener('change', function(event) {
+        var reader = new FileReader();
+        reader.onload = function() {
+            var output = document.getElementById('imagemPreview');
+            output.src = reader.result;
+            output.style.display = 'block';
+        };
+        reader.readAsDataURL(event.target.files[0]);
+    });
 
 {% endblock %}

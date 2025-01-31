@@ -658,6 +658,7 @@ def painel_vendas(request):
 
     if user.primeiro_acesso:
         return redirect('trocar-senha')
+    
     else:
         user_agent = request.META.get('HTTP_USER_AGENT', '')
         user_agent_parsed = parse(user_agent)
@@ -748,6 +749,10 @@ def cadastrar_cliente(request):
     
 @user_passes_test(is_admin)
 def usuarios(request):
+    
+    if request.user.primeiro_acesso:
+        return redirect('trocar-senha')
+    
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
