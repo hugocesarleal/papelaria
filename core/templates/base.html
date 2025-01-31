@@ -281,6 +281,7 @@
 </head>
 <body>
   
+{% if request.path == '/' %}
 <div style="position: absolute; top: 10px; right: 10px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo">
   {% is_papelaria_aberta as papelaria_aberta %}
   {% if papelaria_aberta %}
@@ -295,6 +296,7 @@
     </div>
   {% endif %}
 </div>
+{% endif %}
 
 <div class="sidebar-desktop">
   <div class="wrapper">

@@ -583,42 +583,69 @@ def buscar_itens(request):
 @login_required
 def concluir_venda(request):
     carrinho = Carrinho.objects.get(user=request.user, ativo=True)
-
+    # Forma de pagamento
     if request.method == "POST":
-        # Recebendo as informações de pagamento do formulário
+        pagamento = request.POST.get('pagamento', None)
         valor_recebido = request.POST.get('valor_recebido', None)  # Valor recebido em dinheiro
-        pagamento = request.POST.get('pagamento', None)  # Forma de pagamento
-
-        if pagamento != 'pix':
-            carrinho.comprovante_pix = None
+        comprovante_pix = carrinho.comprovante_pix  # Comprovante PIX
 
         try:
-            with transaction.atomic():
-                # Atualiza o carrinho com a data de venda e valor total
-                carrinho.data_venda = timezone.now()
-                carrinho.valor_total = sum(item.total() for item in carrinho.itens.all())
+            valor_recebido = Decimal(valor_recebido) if valor_recebido else None
+        except:
+            valor_recebido = None  # Valor inválido ou não fornecido
+
+        with transaction.atomic():  # Garante que todas as operações sejam atômicas
+            # Calcula o valor total da venda
+            valor_total = sum(item.total() for item in carrinho.itens.all())
+            if valor_total != 0 and carrinho.itens.exists():
+                for item_carrinho in carrinho.itens.all():
+                    item_estoque = item_carrinho.item_estoque
+                    quantidade_vendida = item_carrinho.quantidade
+
+                    # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
+                    if item_estoque.nome in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)']:
+                        # Abate a quantidade vendida do estoque dos três itens
+
+                        for nome_item in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)']:
+                            item_associado = ItemEstoque.objects.get(nome=nome_item)
+                            print(item_associado.nome)
+                            if item_associado.quantidade >= quantidade_vendida:
+                                item_associado.quantidade -= quantidade_vendida
+                                item_associado.save()
+                            else:
+                                messages.error(request, f"Quantidade insuficiente no estoque para {nome_item}.")
+                                return redirect('painel-vendas')
+                    else:
+                        # Verifica se há estoque suficiente
+                        if item_estoque.quantidade >= quantidade_vendida:
+                            item_estoque.quantidade -= quantidade_vendida
+                            item_estoque.save()
+                        else:
+                            messages.error(request, f"Quantidade insuficiente no estoque para {item_estoque.nome}.")
+                            return redirect('painel-vendas')
+
+                # Salva as informações da venda no carrinho
                 carrinho.ativo = False
+                carrinho.valor_recebido = valor_recebido
+
+                if pagamento != 'pix':
+                    carrinho.comprovante_pix = None
+                else:
+                    carrinho.comprovante_pix = comprovante_pix
+
+                carrinho.data_venda = now()  # Data e hora da venda
+                carrinho.valor_total = valor_total
                 carrinho.save()
 
-                # Se o pagamento for em dinheiro, calcula o troco
-                if pagamento == 'dinheiro' and valor_recebido:
-                    valor_recebido = Decimal(valor_recebido.replace(',', '.'))
-                    troco = valor_recebido - carrinho.valor_total
-                    if troco < 0:
-                        messages.error(request, 'Valor recebido é insuficiente.')
-                        return redirect('painel-vendas')
-                    messages.success(request, f'Venda concluída com sucesso! Troco: R$ {troco:.2f}')
-                elif pagamento == 'pix':
-                    messages.success(request, 'Venda concluída com sucesso! Pagamento via PIX confirmado.')
-                else:
-                    messages.error(request, 'Forma de pagamento inválida.')
-                    return redirect('painel-vendas')
-
-                # Redireciona para o painel de vendas
+                # Opcional: Você pode criar registros históricos detalhados da venda
+                for item_carrinho in carrinho.itens.all():
+                    item_carrinho.venda = carrinho  # Associa o item ao carrinho (se necessário)
+                    item_carrinho.save()
+            else:
+                messages.error(request, "O carrinho está vazio!")
                 return redirect('painel-vendas')
-        except Exception as e:
-            messages.error(request, f'Ocorreu um erro ao concluir a venda: {e}')
-            return redirect('painel-vendas')
+
+            return redirect('painel-vendas')  # Ou para onde você quiser redirecionar após a venda ser concluída
 
     return render(request, 'core/painel_vendas.html', {'carrinho': carrinho})
 

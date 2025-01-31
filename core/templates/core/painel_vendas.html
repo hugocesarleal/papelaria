@@ -176,7 +176,7 @@
 {% endblock %}
 
 {% block script %}
-<script>
+
     function cleanItemName(name) {
         return name.replace(/[.:]/g, '');
     }
@@ -319,5 +319,5 @@
             td.textContent = cleanItemName(td.textContent);
         });
     });
-</script>
+
 {% endblock %}
