@@ -40,6 +40,35 @@
         opacity: 0;
         transition: opacity 1s ease-in-out;
     }
+    .comprovante-pix {
+        max-width: 200px;
+        max-height: 200px;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border: 2px solid #ccc;
+        padding: 5px;
+        background-color: #f9f9f9;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-radius: 10px; /* Adiciona bordas arredondadas */
+        border: 2px solid #ccc; /* Adiciona uma borda cinza */
+    }
+    .comprovante-pix:hover {
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Sombra mais forte ao passar o mouse */
+    }
+    .comprovante-pix.zoom {
+        transform: scale(4);
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(4);
+        z-index: 10000;
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        border-radius: 10px; /* Mantém as bordas arredondadas no zoom */
+    }
+
+    .esgotado {
+        filter: grayscale(100%);
+    }
 </style>
 {% endblock %}
 
@@ -93,21 +122,21 @@
                     <table class="table table-bordered">
                         <thead>
                             <tr>
-                                <th>Item</th>
-                                <th>Quantidade</th>
-                                <th>Preço Unitário</th>
-                                <th>Total</th>
-                                <th>Ações</th>
+                                <th class="align-middle text-center">Item</th>
+                                <th class="align-middle text-center">Quantidade</th>
+                                <th class="align-middle text-center">Preço Unitário</th>
+                                <th class="align-middle text-center">Total</th>
+                                <th class="align-middle text-center">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for item_carrinho in carrinho.itens.all %}
                                 <tr>
-                                    <td>{{ item_carrinho.item_estoque.nome }}</td>
-                                    <td>{{ item_carrinho.quantidade }}</td>
-                                    <td>R$ {{ item_carrinho.preco_unitario }}</td>
-                                    <td>R$ {{ item_carrinho.total }}</td>
-                                    <td class="acoes">
+                                    <td class="align-middle text-center">{{ item_carrinho.item_estoque.nome }}</td>
+                                    <td class="align-middle text-center">{{ item_carrinho.quantidade }}</td>
+                                    <td class="align-middle text-center">R$ {{ item_carrinho.preco_unitario }}</td>
+                                    <td class="align-middle text-center">R$ {{ item_carrinho.total }}</td>
+                                    <td class="acoes align-middle text-center">
                                         <form method="POST" action="{% url 'remover-item-carrinho' item_carrinho.id %}" style="display: inline;">
                                             {% csrf_token %}
                                             <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
@@ -116,12 +145,12 @@
                                 </tr>
                             {% empty %}
                                 <tr>
-                                    <td colspan="5" class="text-center">O carrinho está vazio.</td>
+                                    <td colspan="5" class="align-middle text-center">O carrinho está vazio.</td>
                                 </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                    <h4 class="text-right">Total: R$ {{ total }}<div id="total-t" data-total="{{ total|floatformat:2|escapejs }}"></div></h4>
+                    <h4 class="text-center">Total: R$ {{ total }}<div id="total-t" data-total="{{ total|floatformat:2|escapejs }}"></div></h4>
                     {% if carrinho.itens.all %}
                         <form method="POST" action="{% url 'limpar-carrinho' %}" class="mt-2">
                             {% csrf_token %}
@@ -148,11 +177,26 @@
                             <p>Troco: <span id="troco">R$ 0.00</span></p>
                         </div>
 
-                        <div id="comprovante-container" class="form-group" style="display:none;">
-                            <p>Você selecionou pagamento via PIX. <br> Faça o upload do comprovante:</p>
-                            <h3>Comprovante de PIX:</h3>
-                            <button type="button" id="btn-atualizar" class="btn btn-info" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
-                            <div id="comprovantes-container"></div>
+                        <div id="comprovante-container" style="display:none;">
+                            
+                            <table class="table text-right">
+                                <tr>
+                                    <td class="text-center align-middle" style="width: 40%;">
+                                        Você selecionou pagamento via PIX.
+                                    </td>
+                                    <td class="acoes align-middle text-center" colspan="2">
+                                        <button type="button" id="btn-atualizar" class="btn btn-info" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-center">
+                                        Faça o upload do comprovante:
+                                    </td>
+                                    <td class="acoes align-middle text-center">
+                                        <div id="comprovantes-container" class="mt-3"></div>
+                                    </td>
+                                </tr>
+                            </table>
                         </div>
 
                         <button type="submit" class="btn btn-success btn-block">Finalizar Venda</button>
@@ -190,38 +234,40 @@
     // Exibe a mensagem quando uma notificação for recebida
 
     const itemInput = document.getElementById('item');
-    const resultsDiv = document.getElementById('autocomplete-results');
+const resultsDiv = document.getElementById('autocomplete-results');
 
-    itemInput.addEventListener('input', function() {
-        const query = itemInput.value;
-        if (query.length < 1) {
+itemInput.addEventListener('input', function() {
+    const query = itemInput.value;
+    if (query.length < 1) {
+        resultsDiv.innerHTML = '';
+        return;
+    }
+
+    fetch(`/buscar-itens/?q=${query}`)
+        .then(response => response.json())
+        .then(data => {
             resultsDiv.innerHTML = '';
-            return;
-        }
-
-        fetch(`/buscar-itens/?q=${query}`)
-            .then(response => response.json())
-            .then(data => {
-                resultsDiv.innerHTML = '';
-                data.forEach(item => {
-                    const div = document.createElement('div');
-                    div.classList.add('autocomplete-suggestion');
-                    div.innerHTML = `
-                        <div class="item-info">
-                            <img src="${item.foto}" alt="${cleanItemName(item.nome)}">
-                            <span>${cleanItemName(item.nome)}</span>
-                            <span>(${item.quantidade})</span>
-                        </div>
-                    `;
-                    div.addEventListener('click', function() {
-                        itemInput.value = item.nome;
-                        resultsDiv.innerHTML = '';  // Limpa as sugestões após selecionar
-                    });
-                    resultsDiv.appendChild(div);
+            data.forEach(item => {
+                const div = document.createElement('div');
+                div.classList.add('autocomplete-suggestion');
+                const itemClass = item.quantidade > 0 ? '' : 'esgotado'; // Adiciona a classe 'esgotado' se a quantidade for 0
+                const itemQuantidade = item.quantidade > 0 ? `(${item.quantidade})` : ' (ESGOTADO)';
+                div.innerHTML = `
+                    <div class="item-info">
+                        <img src="${item.foto}" alt="${cleanItemName(item.nome)}" class="${itemClass}">
+                        <span>${cleanItemName(item.nome)}</span>
+                        <span>${itemQuantidade}</span>
+                    </div>
+                `;
+                div.addEventListener('click', function() {
+                    itemInput.value = item.nome;
+                    resultsDiv.innerHTML = '';  // Limpa as sugestões após selecionar
                 });
-            })
-            .catch(error => console.error('Erro ao buscar itens:', error));
-    });
+                resultsDiv.appendChild(div);
+            });
+        })
+        .catch(error => console.error('Erro ao buscar itens:', error));
+});
 
     // Exibe ou esconde o campo de valor recebido e calcula o troco
     const total = document.getElementById('total-t').getAttribute('data-total');
@@ -280,11 +326,13 @@
                     const imgElement = document.createElement('img');
                     imgElement.src = `/media/comprovantes_pix/${comprovante.arquivo}`;
                     imgElement.alt = "Comprovante PIX";
-                    imgElement.style.maxWidth = "100%";
-                    imgElement.style.height = "auto";
+                    imgElement.classList.add('comprovante-pix');
+
+                    imgElement.addEventListener('click', function() {
+                        imgElement.classList.toggle('zoom');
+                    });
 
                     const pElement = document.createElement('p');
-                    pElement.innerHTML = `Comprovante: `;
                     pElement.appendChild(imgElement);
 
                     comprovantesContainer.appendChild(pElement);
