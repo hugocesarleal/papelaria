@@ -373,7 +373,9 @@
         background-color: #0056b3;
     }
     
-
+    .img-esgotado {
+        filter: grayscale(100%);
+    }
     // Adicione isso ao seu bloco de estilos existente
     
     
@@ -410,11 +412,17 @@
         {% for item in itens %}
         <div class="col-6 col-md-4 mb-4">
             <div class="card h-100">
-                <img src="{{ item.foto.url }}" class="card-img-top" alt="{{ item.nome }}">
+                <img src="{{ item.foto.url }}" class="card-img-top {% if item.quantidade == 0 %}img-esgotado{% endif %}" alt="{{ item.nome }}">
                 <div class="card-body text-center">
                     <h5 class="card-title">{{ item.nome }}</h5>
                     <p class="card-text">R$ {{ item.valor }}</p>
-                    <p class="card-text">Quantidade: {{ item.quantidade }}</p>
+                    <p class="card-text">
+                        {% if item.quantidade == 0 %}
+                            ESGOTADO
+                        {% else %}
+                            Quantidade: {{ item.quantidade }}
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>
@@ -429,11 +437,17 @@
         {% for item in itens %}
         <div class="col-md mb-4">
             <div class="card h-100">
-                <img src="{{ item.foto.url }}" class="card-img-top" alt="{{ item.nome }}">
+                <img src="{{ item.foto.url }}" class="card-img-top {% if item.quantidade == 0 %}img-esgotado{% endif %}" alt="{{ item.nome }}">
                 <div class="card-body">
                     <h5 class="card-title">{{ item.nome }}</h5>
                     <p class="card-text">R$ {{ item.valor }}</p>
-                    <p class="card-text">Quantidade: {{ item.quantidade }}</p>
+                    <p class="card-text">
+                        {% if item.quantidade == 0 %}
+                            ESGOTADO
+                        {% else %}
+                            Quantidade: {{ item.quantidade }}
+                        {% endif %}
+                    </p>
                 </div>
             </div>
         </div>

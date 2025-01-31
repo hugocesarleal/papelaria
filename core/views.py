@@ -19,6 +19,7 @@ from django.db.models import F
 from django.db.models import Q
 from user_agents import parse
 from decimal import Decimal
+from django.db.models import Case, When
 from django.core.paginator import Paginator
 import os
 from django.conf.urls.static import static
@@ -38,6 +39,7 @@ from .forms import ResponderDuvidaForm
 import difflib
 from django.core.mail import BadHeaderError, send_mail
 import re
+from django.db.models import Case, When, IntegerField
 
 @csrf_exempt
 def chatbot(request):
@@ -837,7 +839,13 @@ def user_dashboard(request):
 
 @user_passes_test(is_admin)
 def listar_estoque_admin(request):
-    itens = ItemEstoque.objects.all().order_by('nome')
+    itens = ItemEstoque.objects.annotate(
+        esgotado=Case(
+            When(quantidade=0, then=0),
+            default=1,
+            output_field=IntegerField(),
+        )
+    ).order_by('esgotado', 'nome')
     
     return TemplateResponse(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens})
 
@@ -909,7 +917,13 @@ def trocar_senha(request):
         return redirect('listar-estoque')  # Se não for primeiro acesso, redireciona para outra página
 
 def listar_estoque(request):
-    itens = ItemEstoque.objects.all().order_by('nome')
+    itens = ItemEstoque.objects.annotate(
+        esgotado=Case(
+            When(quantidade=0, then=1),
+            default=0,
+            output_field=IntegerField(),
+        )
+    ).order_by('esgotado', 'nome')
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)

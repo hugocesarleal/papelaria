@@ -41,6 +41,12 @@
             .table tbody td:last-child {
                 border-bottom: 0;
             }
+
+            
+        }
+
+        .img-esgotado {
+            filter: grayscale(100%);
         }
     </style>
 {% endblock %}
@@ -75,14 +81,14 @@
                     <tr>
                         <td class="align-middle text-center">
                             {% if item.foto %}
-                            <img src="{{ item.foto.url }}" alt="{{ item.nome }}" class="img-fluid" style="max-width: 100px; max-height: 100px;">
+                            <img src="{{ item.foto.url }}" alt="{{ item.nome }}" class="img-fluid {% if item.quantidade == 0 %}img-esgotado{% endif %}" style="max-width: 100px; max-height: 100px;">
                             {% else %}
                             <span>Sem imagem</span>
                             {% endif %}
                         </td>
                         <td class="align-middle text-center">{{ item.nome }}</td>
                         <td class="align-middle text-center">R$ {{ item.valor|floatformat:2 }}</td>
-                        <td class="align-middle text-center">{{ item.quantidade }}</td>
+                        <td class="align-middle text-center">{% if item.quantidade == 0 %}ESGOTADO{% else %}{{ item.quantidade }}{% endif %}</td>
                         <td class="align-middle text-center">
                             <div class="d-flex justify-content-center">
                                 <button class="btn btn-primary btn-sm btn-editItem" data-toggle="modal" data-target="#modalEditItem" data-id="{{ item.id }}" style="margin: 5px;">
