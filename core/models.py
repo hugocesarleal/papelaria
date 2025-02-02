@@ -6,6 +6,13 @@ from datetime import datetime, date
 from django.utils import timezone
 from django.utils.timezone import localtime
 
+class Visita(models.Model):
+    data = models.DateField(auto_now_add=True)
+    contagem = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.data} - {self.contagem} visitas"
+
 class Duvida(models.Model):
     nome = models.CharField(max_length=100)
     email = models.EmailField()

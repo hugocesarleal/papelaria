@@ -8,7 +8,6 @@
             margin-bottom: 50px;
         }
     }
-
 {% endblock %}
 
 {% block body %}
@@ -97,16 +96,24 @@
             </div>
         {% endif %}
     </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/inputmask/5.0.6/inputmask.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 {% endblock %}
 
 {% block script %}
-    document.addEventListener('DOMContentLoaded', function () {
-        const valorHoraInput = document.getElementById('valor_hora');
-        Inputmask('currency', { prefix: 'R$ ', groupSeparator: '.', alias: 'numeric', rightAlign: false }).mask(valorHoraInput);
+$(document).ready(function(){
+    // Aplique a máscara no campo de valor recebido
+    $('#valor_hora').inputmask({
+        alias: 'currency',
+        prefix: 'R$ ',
+        groupSeparator: '.',
+        radixPoint: ',',
+        digits: 2,
+        autoGroup: true,
+        rightAlign: false,
+        digitsOptional: false,
+        placeholder: '0',
+        clearMaskOnLostFocus: false,
+        numericInput: true,
+        max: 999999.99
+    });
     });
 {% endblock %}

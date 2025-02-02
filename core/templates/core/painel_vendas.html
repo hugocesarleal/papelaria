@@ -69,6 +69,18 @@
     .esgotado {
         filter: grayscale(100%);
     }
+
+    .btn-finalizar-venda {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        transition: transform 0.3s ease;
+    }
+
+    .btn-finalizar-venda:hover {
+        transform: scale(1.05);
+    }
 </style>
 {% endblock %}
 
@@ -170,7 +182,7 @@
                         <!-- Campo de valor recebido -->
                         <div id="valor-recebido-container" class="form-group" style="display:none;">
                             <label for="valor_recebido">Valor recebido:</label>
-                            <input type="number" id="valor_recebido" name="valor_recebido" class="form-control" min="0" step="0.01">
+                            <input type="text" id="valor_recebido" name="valor_recebido" class="form-control" min="0" step="0.01">
                         </div>
 
                         <div id="troco-container" class="form-group" style="display:none;">
@@ -185,7 +197,7 @@
                                         Você selecionou pagamento via PIX.
                                     </td>
                                     <td class="acoes align-middle text-center" colspan="2">
-                                        <button type="button" id="btn-atualizar" class="btn btn-info" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
+                                        <button type="button" id="btn-atualizar" class="btn btn-primary" onclick="atualizarComprovantes({{ carrinho.id }})">Carregar Comprovante</button>
                                     </td>
                                 </tr>
                                 <tr>
@@ -199,41 +211,65 @@
                             </table>
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-block">Finalizar Venda</button>
+                        <button type="submit" class="btn btn-success btn-finalizar-venda">
+                            <i class="fas fa-shopping-cart"></i> Finalizar Venda
+                        </button>
                     </form>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block script %}
 
-    
 
-    const alertBox = document.getElementById('alert-box');
+$(document).ready(function(){
+    // Aplique a máscara no campo de valor recebido
+    $('#valor_recebido').inputmask({
+        alias: 'currency',
+        prefix: 'R$ ',
+        groupSeparator: '.',
+        radixPoint: ',',
+        digits: 2,
+        autoGroup: true,
+        rightAlign: false,
+        digitsOptional: false,
+        placeholder: '0',
+        clearMaskOnLostFocus: false,
+        numericInput: true
+    });
 
-    // Função para mostrar a mensagem de alerta com fade in
-    function showAlert(message, type) {
-        alertBox.innerHTML = message;
-        alertBox.classList.add(type);  // Adiciona a classe para cor (alert-success ou alert-error)
-        alertBox.style.display = 'block';
-        alertBox.style.opacity = 1; // Inicia com opacidade 1 para o fade-in
+    // Atualiza o valor do troco quando o valor recebido é alterado
+    $('#valor_recebido').on('input', function() {
+        calcularTroco();
+    });
+});
 
-        // Esconde a mensagem com fade out após 5 segundos
+const alertBox = document.getElementById('alert-box');
+
+// Função para mostrar a mensagem de alerta com fade in
+function showAlert(message, type) {
+    alertBox.innerHTML = message;
+    alertBox.classList.add(type);  // Adiciona a classe para cor (alert-success ou alert-error)
+    alertBox.style.display = 'block';
+    alertBox.style.opacity = 1; // Inicia com opacidade 1 para o fade-in
+
+    // Esconde a mensagem com fade out após 5 segundos
+    setTimeout(() => {
+        alertBox.style.opacity = 0; // Fade out
         setTimeout(() => {
-            alertBox.style.opacity = 0; // Fade out
-            setTimeout(() => {
-                alertBox.style.display = 'none'; // Esconde após o fade out
-                alertBox.classList.remove(type);  // Remove a classe de cor após desaparecer
-            }, 1000);  // Espera o fade-out terminar
-        }, 3000);  // Exibe por 5 segundos
-    }
+            alertBox.style.display = 'none'; // Esconde após o fade out
+            alertBox.classList.remove(type);  // Remove a classe de cor após desaparecer
+        }, 1000);  // Espera o fade-out terminar
+    }, 3000);  // Exibe por 5 segundos
+}
 
-    // Exibe a mensagem quando uma notificação for recebida
+// Exibe a mensagem quando uma notificação for recebida
 
-    const itemInput = document.getElementById('item');
+const itemInput = document.getElementById('item');
 const resultsDiv = document.getElementById('autocomplete-results');
 
 itemInput.addEventListener('input', function() {
@@ -269,94 +305,98 @@ itemInput.addEventListener('input', function() {
         .catch(error => console.error('Erro ao buscar itens:', error));
 });
 
-    // Exibe ou esconde o campo de valor recebido e calcula o troco
-    const total = document.getElementById('total-t').getAttribute('data-total');
+// Exibe ou esconde o campo de valor recebido e calcula o troco
+const total = document.getElementById('total-t').getAttribute('data-total');
 
-    // Função para exibir o troco e outras funcionalidades
-    function mostrarValorRecebido() {
-        var pagamento = document.getElementById("pagamento").value;
-        var valorRecebidoContainer = document.getElementById("valor-recebido-container");
-        var trocoContainer = document.getElementById("troco-container");
-        var comprovanteContainer = document.getElementById('comprovante-container');
+// Função para exibir o troco e outras funcionalidades
+function mostrarValorRecebido() {
+    var pagamento = document.getElementById("pagamento").value;
+    var valorRecebidoContainer = document.getElementById("valor-recebido-container");
+    var trocoContainer = document.getElementById("troco-container");
+    var comprovanteContainer = document.getElementById('comprovante-container');
 
-        totalFloat = total.replace(',', '.');
+    var totalFloat = parseFloat(total.replace(',', '.'));
 
-        if (pagamento === "dinheiro") {
-            valorRecebidoContainer.style.display = "block";
-            trocoContainer.style.display = "block";
-            comprovanteContainer.style.display = 'none';
-        } else if (pagamento === 'pix'){
-            comprovanteContainer.style.display = 'block';
-            valorRecebidoContainer.style.display = 'none';
-            trocoContainer.style.display = 'none';
+    if (pagamento === "dinheiro") {
+        valorRecebidoContainer.style.display = "block";
+        trocoContainer.style.display = "block";
+        comprovanteContainer.style.display = 'none';
+    } else if (pagamento === 'pix'){
+        comprovanteContainer.style.display = 'block';
+        valorRecebidoContainer.style.display = 'none';
+        trocoContainer.style.display = 'none';
+    } else {
+        valorRecebidoContainer.style.display = 'none';
+        trocoContainer.style.display = 'none';
+        comprovanteContainer.style.display = 'none';
+    }
+}
+
+function calcularTroco() {
+    var valorRecebidoInput = document.getElementById("valor_recebido");
+    var totalFloat = parseFloat(total.replace(',', '.'));
+    var valorRecebido = parseFloat(valorRecebidoInput.inputmask.unmaskedvalue().replace(',', '.'));
+    console.log("Total:", totalFloat, "Valor Recebido:", valorRecebido); // Log para depuração
+
+    if (!isNaN(valorRecebido)) {
+        var troco = valorRecebido - totalFloat;
+
+        // Exibe o troco com 2 casas decimais
+        if (troco < 0) {
+            document.getElementById("troco").innerText = "Valor insuficiente!";
         } else {
-            valorRecebidoContainer.style.display = 'none';
-            trocoContainer.style.display = 'none';
-            comprovanteContainer.style.display = 'none';
+            document.getElementById("troco").innerText = "R$ " + troco.toFixed(2); // Exibe o troco com 2 casas decimais
         }
+    }
+}
 
-        // Atualiza o valor do troco quando o valor recebido é alterado
-        var valorRecebidoInput = document.getElementById("valor_recebido");
-        valorRecebidoInput.addEventListener("input", function() {
-            var valorRecebido = parseFloat(valorRecebidoInput.value);
-            if (!isNaN(valorRecebido)) {
-                var troco = valorRecebido - parseFloat(totalFloat);
+mostrarValorRecebido();
 
-                // Exibe o troco com 2 casas decimais
-                if (troco < 0) {
-                    document.getElementById("troco").innerText = "Valor insuficiente!";
-                } else {
-                    document.getElementById("troco").innerText = "R$ " + troco.toFixed(2); // Exibe o troco com 2 casas decimais
-                }
+function atualizarComprovantes(carrinhoId) {
+    fetch(`/buscar-comprovantes-pix/${carrinhoId}`)
+        .then(response => response.json())
+        .then(data => {
+            const comprovantesContainer = document.getElementById('comprovantes-container');
+            comprovantesContainer.innerHTML = '';  // Limpa os comprovantes anteriores
+
+            if (data.comprovantes && data.comprovantes.length > 0) {
+                const comprovante = data.comprovantes[0];  // Pega o último comprovante
+                const imgElement = document.createElement('img');
+                imgElement.src = `/media/comprovantes_pix/${comprovante.arquivo}`;
+                imgElement.alt = "Comprovante PIX";
+                imgElement.classList.add('comprovante-pix');
+                imgElement.style.cursor = 'zoom-in';  // Define o cursor como zoom-in inicialmente
+
+                imgElement.addEventListener('click', function() {
+                    imgElement.classList.toggle('zoom');
+                    imgElement.style.cursor = imgElement.classList.contains('zoom') ? 'zoom-out' : 'zoom-in';  // Alterna o cursor entre zoom-in e zoom-out
+                });
+
+                const pElement = document.createElement('p');
+                pElement.appendChild(imgElement);
+
+                comprovantesContainer.appendChild(pElement);
+            } else {
+                comprovantesContainer.innerHTML = '<p>Não há comprovantes recentes.</p>';
             }
-        });
-    }
+        })
+        .catch(error => console.error('Erro ao atualizar comprovantes:', error));
+}
 
-    mostrarValorRecebido();
+// Inicia a exibição de comprovantes ao carregar
+if (document.getElementById('pagamento').value === 'pix') {
+    atualizarComprovantes();
+}
 
-    function atualizarComprovantes(carrinhoId) {
-        fetch(`/buscar-comprovantes-pix/${carrinhoId}`)
-            .then(response => response.json())
-            .then(data => {
-                const comprovantesContainer = document.getElementById('comprovantes-container');
-                comprovantesContainer.innerHTML = '';  // Limpa os comprovantes anteriores
+function cleanItemName(name) {
+    return name.replace(/[.:]/g, '');
+}
 
-                if (data.comprovantes && data.comprovantes.length > 0) {
-                    const comprovante = data.comprovantes[0];  // Pega o último comprovante
-                    const imgElement = document.createElement('img');
-                    imgElement.src = `/media/comprovantes_pix/${comprovante.arquivo}`;
-                    imgElement.alt = "Comprovante PIX";
-                    imgElement.classList.add('comprovante-pix');
-
-                    imgElement.addEventListener('click', function() {
-                        imgElement.classList.toggle('zoom');
-                    });
-
-                    const pElement = document.createElement('p');
-                    pElement.appendChild(imgElement);
-
-                    comprovantesContainer.appendChild(pElement);
-                } else {
-                    comprovantesContainer.innerHTML = '<p>Não há comprovantes recentes.</p>';
-                }
-            })
-            .catch(error => console.error('Erro ao atualizar comprovantes:', error));
-    }
-
-    // Inicia a exibição de comprovantes ao carregar
-    if (document.getElementById('pagamento').value === 'pix') {
-        atualizarComprovantes();
-    }
-
-    function cleanItemName(name) {
-        return name.replace(/[.:]/g, '');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Limpa os nomes dos itens na tabela, exceto os que têm a classe "acoes"
-        document.querySelectorAll('td:not(.acoes)').forEach(function(td) {
-            td.textContent = cleanItemName(td.textContent);
-        });
+document.addEventListener('DOMContentLoaded', function() {
+    // Limpa os nomes dos itens na tabela, exceto os que têm a classe "acoes"
+    document.querySelectorAll('td:not(.acoes)').forEach(function(td) {
+        td.textContent = cleanItemName(td.textContent);
     });
+});
 
 {% endblock %}

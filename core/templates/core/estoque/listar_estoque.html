@@ -385,6 +385,12 @@
 {% block body %}
 <div class="container">
     <h1 class="text-center my-4">Estoque - Papelaria</h1>
+
+    <div class="text-center my-4">
+        {% if user.is_superuser %}
+            <p><i class="fas fa-chart-line"></i> Total de visitas: {{ total_visitas }}</p>
+        {% endif %}
+    </div>
     
     <div class="form-group mb-4">
         <input type="text" id="searchInput" class="form-control" placeholder="Pesquisar por nome do item..." onkeyup="filtrarItens()">

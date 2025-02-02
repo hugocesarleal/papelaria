@@ -1,4 +1,4 @@
-from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso
+from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso, Visita
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
 from .forms import ItemEstoqueForm, ClienteForm, CustomUserCreationForm, AvisoForm
@@ -40,6 +40,7 @@ import difflib
 from django.core.mail import BadHeaderError, send_mail
 import re
 from django.db.models import Case, When, IntegerField
+from django.db import models
 
 @csrf_exempt
 def chatbot(request):
@@ -383,9 +384,8 @@ def consulta_pontos(request):
     # Verifica se o formulário foi enviado para atualizar o valor da hora
     if request.method == 'POST' and 'atualizar_valor_hora' in request.POST:
         novo_valor_hora = request.POST.get('valor_hora')
-        
         # Corrige o formato do valor da hora (substituindo vírgula por ponto)
-        novo_valor_hora = novo_valor_hora.replace(',', '.')
+        novo_valor_hora = novo_valor_hora.replace('.', '').replace('R$ ', '').replace(',', '.')
         
         try:
             config = Configuracao.objects.get(id=1)
@@ -393,6 +393,8 @@ def consulta_pontos(request):
             config.save()
         except Configuracao.DoesNotExist:
             Configuracao.objects.create(id=1, valor_hora=novo_valor_hora)
+
+        messages.success(request, 'Valor da hora atualizado com sucesso!')
 
     # Se o botão de "Limpar Filtros" for pressionado, limpa os filtros
     if 'limpar_filtros' in request.GET:
@@ -468,8 +470,7 @@ def registrar_ponto(request):
 
     if request.method == "POST":
         valor_em_caixa = request.POST.get("valor_em_caixa")
-
-        valor_em_caixa = valor_em_caixa.replace(',', '.')
+        valor_em_caixa = valor_em_caixa.replace('.', '').replace('R$ ', '').replace(',', '.')
 
         # Valida se o valor em caixa foi informado
         if not valor_em_caixa or not valor_em_caixa.replace('.', '', 1).isdigit():
@@ -798,12 +799,29 @@ def login_view(request):
             
             return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
     
-    itens = ItemEstoque.objects.all().order_by('nome')
+    itens = ItemEstoque.objects.annotate(
+        esgotado=Case(
+            When(quantidade=0, then=1),
+            default=0,
+            output_field=IntegerField(),
+        )
+    ).order_by('esgotado', 'nome')
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
     
-    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
+    aberta = papelaria_aberta()
+    horarios = HorarioFuncionamento.objects.all().order_by('dia_semana', 'abertura')
+    for horario in horarios:
+        horario.abertura = horario.abertura.strftime('%H:%M')
+        horario.fechamento = horario.fechamento.strftime('%H:%M')
+
+    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {
+        'itens': itens,
+        'avisos_ativos': avisos_ativos,
+        'papelaria_aberta': aberta,
+        'horarios': horarios
+    })
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
@@ -939,11 +957,24 @@ def listar_estoque(request):
         horario.abertura = horario.abertura.strftime('%H:%M')
         horario.fechamento = horario.fechamento.strftime('%H:%M')
 
+    data_atual = timezone.now().date()
+
+    # Verifica se já existe um registro de visita para a data atual
+    visita, created = Visita.objects.get_or_create(data=data_atual)
+
+    # Incrementa a contagem de visitas
+    visita.contagem += 1
+    visita.save()
+
+    # Obtém a contagem total de visitas
+    total_visitas = Visita.objects.aggregate(total=models.Sum('contagem'))['total']
+
     return TemplateResponse(request, 'core/estoque/listar_estoque.html', {
         'itens': itens,
         'avisos_ativos': avisos_ativos,
         'papelaria_aberta': aberta,
-        'horarios': horarios
+        'horarios': horarios,
+        'total_visitas': total_visitas
     })
 
 @login_required

@@ -108,4 +108,27 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Adicione os scripts do jQuery e Inputmask -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6-beta.15/jquery.inputmask.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Aplique a máscara no campo de entrada
+            $('#valor_em_caixa').inputmask({
+                alias: 'currency',
+                prefix: 'R$ ',
+                groupSeparator: '.',
+                radixPoint: ',',
+                digits: 2,
+                autoGroup: true,
+                rightAlign: false,
+                digitsOptional: false,
+                placeholder: '0',
+                clearMaskOnLostFocus: false,
+                numericInput: true,
+                max: 999999.99
+            });
+        });
+    </script>
 {% endblock %}
