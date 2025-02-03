@@ -70,6 +70,12 @@ def chatbot(request):
             if re.search(r'\b' + re.escape(chave) + r'\b', message):
                 return JsonResponse({'response': resposta})
 
+        # Filtragem com difflib para encontrar a resposta mais próxima
+        palavras_chave = list(respostas.keys())
+        melhor_correspondencia = difflib.get_close_matches(message, palavras_chave, n=1, cutoff=0.6)
+        if melhor_correspondencia:
+            return JsonResponse({'response': respostas[melhor_correspondencia[0]]})
+
         return JsonResponse({'response': None})
     return JsonResponse({'response': 'Método não permitido.'}, status=405)
 
