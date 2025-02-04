@@ -185,7 +185,7 @@ NUMBER_GRID_PAGES = 3
 NUMBER_GRID_MODAL = 3
 
 # Duração da sessão (em segundos). Por padrão, 300 segundos (5 minutos).
-SESSION_COOKIE_AGE = 3600  # 24 horas (você pode ajustar conforme necessário)
+SESSION_COOKIE_AGE = 1800  # 1 hora (ajuste conforme necessário)
 
 # As sessões são armazenadas no banco de dados por padrão
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

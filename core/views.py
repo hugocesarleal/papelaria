@@ -520,6 +520,7 @@ def registrar_ponto(request):
     # Passe `registro_atual` no contexto
     return render(request, 'core/registrar_ponto.html', {'registros': registros, 'registro_atual': registro_atual})
 
+@login_required
 def buscar_comprovantes(request, carrinho_id):
     # Calcular a data limite (5 minutos atrás)
     usuario = request.user.username
@@ -789,9 +790,17 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
+        remember_me = request.POST.get('remember_me')  # Obtém o valor do checkbox
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
+            
+            if remember_me:
+                # Define a duração da sessão para 30 dias
+                request.session.set_expiry(60 * 60 * 24 * 30)
+            else:
+                # Define a duração da sessão para o padrão (navegador fechado)
+                request.session.set_expiry(0)
 
             if user.is_superuser:
                 return redirect('usuarios')
@@ -824,18 +833,7 @@ def login_view(request):
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
     
-    aberta = papelaria_aberta()
-    horarios = HorarioFuncionamento.objects.all().order_by('dia_semana', 'abertura')
-    for horario in horarios:
-        horario.abertura = horario.abertura.strftime('%H:%M')
-        horario.fechamento = horario.fechamento.strftime('%H:%M')
-
-    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {
-        'itens': itens,
-        'avisos_ativos': avisos_ativos,
-        'papelaria_aberta': aberta,
-        'horarios': horarios
-    })
+    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
