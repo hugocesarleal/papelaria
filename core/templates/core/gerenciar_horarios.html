@@ -30,8 +30,8 @@
                                             <td class="text-center align-middle">{{ horario.abertura }}</td>
                                             <td class="text-center align-middle">{{ horario.fechamento }}</td>
                                             <td class="text-center align-middle">
-                                                <button class="btn btn-primary btn-sm mb-1" data-toggle="modal" data-target="#editarHorarioModal" data-id="{{ horario.id }}">Editar</button>
-                                                <button class="btn btn-danger btn-sm mb-1" data-toggle="modal" data-target="#excluirHorarioModal" data-id="{{ horario.id }}">Excluir</button>
+                                                <button class="btn btn-primary btn-sm mb-1" data-toggle="modal" data-target="#editarHorarioModal" data-id="{{ horario.id }}"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-danger btn-sm mb-1" data-toggle="modal" data-target="#excluirHorarioModal" data-id="{{ horario.id }}"><i class="fas fa-trash-alt"></i></button>
                                             </td>
                                         </tr>
                                     {% endfor %}
@@ -83,8 +83,8 @@
                                             <td class="text-center align-middle">{{ excecao.horario.abertura }}</td>
                                             <td class="text-center align-middle">{{ excecao.horario.fechamento }}</td>
                                             <td class="text-center align-middle">
-                                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editarExcecaoModal" data-id="{{ excecao.id }}">Editar</button>
-                                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#excluirExcecaoModal" data-id="{{ excecao.id }}">Excluir</button>
+                                                <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#editarExcecaoModal" data-id="{{ excecao.id }}"><i class="fas fa-edit"></i></button>
+                                                <button class="btn btn-danger btn-sm" data-toggle="modal" data-target="#excluirExcecaoModal" data-id="{{ excecao.id }}"><i class="fas fa-trash-alt"></i></button>
                                             </td>
                                         </tr>
                                     {% endfor %}

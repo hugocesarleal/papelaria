@@ -313,16 +313,14 @@
   <div class="wrapper">
     <!-- Sidebar  -->
     <nav id="sidebar" class="active">
-      <div class="sidebar-header">
-        <h3 style="text-align: center; line-height: 1.5;">
-          Papelaria<br>DCE
-        </h3>
+      <div class="sidebar-header" style="cursor: pointer;" onclick="window.location.href='{% url 'listar-estoque' %}'">
+      <h3 style="text-align: center; line-height: 1.5;">
+        Papelaria<br>DCE
+      </h3>
 
-        <div class="sb-icone">
-          <i class="fas fa-paperclip"></i>
-        </div>
-
-      
+      <div class="sb-icone">
+        <i class="fas fa-paperclip"></i>
+      </div>
       </div>
 
       {% if user.is_superuser %}

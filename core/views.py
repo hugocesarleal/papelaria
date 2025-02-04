@@ -122,9 +122,6 @@ def save_question(request):
             return JsonResponse({'success': False, 'error': 'Erro ao decodificar JSON'}, status=400)
     return JsonResponse({'success': False, 'error': 'Método não permitido'}, status=405)
 
-def teste(request):
-    return render(request, 'core/teste.html')
-
 def custom_logout(request):
     request.session.flush()
     auth_logout(request)  # Isso faz o logout do usuário
@@ -358,9 +355,9 @@ def excluir_aviso(request, pk):
 
 @user_passes_test(is_admin)
 def vendas_admin(request):
-
     if 'limpar_filtros' in request.GET:
         return redirect('vendas-admin')
+
     # Filtros básicos
     data_inicial = request.GET.get('data_inicial', None)
     data_final = request.GET.get('data_final', None)
@@ -380,10 +377,15 @@ def vendas_admin(request):
 
     vendas = vendas.order_by('-data_venda')
 
+    # Paginação
+    paginator = Paginator(vendas, 10)  # Mostra 10 vendas por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     usuarios = CustomUser.objects.all()
 
     return TemplateResponse(request, 'core/vendas_admin.html', {
-        'vendas': vendas,
+        'page_obj': page_obj,
         'usuarios': usuarios,
     })
 
@@ -437,6 +439,11 @@ def consulta_pontos(request):
     # Ordena os registros do mais recente para o mais antigo, considerando data e hora
     registros = registros.order_by('-data', '-entrada')
 
+    # Paginação
+    paginator = Paginator(registros, 10)  # Mostra 10 registros por página
+    page_number = request.GET.get('page')
+    registros_page = paginator.get_page(page_number)
+
     # Calculando o total a pagar para o usuário selecionado
     total_a_pagar = 0
     for registro in registros:
@@ -446,11 +453,8 @@ def consulta_pontos(request):
     # Obter a lista de usuários para o filtro
     usuarios = CustomUser.objects.all()
 
-    # Exibir informações de caixa para cada registro
-
-
     context = {
-        'registros': registros,
+        'registros': registros_page,
         'usuarios': usuarios,
         'usuario_id': usuario_id,
         'data_inicio': data_inicio,
@@ -458,7 +462,7 @@ def consulta_pontos(request):
         'valor_hora': valor_hora,
         'total_a_pagar': total_a_pagar,
     }
-    
+
     return TemplateResponse(request, 'core/consulta_pontos.html', context)
 
 @login_required
@@ -837,8 +841,16 @@ def login_view(request):
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
-
     clientes = Cliente.objects.all()
+
+    nome_cliente = request.GET.get('nome_cliente')
+    if nome_cliente:
+        clientes = clientes.filter(nome__icontains=nome_cliente)
+
+    # Paginação
+    paginator = Paginator(clientes, 10)  # Mostra 10 clientes por página
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
 
     if request.method == "POST":
         assunto = request.POST.get("assunto")
@@ -862,11 +874,10 @@ def admin_dashboard_clientes(request):
 
             # Enviando o e-mail
             email.send(fail_silently=False)
-
             # Redireciona após o envio
             return redirect('admin-dashboard-clientes')
 
-    return TemplateResponse(request, 'core/admin_dashboard_clientes.html', {'clientes': clientes})
+    return TemplateResponse(request, 'core/admin_dashboard_clientes.html', {'clientes': page_obj})
 
 @login_required
 def user_dashboard(request):

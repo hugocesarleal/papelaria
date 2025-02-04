@@ -85,10 +85,32 @@
                     </tbody>
                 </table>
             </div>
-            <div class="ultimo">
-                <div class="total-pagar text-center mt-4">
-                    <h3>Total a pagar: R$ {{ total_a_pagar|floatformat:2 }}</h3>
-                </div>
+
+            <!-- Paginação -->
+            <div class="d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination">
+                        {% if registros.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.usuario %}usuario={{ request.GET.usuario }}&{% endif %}{% if request.GET.data_inicio %}data_inicio={{ request.GET.data_inicio }}&{% endif %}{% if request.GET.data_fim %}data_fim={{ request.GET.data_fim }}&{% endif %}page={{ registros.previous_page_number }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% for num in registros.paginator.page_range %}
+                            <li class="page-item {% if registros.number == num %}active{% endif %}">
+                                <a class="page-link" href="?{% if request.GET.usuario %}usuario={{ request.GET.usuario }}&{% endif %}{% if request.GET.data_inicio %}data_inicio={{ request.GET.data_inicio }}&{% endif %}{% if request.GET.data_fim %}data_fim={{ request.GET.data_fim }}&{% endif %}page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if registros.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?{% if request.GET.usuario %}usuario={{ request.GET.usuario }}&{% endif %}{% if request.GET.data_inicio %}data_inicio={{ request.GET.data_inicio }}&{% endif %}{% if request.GET.data_fim %}data_fim={{ request.GET.data_fim }}&{% endif %}page={{ registros.next_page_number }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
             </div>
         {% else %}
             <div class="ultimo">

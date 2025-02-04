@@ -47,11 +47,21 @@
         60% { background-position: -30px 11px, 0px 35px, -10px 60px; }
         75%, 100% { background-position: -30px 11px, -30px 35px, -30px 60px; opacity: 0; }
     }
+
+    .usuarios-container {
+        max-width: 70%;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
 {% endblock %}
 
 {% block body %}
+<div class="usuarios-container">
 <div class="container mt-5">
-    <h1 class="text-center">Responder Dúvidas</h1>
+    <h1 class="text-center mb-3">Responder Dúvidas</h1>
     <div class="row justify-content-center">
         <div class="col-md-8">
             {% if duvidas %}
@@ -91,6 +101,7 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}
 
