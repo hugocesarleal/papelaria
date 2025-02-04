@@ -813,31 +813,9 @@ def login_view(request):
         else:
             messages.error(request, 'Usuário ou senha inválidos.')
 
-            itens = ItemEstoque.objects.annotate(
-                esgotado=Case(
-                    When(quantidade=0, then=1),
-                    default=0,
-                    output_field=IntegerField(),
-                )
-            ).order_by('-prioridade', 'esgotado', 'nome')
-
-            agora = timezone.now()
-            avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
-            
-            return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
-    
-    itens = ItemEstoque.objects.annotate(
-        esgotado=Case(
-            When(quantidade=0, then=1),
-            default=0,
-            output_field=IntegerField(),
-        )
-    ).order_by('-prioridade', 'esgotado', 'nome')
-
-    agora = timezone.now()
-    avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
-    
-    return TemplateResponse(request, 'core/estoque/listar_estoque.html', {'itens': itens, 'avisos_ativos': avisos_ativos})
+            return redirect('listar-estoque')
+        
+    return redirect('listar-estoque')
 
 @user_passes_test(is_admin)
 def admin_dashboard_clientes(request):
