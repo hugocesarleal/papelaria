@@ -28,7 +28,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-ALLOWED_IP = ["127.0.0.1","10.60.61.223","192.168.1.73","10.60.60.225"]
+ALLOWED_IP = ["127.0.0.1","10.60.61.223","192.168.1.73","10.60.60.225","82.29.57.23", "dceguytorres.com"]
 
 # Application definition
 
