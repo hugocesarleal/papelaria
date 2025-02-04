@@ -416,6 +416,7 @@
     {% if base_template == 'base_mobile.html'%}
     <div class="row">
         {% for item in itens %}
+        {% if item.nome != 'Desperdício'%}
         <div class="col-6 col-md-4 mb-4">
             <div class="card h-100">
                 <img src="{{ item.foto.url }}" class="card-img-top {% if item.quantidade == 0 %}img-esgotado{% endif %}" alt="{{ item.nome }}">
@@ -432,6 +433,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         {% empty %}
         <div class="col-12">
             <p class="text-center">Nenhum item disponível no estoque.</p>
@@ -441,6 +443,7 @@
     {% else %}
     <div class="row">
         {% for item in itens %}
+        {% if item.nome != 'Desperdício'%}
         <div class="col-md mb-4">
             <div class="card h-100">
                 <img src="{{ item.foto.url }}" class="card-img-top {% if item.quantidade == 0 %}img-esgotado{% endif %}" alt="{{ item.nome }}">
@@ -457,6 +460,7 @@
                 </div>
             </div>
         </div>
+        {% endif %}
         {% empty %}
         <div class="col-12">
             <p class="text-center">Nenhum item disponível no estoque.</p>
@@ -721,15 +725,4 @@
             setTimeout(() => typeMessage(element, message, index + 1), 30); // Ajuste o tempo conforme necessário
         }
     }
-
-    function cleanItemName(name) {
-        return name.replace(/[.:]/g, '');
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        document.querySelectorAll('.card-title').forEach(function(title) {
-            title.textContent = cleanItemName(title.textContent);
-        });
-    });
-
 {% endblock %}

@@ -64,10 +64,7 @@ class ClienteForm(forms.ModelForm):
 class ItemEstoqueForm(forms.ModelForm):
     class Meta:
         model = ItemEstoque
-        fields = ['nome', 'foto', 'valor', 'quantidade']
-        widgets = {
-            'descricao': forms.Textarea(attrs={'rows': 3}),
-        }
+        fields = ['nome', 'foto', 'valor', 'quantidade', 'prioridade']
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True)

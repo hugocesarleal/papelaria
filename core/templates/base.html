@@ -84,9 +84,16 @@
           display: none;
       }
       
-      #sidebar.active .sidebar-header strong {
-          display: block;
-      }
+      #sidebar .sidebar-header .sb-icone{
+        display: none;
+        font-size: 1.8em;
+        text-align: center;
+        width: 100%;
+        }
+      
+        #sidebar.active .sidebar-header .sb-icone{
+        display: block;
+        }
       
       #sidebar ul li a {
           text-align: left;
@@ -307,8 +314,15 @@
     <!-- Sidebar  -->
     <nav id="sidebar" class="active">
       <div class="sidebar-header">
-        <h3>SideBar</h3>
-        <strong>SB</strong>
+        <h3 style="text-align: center; line-height: 1.5;">
+          Papelaria<br>DCE
+        </h3>
+
+        <div class="sb-icone">
+          <i class="fas fa-paperclip"></i>
+        </div>
+
+      
       </div>
 
       {% if user.is_superuser %}

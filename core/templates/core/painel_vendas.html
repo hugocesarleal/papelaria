@@ -294,8 +294,8 @@ itemInput.addEventListener('input', function() {
                 const itemQuantidade = item.quantidade > 0 ? `(${item.quantidade})` : ' (ESGOTADO)';
                 div.innerHTML = `
                     <div class="item-info">
-                        <img src="${item.foto}" alt="${cleanItemName(item.nome)}" class="${itemClass}">
-                        <span>${cleanItemName(item.nome)}</span>
+                        <img src="${item.foto}" alt="${item.nome}" class="${itemClass}">
+                        <span>${item.nome}</span>
                         <span>${itemQuantidade}</span>
                     </div>
                 `;
@@ -391,16 +391,4 @@ function atualizarComprovantes(carrinhoId) {
 if (document.getElementById('pagamento').value === 'pix') {
     atualizarComprovantes();
 }
-
-function cleanItemName(name) {
-    return name.replace(/[.:]/g, '');
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Limpa os nomes dos itens na tabela, exceto os que têm a classe "acoes"
-    document.querySelectorAll('td:not(.acoes)').forEach(function(td) {
-        td.textContent = cleanItemName(td.textContent);
-    });
-});
-
 {% endblock %}

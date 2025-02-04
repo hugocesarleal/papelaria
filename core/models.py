@@ -96,9 +96,10 @@ class ItemEstoque(models.Model):
     foto = models.ImageField(upload_to='estoque/', null=False, default='path/to/default/image.jpg')  # Definindo uma imagem padrão
     valor = models.DecimalField(max_digits=10, decimal_places=2)
     quantidade = models.IntegerField()
+    prioridade = models.BooleanField(default=False)  # Campo de prioridade
 
     def __str__(self):
-        return self.nomes
+        return self.nome
 
 class Carrinho(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Atualiza para usar o modelo de usuário configurado

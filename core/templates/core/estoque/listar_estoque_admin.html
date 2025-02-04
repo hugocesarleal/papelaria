@@ -133,6 +133,10 @@
                                 <label for="id_quantidade">Quantidade:</label>
                                 <input type="number" class="form-control" id="id_quantidade" name="quantidade" required>
                             </div>
+                            <div class="form-group ml-4">
+                                <input type="checkbox" class="form-check-input" id="id_prioridade" name="prioridade">
+                                Prioridade
+                            </div>
                             <button type="submit" class="btn btn-primary">Salvar</button>
                         </form>
                     </div>
@@ -230,14 +234,4 @@
                 }
             });
         }
-
-        function cleanItemName(name) {
-            return name.replace(/[.:]/g, '');
-        }
-    
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('td:nth-child(2)').forEach(function(td) {
-                td.textContent = cleanItemName(td.textContent);
-            });
-        });
 {% endblock %}

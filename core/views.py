@@ -61,6 +61,8 @@ def chatbot(request):
             'preços': 'Os valores dos itens vendidos podem ser consultados na página inicial.',
             'contato': 'Você pode nos contatar pelo email dce.guytorres@gmail.com.',
             'formas de pagamento': 'Aceitamos pagamentos em dinheiro e PIX.',
+            'dinheiro': 'Aceitamos pagamentos em dinheiro e PIX.',
+            'pix': 'Aceitamos pagamentos em dinheiro e PIX.',
             'promoções': 'Cadastre seu email no site para saber sobre promoções e descontos.',
             'ajuda': 'Se precisar de ajuda, entre em contato conosco pelo email dce.guytorres@gmail.com.'
         }
@@ -606,16 +608,16 @@ def concluir_venda(request):
         with transaction.atomic():  # Garante que todas as operações sejam atômicas
             # Calcula o valor total da venda
             valor_total = sum(item.total() for item in carrinho.itens.all())
-            if valor_total != 0 and carrinho.itens.exists():
+            if carrinho.itens.exists():
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
 
                     # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
-                    if item_estoque.nome in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)']:
+                    if item_estoque.nome in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)', 'Desperdício']:
                         # Abate a quantidade vendida do estoque dos três itens
 
-                        for nome_item in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)']:
+                        for nome_item in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)', 'Desperdício']:
                             item_associado = ItemEstoque.objects.get(nome=nome_item)
                             print(item_associado.nome)
                             if item_associado.quantidade >= quantidade_vendida:
@@ -798,7 +800,13 @@ def login_view(request):
         else:
             messages.error(request, 'Usuário ou senha inválidos.')
 
-            itens = ItemEstoque.objects.all().order_by('nome')
+            itens = ItemEstoque.objects.annotate(
+                esgotado=Case(
+                    When(quantidade=0, then=1),
+                    default=0,
+                    output_field=IntegerField(),
+                )
+            ).order_by('-prioridade', 'esgotado', 'nome')
 
             agora = timezone.now()
             avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
@@ -811,7 +819,7 @@ def login_view(request):
             default=0,
             output_field=IntegerField(),
         )
-    ).order_by('esgotado', 'nome')
+    ).order_by('-prioridade', 'esgotado', 'nome')
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
@@ -874,7 +882,7 @@ def listar_estoque_admin(request):
             default=1,
             output_field=IntegerField(),
         )
-    ).order_by('esgotado', 'nome')
+    ).order_by('esgotado', '-prioridade', 'nome')
     
     return TemplateResponse(request, 'core/estoque/listar_estoque_admin.html', {'itens': itens})
 
@@ -952,7 +960,7 @@ def listar_estoque(request):
             default=0,
             output_field=IntegerField(),
         )
-    ).order_by('esgotado', 'nome')
+    ).order_by('-prioridade', 'esgotado', 'nome')
 
     agora = timezone.now()
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)

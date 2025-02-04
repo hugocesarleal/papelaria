@@ -87,18 +87,18 @@
     
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#" style="margin-left: 20px;">Meu Sistema</a>
-            <div class="d-flex align-items-center mx-auto" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo">
+            <a class="navbar-brand" href="#" style="margin-left: 20px;">Papelaria DCE</a>
+            <div class="d-flex align-items-center ms-auto mr-3" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo">
                 {% is_papelaria_aberta as papelaria_aberta %}
                 {% if papelaria_aberta %}
                   <div class="alert alert-success d-flex align-items-center p-1 m-0" role="alert" style="font-size: 0.8em;">
                     <i class="fas fa-door-open me-1" style="font-size: 1.2em;"></i>
-                    <div>Papelaria Aberta</div>
+                    <div>Aberta</div>
                   </div>
                 {% else %}
                   <div class="alert alert-danger d-flex align-items-center p-1 m-0" role="alert" style="font-size: 0.8em;">
                     <i class="fas fa-door-closed me-1" style="font-size: 1.2em;"></i>
-                    <div>Papelaria Fechada</div>
+                    <div>Fechada</div>
                   </div>
                 {% endif %}
             </div>
@@ -150,10 +150,7 @@
                         <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'listar-estoque' %}"><i class="fas fa-home"></i> Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/user-dashboard/' %}active{% endif %}" href="{% url 'painel-vendas' %}"><i class="fas fa-cash-register"></i> Caixa</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/contato/' %}active{% endif %}" href="{% url 'registrar-ponto' %}"><i class="fas fa-receipt"></i> Ponto</a>
+                        <a class="nav-link {% if request.path == '/painel-mobile/' %}active{% endif %}" href="{% url 'painel-mobile' %}"><i class="fas fa-upload"></i> Upload Comprovante</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
