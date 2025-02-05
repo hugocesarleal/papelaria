@@ -503,12 +503,24 @@
     </div>
   
     <!-- Page Content  -->
-      <div id="content">
-        <div class="row">
-          {% block body %}
-          {% endblock %}
-        </div>
+    <div id="content">
+
+      <div class="row">
+        {% block body %}
+        {% endblock %}
       </div>
+
+      <footer class="footer py-1 bg-light" style="position: fixed; bottom: 0; width: 100%; margin: 0; padding: 0;">
+        <div class="container">
+          <div class="row">
+        <div class="col-md-12 text-center">
+          <span class="text-muted">&copy; 2025 DCE Guy Torres. Todos os direitos reservados.</span>
+        </div>
+          </div>
+        </div>
+      </footer>
+
+    </div>    
   </div>
 </div>
 
