@@ -41,6 +41,9 @@ from django.core.mail import BadHeaderError, send_mail
 import re
 from django.db.models import Case, When, IntegerField
 from django.db import models
+import logging
+
+logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def chatbot(request):
@@ -610,21 +613,17 @@ def concluir_venda(request):
         except:
             valor_recebido = None  # Valor inválido ou não fornecido
 
-        with transaction.atomic():  # Garante que todas as operações sejam atômicas
-            # Calcula o valor total da venda
+        with transaction.atomic():
             valor_total = sum(item.total() for item in carrinho.itens.all())
             if carrinho.itens.exists():
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
-                    print("CONCLUIR VENDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                    # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
-                    if item_estoque.nome in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
-                        # Abate a quantidade vendida do estoque dos três itens
 
+                    if item_estoque.nome in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
                         for nome_item in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
                             item_associado = ItemEstoque.objects.get(nome=nome_item)
-                            print(item_associado.nome)
+                            logger.info(f"Processando item associado: {item_associado.nome}")
                             if item_associado.quantidade >= quantidade_vendida:
                                 item_associado.quantidade -= quantidade_vendida
                                 item_associado.save()
@@ -632,7 +631,6 @@ def concluir_venda(request):
                                 messages.error(request, f"Quantidade insuficiente no estoque para {nome_item}.")
                                 return redirect('painel-vendas')
                     else:
-                        # Verifica se há estoque suficiente
                         if item_estoque.quantidade >= quantidade_vendida:
                             item_estoque.quantidade -= quantidade_vendida
                             item_estoque.save()
@@ -640,7 +638,6 @@ def concluir_venda(request):
                             messages.error(request, f"Quantidade insuficiente no estoque para {item_estoque.nome}.")
                             return redirect('painel-vendas')
 
-                # Salva as informações da venda no carrinho
                 carrinho.ativo = False
                 carrinho.valor_recebido = valor_recebido
 
