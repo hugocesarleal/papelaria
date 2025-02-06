@@ -1,11 +1,376 @@
 {% extends base_template %}
 
-{% load static %}
-
 {% block title %}Estoque - Papelaria{% endblock %}
 
-{% block head %}
-    <link rel="stylesheet" href="{% static 'css/listar_estoque.css' %}">
+{% block style %}
+    .table-container {
+        margin: 20px auto;
+        max-width: 90%;
+    }
+    .form-container {
+        margin-top: 30px;
+        max-width: 500px;
+    }
+    table {
+        width: 100%; /* Faz a tabela ocupar toda a largura */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        font-size: 1.6rem; /* Aumenta o tamanho da fonte */
+    }
+    th, td {
+        vertical-align: middle; /* Centraliza o conteúdo verticalmente */
+        text-align: center; /* Centraliza o texto horizontalmente */
+        padding: 10px; /* Adiciona padding para melhorar a legibilidade */
+    }
+    th {
+        font-weight: bold; /* Negrito nos cabeçalhos */
+    }
+    img {
+        max-width: 100px;
+        max-height: 100px;
+        object-fit: cover;
+    }
+
+    @media (max-width: 576px) {
+        img {
+            max-width: 150px;
+            max-height: 150px;
+        }
+        table {
+            font-size: 1rem; /* Ajusta o tamanho da fonte para telas pequenas */
+        }
+        .form-container {
+            width: 250px; /* Menor largura em telas pequenas */
+            left: 50%;
+            transform: translateX(-50%); /* Centraliza a janela horizontalmente */
+            bottom: 10px; /* Distância menor da parte inferior */
+        }
+    }
+
+    .form-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 300px; /* Defina a largura que você deseja para a janela */
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        display: block; /* O formulário ficará visível ao carregar a página */
+        animation: slideUp 0.3s ease-in-out; /* Animação para aparecer */
+    }
+    
+    @keyframes slideUp {
+        0% {
+            transform: translateY(100px);
+            opacity: 0;
+        }
+        100% {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    .form-container .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: #888;
+        cursor: pointer;
+    }
+    
+    .form-container .close-btn:hover {
+        color: red;
+    }
+
+    .textQuest {
+        font-size: 1.6rem;
+    }
+
+    .titulo-centralizado {
+        text-align: center;
+        margin: 0 auto; /* Garante centralização */
+        width: 100%; /* Opcional, caso precise ajustar o alinhamento */
+    }
+    
+    @media (max-width: 576px) {
+        img {
+            max-width: 150px;
+            max-height: 150px;
+        }
+        table {
+            font-size: 1rem; /* Ajusta o tamanho da fonte para telas pequenas */
+        }
+        .form-container {
+            width: 250px; /* Menor largura em telas pequenas */
+            left: 50%;
+            transform: translateX(-50%); /* Centraliza a janela horizontalmente */
+            bottom: 10px; /* Distância menor da parte inferior */
+        }
+        .card {
+            width: calc(100% - 10px); /* Espaço igual entre as bordas da tela */
+            margin-left: 5px; /* Espaço entre os cards */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+        }
+        .card img {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            margin-top: 10px;
+        }
+        .card-body {
+            padding: 10px;
+            text-align: center;
+        }
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+    }
+    
+    @media (min-width: 577px) {
+        .card {
+            width: 200px;
+            height: 250px;
+            margin: 0 auto;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+    
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+    
+        .card-img-top {
+            border-radius: 10px;
+            object-fit: cover;
+            width: 100px;
+            height: 100px;
+            margin-top: 20px;
+        }
+    
+        .card-body {
+            padding: 10px;
+        }
+    
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+    
+        .card-text {
+            font-size: 1.2rem;
+            color: #555;
+        }
+    }
+
+    .chat-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 350px;
+        height: 500px; /* Tamanho fixo */
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        background-color: white;
+        display: none; /* Inicialmente escondido */
+        flex-direction: column;
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out; /* Animação */
+        transform: translateY(100%); /* Fora da tela inicialmente */
+        opacity: 0; /* Invisível inicialmente */
+        z-index: 1000;
+    }
+    
+    .chat-container.open {
+        transform: translateY(0); /* Dentro da tela */
+        opacity: 1; /* Visível */
+    }
+    .chat-header {
+        position: relative;
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        font-weight: bold;
+        display: flex;
+        align-items: center; /* Centraliza o conteúdo verticalmente */
+        justify-content: center; /* Centraliza o conteúdo horizontalmente */
+    }
+    
+    .chat-header .mascote {
+        position: absolute;
+        left: 10px; /* Alinha o mascote à esquerda */
+    }
+    
+    .chat-header .header-title {
+        flex-grow: 1;
+        text-align: center; /* Centraliza o título */
+    }
+    
+    .chat-header button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+    }
+    .chat-header button:hover {
+        color: red;
+        transform: scale(1.2);
+        transition: transform 0.3s ease-in;
+    }
+
+    .chat-header button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        color: white;
+        cursor: pointer;
+        transition: transform 0.3s ease-out;
+    }
+    .chat-toggle {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        width: 50px;
+        height: 50px;
+        background-color: #007bff;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        z-index: 500;
+    }
+    .chat-toggle i {
+        color: white;
+        font-size: 24px;
+    }
+    .chat-messages {
+        flex: 1;
+        padding: 10px;
+        overflow-y: auto;
+    }
+    .chat-input {
+        display: flex;
+        align-items: center;
+        border-top: 1px solid #ddd;
+        padding: 10px;
+    }
+    .chat-input input {
+        flex: 1;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 20px;
+        margin-right: 10px;
+        font-size: 0.9rem;
+    }
+    .chat-input button {
+        background: none;
+        border: none;
+        color: #007bff;
+        font-size: 24px;
+        cursor: pointer;
+        transition: transform 0.3s ease-in-out;
+    }
+    .chat-input button.animate {
+        transform: translateY(-10px) translateX(10px);
+    }
+    .chat-input button:hover {
+        color: #0056b3;
+    }
+    .message {
+        margin-bottom: 10px;
+        padding: 10px;
+        border-radius: 10px;
+        max-width: 80%;
+        word-wrap: break-word;
+        opacity: 0;
+        animation: fadeIn 0.5s forwards;
+        font-size: 0.9rem;
+    }
+    
+    .message.user {
+        background-color: #dcf8c6;
+        align-self: flex-end;
+        margin-left: auto;
+        text-align: right;
+    }
+    
+    .message.bot {
+        background-color: #f1f0f0;
+        align-self: flex-start;
+        margin-right: auto;
+        text-align: left;
+    }
+
+    .message.form {
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        align-self: flex-start;
+        margin-right: auto;
+        text-align: left;
+    }
+    
+    @keyframes fadeIn {
+        to {
+            opacity: 1;
+        }
+    }
+   
+    .email-form {
+        display: flex;
+        flex-direction: column;
+        padding: 10px;
+        border-top: 1px solid #ddd;
+        font-size: 0.9rem;
+    }
+    .email-form input, .email-form textarea {
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+    }
+    .email-form button {
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+    .email-form button:hover {
+        background-color: #0056b3;
+    }
+    
+    .img-esgotado {
+        filter: grayscale(100%);
+    }
 {% endblock %}
 
 {% block body %}
@@ -154,7 +519,16 @@
     </div>
 {% endblock %}
 
+
 {% block script %}
+    document.getElementById("closeForm").onclick = function() {
+        document.getElementById("formContainer").style.display = "none";
+    };
+
+    if (document.cookie.indexOf("email_cadastrado=true") !== -1) {
+        document.getElementById("formContainer").style.display = "none";
+    }
+    
     {% if avisos_ativos %}
         document.addEventListener('DOMContentLoaded', function () {
             if (document.cookie.indexOf("modal_exibido=true") === -1) {
@@ -169,8 +543,201 @@
             }
         });
     {% endif %}
-{% endblock %}
 
-{% block scriptsrc %}
-    <script src="{% static 'js/listar_estoque.js' %}"></script>
+    function filtrarItens() {
+        var input = document.getElementById('searchInput');
+        var filter = input.value.toLowerCase();
+        var cards = document.querySelectorAll('.card');
+        
+        cards.forEach(function(card) {
+            var cardTitle = card.querySelector('.card-title');
+            if (cardTitle) {
+                var textValue = cardTitle.textContent || cardTitle.innerText;
+                if (textValue.toLowerCase().indexOf(filter) > -1) {
+                    card.parentElement.style.display = ''; // Exibe o card
+                } else {
+                    card.parentElement.style.display = 'none'; // Oculta o card
+                }
+            }
+        });
+    }
+
+    document.getElementById("chatInput").addEventListener("input", function() {
+        const chatMessages = document.getElementById("chatMessages");
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+
+    document.getElementById("chatToggle").onclick = function() {
+        const chatContainer = document.getElementById("chatContainer");
+        chatContainer.style.display = "flex";
+        setTimeout(() => {
+            chatContainer.classList.add("open");
+        }, 10); // Pequeno atraso para permitir a transição
+        document.getElementById("chatToggle").style.display = "none";
+
+        // Verifica se há mensagens no contêiner de mensagens do chat
+        const chatMessages = document.getElementById("chatMessages");
+        if (chatMessages.children.length === 0) {
+            // Adiciona a mensagem inicial após a animação do chat
+            setTimeout(() => {
+                addMessage('bot', 'Olá! 😊 Sou o assistente virtual da papelaria do DCE. Como posso te ajudar hoje? Se precisar de algo que eu não souber responder, posso encaminhar sua dúvida para nossos administradores!');
+            }, 300); // Tempo da transição
+        }
+    };
+
+    document.getElementById("closeChat").onclick = function() {
+        const chatContainer = document.getElementById("chatContainer");
+        chatContainer.classList.remove("open");
+        setTimeout(() => {
+            chatContainer.style.display = "none";
+            document.getElementById("chatToggle").style.display = "flex";
+        }, 300); // Tempo da transição
+    };
+
+    let typingTimeout; // Variável global para rastrear o timeout da animação de digitação
+    let isTyping = false; // Variável global para rastrear se o bot está digitando
+
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const message = input.value.trim();
+        if (message) {
+            if (isTyping) {
+                clearTimeout(typingTimeout); // Limpa o timeout anterior
+                isTyping = false; // Reseta o estado de digitação
+            }
+
+            const sendButton = document.getElementById('sendButton');
+            sendButton.classList.add('animate');
+            setTimeout(() => {
+                sendButton.classList.remove('animate');
+            }, 300);
+
+            addMessage('user', message);
+            input.value = '';
+
+            // Adiciona um atraso antes de enviar a mensagem para o backend
+
+            // Enviar mensagem para o backend
+            fetch("{% url 'chatbot' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    setTimeout(() => {
+                        addMessage('bot', data.response);
+                    }, 1000); // Delay de 1 segundo (1000 milissegundos)
+                } else {
+                    setTimeout(() => {
+                        addFormMessage();
+                    }, 1000); // Delay de 1 segundo (1000 milissegundos)
+                }
+            });
+        }
+    }
+
+    function sendEmail() {
+        const name = document.getElementById('userName').value.trim();
+        const email = document.getElementById('userEmail').value.trim();
+        const message = document.getElementById('userMessage').value.trim();
+        if (name && email && message) {
+            fetch("{% url 'save_question' %}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ name: name, email: email, message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    addMessage('bot', 'Sua dúvida foi encaminhada para o administrador. Você receberá uma resposta em breve.');
+                    document.getElementById('emailForm').style.display = 'none';
+                    const formMessage = document.querySelector('.message.form');
+                    if (formMessage) {
+                        formMessage.remove();
+                    }
+                } else {
+                    console.error('Erro ao enviar dúvida:', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao enviar dúvida:', error);
+            });
+        } else {
+            console.error('Preencha todos os campos do formulário.');
+        }
+    }
+
+    function addMessage(sender, message) {
+        const chatMessages = document.getElementById('chatMessages');
+        const messageDiv = document.createElement('div');
+        messageDiv.classList.add('message', sender);
+    
+        // Calcular largura do balão de mensagem com base na quantidade de caracteres
+        const charCount = message.length;
+        const minWidth = 50; // largura mínima em pixels
+        const maxWidth = 800; // largura máxima em pixels
+        const charWidth = 12; // largura média de um caractere em pixels
+        const calculatedWidth = Math.min(maxWidth, Math.max(minWidth, charCount * charWidth));
+        messageDiv.style.width = calculatedWidth + 'px';
+        messageDiv.style.whiteSpace = 'normal';
+        messageDiv.style.wordWrap = 'break-word';
+    
+        chatMessages.appendChild(messageDiv);
+        if (sender === 'bot') {
+            typeMessage(messageDiv, message);
+        } else {
+            messageDiv.textContent = message;
+        }
+        messageDiv.scrollIntoView({ behavior: 'smooth' });
+    
+        // Reproduzir áudio apenas quando sender for 'bot'
+        if (sender === 'bot') {
+            const audio = new Audio('/static/mp3/chat.mp3');
+            audio.volume = 0.2; // Define o volume para 20%
+            audio.play();
+        }
+    }
+
+    function addFormMessage() {
+        const chatMessages = document.getElementById('chatMessages');
+        const formDiv = document.createElement('div');
+        formDiv.classList.add('message', 'form');
+        formDiv.innerHTML = `
+            <div class="email-form" id="emailForm">
+                <input type="text" id="userName" placeholder="Digite seu nome..." required>
+                <input type="email" id="userEmail" placeholder="Digite seu email..." required>
+                <textarea id="userMessage" placeholder="Detalhe sua dúvida..." required style="overflow: hidden; resize: none;"></textarea>
+                <button onclick="sendEmail()">Enviar</button>
+            </div>
+        `;
+        chatMessages.appendChild(formDiv);
+    
+        // Selecionar a textarea e adicionar evento de input para ajustar a altura
+        const textarea = formDiv.querySelector('textarea');
+        textarea.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+    
+        addMessage('bot', 'Descreva melhor sua dúvida, e em breve um de nossos administradores irá te responder.');
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function typeMessage(element, message, index = 0) {
+        if (index < message.length) {
+            element.textContent += message.charAt(index);
+            isTyping = true; // Define o estado de digitação como verdadeiro
+            typingTimeout = setTimeout(() => typeMessage(element, message, index + 1), 30); // Ajuste o tempo conforme necessário
+        } else {
+            isTyping = false; // Reseta o estado de digitação quando a mensagem estiver completa
+        }
+    }
 {% endblock %}
