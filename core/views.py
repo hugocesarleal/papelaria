@@ -613,31 +613,38 @@ def concluir_venda(request):
         except:
             valor_recebido = None  # Valor inválido ou não fornecido
 
-        with transaction.atomic():
+        with transaction.atomic():  # Garante que todas as operações sejam atômicas
+            # Calcula o valor total da venda
             valor_total = sum(item.total() for item in carrinho.itens.all())
             if carrinho.itens.exists():
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
-
+                    # Adiciona um console log do JavaScript para teste
+                
+                    # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
                     if item_estoque.nome in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
-                        for nome_item in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
-                            item_associado = ItemEstoque.objects.get(nome=nome_item)
-                            logger.info(f"Processando item associado: {item_associado.nome}")
-                            if item_associado.quantidade >= quantidade_vendida:
-                                item_associado.quantidade -= quantidade_vendida
-                                item_associado.save()
-                            else:
-                                messages.error(request, f"Quantidade insuficiente no estoque para {nome_item}.")
-                                return redirect('painel-vendas')
+                        # Abate a quantidade vendida do estoque dos três itens
+                        return redirect('registrar-ponto')
+                        # for nome_item in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
+                        #     item_associado = ItemEstoque.objects.get(nome=nome_item)
+                        #     print(item_associado.nome)
+                        #     if item_associado.quantidade >= quantidade_vendida:
+                        #         item_associado.quantidade -= quantidade_vendida
+                        #         item_associado.save()
+                        #     else:
+                        #         messages.error(request, f"Quantidade insuficiente no estoque para {nome_item}.")
+                        #         return redirect('painel-vendas')
                     else:
-                        if item_estoque.quantidade >= quantidade_vendida:
-                            item_estoque.quantidade -= quantidade_vendida
-                            item_estoque.save()
-                        else:
-                            messages.error(request, f"Quantidade insuficiente no estoque para {item_estoque.nome}.")
-                            return redirect('painel-vendas')
+                        # Verifica se há estoque suficiente
+                        # if item_estoque.quantidade >= quantidade_vendida:
+                        #     item_estoque.quantidade -= quantidade_vendida
+                        #     item_estoque.save()
+                        # else:
+                        #     messages.error(request, f"Quantidade insuficiente no estoque para {item_estoque.nome}.")
+                            return redirect('listar-estoque')
 
+                # Salva as informações da venda no carrinho
                 carrinho.ativo = False
                 carrinho.valor_recebido = valor_recebido
 
