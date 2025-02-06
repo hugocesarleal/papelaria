@@ -50,21 +50,22 @@ def chatbot(request):
 
         # Respostas padronizadas
         respostas = {
-            'horário de funcionamento': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'horário': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'abre': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'abrir': 'Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'aberto': 'Para saber se a papelaria está aberta, basta conferir o aviso no canto superior direito da página.',
-            'endereço': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
-            'localização': 'Estamos localizados no prédio do DCE, ao lado da biblioteca.',
-            'valores': 'Os valores dos itens vendidos podem ser consultados na página inicial.',
-            'preços': 'Os valores dos itens vendidos podem ser consultados na página inicial.',
-            'contato': 'Você pode nos contatar pelo email dce.guytorres@gmail.com.',
-            'formas de pagamento': 'Aceitamos pagamentos em dinheiro e PIX.',
-            'dinheiro': 'Aceitamos pagamentos em dinheiro e PIX.',
-            'pix': 'Aceitamos pagamentos em dinheiro e PIX.',
-            'promoções': 'Cadastre seu email no site para saber sobre promoções e descontos.',
-            'ajuda': 'Se precisar de ajuda, entre em contato conosco pelo email dce.guytorres@gmail.com.'
+            'horário de funcionamento': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'horário': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'abre': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'abrir': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'aberto': '🔓 Para saber se a papelaria está aberta, basta conferir o aviso no canto superior direito da página.',
+            'endereço': '📍 Estamos localizados no prédio do DCE, ao lado da biblioteca.',
+            'localização': '📍 Estamos localizados no prédio do DCE, ao lado da biblioteca.',
+            'valores': '💲 Os valores dos itens vendidos podem ser consultados na página inicial.',
+            'preços': '💲 Os valores dos itens vendidos podem ser consultados na página inicial.',
+            'contato': '📧 Você pode nos contatar pelo email dce.guytorres@gmail.com.',
+            'formas de pagamento': '💵 Aceitamos pagamentos em dinheiro e PIX.',
+            'dinheiro': '💵 Aceitamos pagamentos em dinheiro e PIX.',
+            'pix': '💵 Aceitamos pagamentos em dinheiro e PIX.',
+            'promoções': '🎉 Cadastre seu email no site para saber sobre promoções e descontos.',
+            'ajuda': '❓ Se tiver alguma dúvida, entre em contato conosco pelo email dce.guytorres@gmail.com.',
+            'duvida': '❓ Se tiver alguma dúvida, entre em contato conosco pelo email dce.guytorres@gmail.com.'
         }
 
         # Verifica se a mensagem contém alguma palavra-chave ou similar

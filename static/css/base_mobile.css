@@ -1,0 +1,47 @@
+.dropdown-menu {
+    left: 0; /* Alinhado à esquerda no celular */
+    right: auto;
+}
+.navbar-nav {
+    justify-content: center; /* Centraliza os links no celular */
+    width: 100%;
+    flex-wrap: wrap; /* Garante que os itens se ajustem no celular */
+}
+.navbar-nav .nav-item {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+.navbar-toggler {
+    display: block;
+}
+/* Não aplica divisão entre os links no mobile */
+.navbar-nav .nav-item + .nav-item::before {
+    display: none;
+}
+.navbar-nav .nav-link {
+    font-size: 1.0em;
+    padding: 8px 0px;
+    margin-right: 00px;
+    margin-left: 00px;
+}
+.navbar .user-icon {
+    font-size: 1.2rem;
+    margin-right: 5px;
+    margin-left: 8px;
+}
+.toast-success {
+    background-color: #28a745 !important;
+    color: #fff !important;
+}
+.toast-error {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+.toast-warning {
+    background-color: #ffc107 !important;
+    color: #212529 !important;
+}
+.toast-info {
+    background-color: #17a2b8 !important;
+    color: #fff !important;
+}

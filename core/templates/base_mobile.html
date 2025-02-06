@@ -14,6 +14,10 @@
     <link href="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.2.0/dist/css/coreui.min.css" rel="stylesheet" integrity="sha384-u3h5SFn5baVOWbh8UkOrAaLXttgSF0vXI15ODtCSxl0v/VKivnCN6iHCcvlyTL7L" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@coreui/icons/css/all.min.css">  
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="{% static 'css/base_mobile.css' %}">
+
+    {% block head %}
+    {% endblock %}
 
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -23,54 +27,6 @@
     <script src="https://cdn.jsdelivr.net/npm/@coreui/coreui@5.2.0/dist/js/coreui.bundle.min.js" integrity="sha384-JdRP5GRWP6APhoVS1OM/pOKMWe7q9q8hpl+J2nhCfVJKoS+yzGtELC5REIYKrymn" crossorigin="anonymous"></script>
 
     <style>
-        /* Ajustes para dispositivos móveis */
-        .dropdown-menu {
-            left: 0; /* Alinhado à esquerda no celular */
-            right: auto;
-        }
-        .navbar-nav {
-            justify-content: center; /* Centraliza os links no celular */
-            width: 100%;
-            flex-wrap: wrap; /* Garante que os itens se ajustem no celular */
-        }
-        .navbar-nav .nav-item {
-            margin-right: 10px;
-            margin-left: 10px;
-        }
-        .navbar-toggler {
-            display: block;
-        }
-        /* Não aplica divisão entre os links no mobile */
-        .navbar-nav .nav-item + .nav-item::before {
-            display: none;
-        }
-        .navbar-nav .nav-link {
-            font-size: 1.0em;
-            padding: 8px 0px;
-            margin-right: 00px;
-            margin-left: 00px;
-        }
-        .navbar .user-icon {
-            font-size: 1.2rem;
-            margin-right: 5px;
-            margin-left: 8px;
-        }
-        .toast-success {
-            background-color: #28a745 !important;
-            color: #fff !important;
-        }
-        .toast-error {
-            background-color: #dc3545 !important;
-            color: #fff !important;
-        }
-        .toast-warning {
-            background-color: #ffc107 !important;
-            color: #212529 !important;
-        }
-        .toast-info {
-            background-color: #17a2b8 !important;
-            color: #fff !important;
-        }
         {% block style %}
         {% endblock %}
     </style>
@@ -259,6 +215,8 @@
             {% endif %}
         {% endfor %}
     {% endif %}
-    
 </script>
+
+{% block scriptsrc %}
+{% endblock %}
 </html>
