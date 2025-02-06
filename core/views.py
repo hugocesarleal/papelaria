@@ -41,9 +41,6 @@ from django.core.mail import BadHeaderError, send_mail
 import re
 from django.db.models import Case, When, IntegerField
 from django.db import models
-import logging
-
-logger = logging.getLogger(__name__)
 
 @csrf_exempt
 def chatbot(request):
@@ -620,29 +617,28 @@ def concluir_venda(request):
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
-                    # Adiciona um console log do JavaScript para teste
-                
+
                     # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
                     if item_estoque.nome in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
                         # Abate a quantidade vendida do estoque dos três itens
-                        return redirect('registrar-ponto')
-                        # for nome_item in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
-                        #     item_associado = ItemEstoque.objects.get(nome=nome_item)
-                        #     print(item_associado.nome)
-                        #     if item_associado.quantidade >= quantidade_vendida:
-                        #         item_associado.quantidade -= quantidade_vendida
-                        #         item_associado.save()
-                        #     else:
-                        #         messages.error(request, f"Quantidade insuficiente no estoque para {nome_item}.")
-                        #         return redirect('painel-vendas')
+
+                        for nome_item in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
+                            item_associado = ItemEstoque.objects.get(nome=nome_item)
+                            print(item_associado.nome)
+                            if item_associado.quantidade >= quantidade_vendida:
+                                item_associado.quantidade -= quantidade_vendida
+                                item_associado.save()
+                            else:
+                                messages.error(request, f"Quantidade insuficiente no estoque para {nome_item}.")
+                                return redirect('painel-vendas')
                     else:
                         # Verifica se há estoque suficiente
-                        # if item_estoque.quantidade >= quantidade_vendida:
-                        #     item_estoque.quantidade -= quantidade_vendida
-                        #     item_estoque.save()
-                        # else:
-                        #     messages.error(request, f"Quantidade insuficiente no estoque para {item_estoque.nome}.")
-                            return redirect('listar-estoque')
+                        if item_estoque.quantidade >= quantidade_vendida:
+                            item_estoque.quantidade -= quantidade_vendida
+                            item_estoque.save()
+                        else:
+                            messages.error(request, f"Quantidade insuficiente no estoque para {item_estoque.nome}.")
+                            return redirect('painel-vendas')
 
                 # Salva as informações da venda no carrinho
                 carrinho.ativo = False
