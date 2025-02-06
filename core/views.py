@@ -613,16 +613,16 @@ def concluir_venda(request):
         with transaction.atomic():  # Garante que todas as operações sejam atômicas
             # Calcula o valor total da venda
             valor_total = sum(item.total() for item in carrinho.itens.all())
-            if carrinho.itens.exists():
+            if valor_total != 0 and carrinho.itens.exists():
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
 
                     # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
-                    if item_estoque.nome in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)', 'Desperdício']:
+                    if item_estoque.nome in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)']:
                         # Abate a quantidade vendida do estoque dos três itens
 
-                        for nome_item in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)', 'Desperdício']:
+                        for nome_item in [':Folha A4', '.Impressão (1 lado)', '.Impressão (2 lados)']:
                             item_associado = ItemEstoque.objects.get(nome=nome_item)
                             print(item_associado.nome)
                             if item_associado.quantidade >= quantidade_vendida:
