@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "core",
+    'sslserver',
 ]
 
 MIDDLEWARE = [
@@ -210,11 +211,6 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 EMAIL_HOST_USER_2 = os.getenv('EMAIL_HOST_USER_2')
 EMAIL_HOST_PASSWORD_2 = os.getenv('EMAIL_HOST_PASSWORD_2')
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-SECURE_SSL_REDIRECT = True
-SESSION_COOKIE_SECURE = True
-CSRF_COOKIE_SECURE = True
 
 from decouple import config
 
