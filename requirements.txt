@@ -77,7 +77,6 @@ pypix==0.1.6
 python-dateutil==2.9.0.post0
 python-decouple==3.8
 python-docx==1.1.2
-pywin32==308
 PyYAML==6.0.2
 pyzmq==26.2.1
 referencing==0.36.2
