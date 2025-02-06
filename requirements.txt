@@ -25,6 +25,7 @@ distro==1.9.0
 Django==5.1.5
 django-mailbox==4.10.1
 django-pdf==1.0.2
+django-sslserver==0.22
 djangorestframework==3.15.2
 docopt==0.6.2
 executing==2.2.0
