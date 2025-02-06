@@ -472,7 +472,8 @@ def registrar_ponto(request):
     print(ip_requisitante)
     # Verificar se o IP da requisição é o IP permitido
     if ip_requisitante not in settings.ALLOWED_IP:
-        return HttpResponseForbidden("IP não autorizado para registrar ponto.")
+        messages.error(request, "Dispositivo não autorizado para registrar ponto.")
+        return redirect('painel-vendas')
     
     user = request.user
 
