@@ -107,6 +107,7 @@ display: block;
 #sidebar .sidebar-header {
     padding: 20px;
     background:rgb(76, 75, 185);
+    box-shadow: 0 4px 2px -2px rgba(0, 0, 0, 0.3);
 }
 
 #sidebar .sidebar-header strong {
@@ -138,6 +139,7 @@ display: block;
 a[aria-expanded="true"] {
     color: #fff;
     background: rgb(76, 75, 185);
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.3), 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 a[data-toggle="collapse"] {
