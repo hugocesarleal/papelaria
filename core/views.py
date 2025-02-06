@@ -617,7 +617,7 @@ def concluir_venda(request):
                 for item_carrinho in carrinho.itens.all():
                     item_estoque = item_carrinho.item_estoque
                     quantidade_vendida = item_carrinho.quantidade
-
+                    print("CONCLUIR VENDAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
                     # Verifica se o item é 'Folha A4', 'Impressão (1 lado)' ou 'Impressão (2 lados)'
                     if item_estoque.nome in ['Folha A4', 'Impressão (1 lado)', 'Impressão (2 lados)', 'Desperdício']:
                         # Abate a quantidade vendida do estoque dos três itens
