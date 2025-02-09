@@ -272,15 +272,15 @@
 
       {% if messages %}
         {% for message in messages %}
-            {% if message.tags == 'danger' %}
-                toastr.error("{{ message }}", "Erro");
-            {% elif message.tags == 'success' %}
-                toastr.success("{{ message }}", "Sucesso");
-            {% elif message.tags == 'warning' %}
-                toastr.warning("{{ message }}", "Aviso");
-            {% elif message.tags == 'info' %}
-                toastr.info("{{ message }}", "Atenção");
-            {% endif %}
+          {% if message.tags == 'danger' %}
+              toastr.error("{{ message }}");
+          {% elif message.tags == 'success' %}
+              toastr.success("{{ message }}");
+          {% elif message.tags == 'warning' %}
+              toastr.warning("{{ message }}");
+          {% elif message.tags == 'info' %}
+              toastr.info("{{ message }}");
+          {% endif %}
         {% endfor %}
       {% endif %}
 

@@ -662,6 +662,8 @@ def concluir_venda(request):
             else:
                 messages.error(request, "O carrinho está vazio!")
                 return redirect('painel-vendas')
+            
+            messages.success(request, "Venda concluída com sucesso!")
 
             return redirect('painel-vendas')  # Ou para onde você quiser redirecionar após a venda ser concluída
 
