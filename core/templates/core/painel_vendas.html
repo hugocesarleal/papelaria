@@ -186,15 +186,14 @@
                         <!-- Campo de valor recebido -->
                         <div id="valor-recebido-container" class="form-group" style="display:none;">
                             <label for="valor_recebido">Valor recebido:</label>
-                            <input type="text" id="valor_recebido" name="valor_recebido" class="form-control" min="0" step="0.01">
+                            <input type="text" id="valor_recebido" name="valor_recebido" class="form-control" min="0" step="0.01" required>
                         </div>
-
+                        
                         <div id="troco-container" class="form-group" style="display:none;">
                             <p>Troco: <span id="troco">R$ 0.00</span></p>
                         </div>
-
+                        
                         <div id="comprovante-container" style="display:none;">
-                            
                             <table class="table text-right">
                                 <tr>
                                     <td class="text-center align-middle" style="width: 40%;">
@@ -215,7 +214,7 @@
                             </table>
                         </div>
 
-                        <button type="submit" class="btn btn-outline-success btn-finalizar-venda">
+                        <button type="submit" class="btn btn-outline-success btn-finalizar-venda" onclick="return validarFinalizacaoVenda()">
                             <i class="bi bi-cart-check-fill" style="font-size: 1.2em;"></i> Finalizar Venda
                         </button>
                     </form>
@@ -228,6 +227,24 @@
 {% endblock %}
 
 {% block script %}
+
+function validarFinalizacaoVenda() {
+    var pagamento = document.getElementById("pagamento").value;
+    var valorRecebido = document.getElementById("valor_recebido").value;
+    var comprovantesContainer = document.getElementById('comprovantes-container');
+
+    if (pagamento === "dinheiro" && !valorRecebido) {
+        toastr.error("Por favor, insira o valor recebido em dinheiro.");
+        return false;
+    }
+
+    if (pagamento === "pix" && comprovantesContainer.children.length === 0) {
+        toastr.error("Por favor, carregue um comprovante PIX.");
+        return false;
+    }
+
+    return true;
+}
 
 
 $(document).ready(function(){

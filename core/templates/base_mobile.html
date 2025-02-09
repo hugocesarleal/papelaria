@@ -205,13 +205,13 @@
     {% if messages %}
         {% for message in messages %}
             {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
-                toastr.error("{{ message }}", "Erro");
+                toastr.error("{{ message }}");
             {% elif message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
-                toastr.success("{{ message }}", "Sucesso");
+                toastr.success("{{ message }}");
             {% elif message.level == DEFAULT_MESSAGE_LEVELS.WARNING %}
-                toastr.warning("{{ message }}", "Aviso");
+                toastr.warning("{{ message }}");
             {% elif message.level == DEFAULT_MESSAGE_LEVELS.INFO %}
-                toastr.info("{{ message }}", "Atenção");
+                toastr.info("{{ message }}");
             {% endif %}
         {% endfor %}
     {% endif %}
