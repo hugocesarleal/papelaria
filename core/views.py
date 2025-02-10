@@ -1,46 +1,28 @@
-from .models import ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso, Visita
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden, JsonResponse
+from .models import Duvida, HorarioFuncionamento, ExcecaoHorario, ItemEstoque, Cliente, CustomUser, Carrinho, ItemCarrinho, RegistroPonto, Configuracao, CustomUser, Aviso, Visita
+from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required, user_passes_test
-from .forms import ItemEstoqueForm, ClienteForm, CustomUserCreationForm, AvisoForm
-from django.contrib.auth import get_user_model, logout as auth_logout
+from .forms import ResponderDuvidaForm, CustomUserChangeForm, ItemEstoqueForm, ClienteForm, CustomUserCreationForm, AvisoForm, NovoPasswordForm, HorarioFuncionamentoForm, ExcecaoHorarioForm
+from django.contrib.auth import get_user_model,authenticate, login, update_session_auth_hash, logout as auth_logout
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.files.storage import FileSystemStorage
-from django.core.mail import send_mail, EmailMessage
-from django.contrib.auth import authenticate, login
-from django.utils.dateparse import parse_datetime
+from django.core.mail import send_mail, EmailMessage, BadHeaderError
 from datetime import datetime, date, timedelta
-from django.utils.dateparse import parse_date
 from django.utils.timezone import now
 from django.contrib import messages
-from django.db import transaction
+from django.db import transaction, models
 from django.utils import timezone
 from django.conf import settings
-from django.db.models import F
-from django.db.models import Q
 from user_agents import parse
 from decimal import Decimal
-from django.db.models import Case, When
+from django.db.models import Case, When, IntegerField
 from django.core.paginator import Paginator
 import os
-from django.conf.urls.static import static
-from django.contrib.auth import update_session_auth_hash
-from .forms import NovoPasswordForm
-from django.utils.timezone import localtime, now
-from .models import HorarioFuncionamento, ExcecaoHorario
-from .forms import HorarioFuncionamentoForm, ExcecaoHorarioForm
-from .models import HorarioFuncionamento, ExcecaoHorario
-from .forms import HorarioFuncionamentoForm, ExcecaoHorarioForm
 from django.template.response import TemplateResponse
-from .forms import CustomUserChangeForm
 from django.views.decorators.csrf import csrf_exempt
 import json
-from .models import Duvida
-from .forms import ResponderDuvidaForm
 import difflib
-from django.core.mail import BadHeaderError, send_mail
 import re
-from django.db.models import Case, When, IntegerField
-from django.db import models
+
 
 @csrf_exempt
 def chatbot(request):
@@ -50,19 +32,23 @@ def chatbot(request):
 
         # Respostas padronizadas
         respostas = {
-            'horário de funcionamento': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'horário': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'abre': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
-            'abrir': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral.',
+            'horário de funcionamento': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
+            'abrem': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
+            'horas': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
+            'horário': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
+            'abre': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
+            'abrir': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
             'aberto': '🔓 Para saber se a papelaria está aberta, basta conferir o aviso no canto superior direito da página.',
             'endereço': '📍 Estamos localizados no prédio do DCE, ao lado da biblioteca.',
             'localização': '📍 Estamos localizados no prédio do DCE, ao lado da biblioteca.',
             'valores': '💲 Os valores dos itens vendidos podem ser consultados na página inicial.',
             'preços': '💲 Os valores dos itens vendidos podem ser consultados na página inicial.',
             'contato': '📧 Você pode nos contatar pelo email dce.guytorres@gmail.com.',
+            'email': '📧 Você pode nos contatar pelo email dce.guytorres@gmail.com.',
             'formas de pagamento': '💵 Aceitamos pagamentos em dinheiro e PIX.',
             'dinheiro': '💵 Aceitamos pagamentos em dinheiro e PIX.',
             'pix': '💵 Aceitamos pagamentos em dinheiro e PIX.',
+            'cartão': '💵 Aceitamos pagamentos em dinheiro e PIX.',
             'promoções': '🎉 Cadastre seu email no site para saber sobre promoções e descontos.',
             'ajuda': '❓ Se tiver alguma dúvida, entre em contato conosco pelo email dce.guytorres@gmail.com.',
             'duvida': '❓ Se tiver alguma dúvida, entre em contato conosco pelo email dce.guytorres@gmail.com.'
@@ -399,11 +385,11 @@ def consulta_pontos(request):
         novo_valor_hora = novo_valor_hora.replace('.', '').replace('R$ ', '').replace(',', '.')
         
         try:
-            config = Configuracao.objects.get(id=1)
-            config.valor_hora = novo_valor_hora
-            config.save()
+            configuracao = Configuracao.objects.get(id=1)
+            configuracao.valor_hora = Decimal(novo_valor_hora)
+            configuracao.save()
         except Configuracao.DoesNotExist:
-            Configuracao.objects.create(id=1, valor_hora=novo_valor_hora)
+            Configuracao.objects.create(valor_hora=Decimal(novo_valor_hora))
 
         messages.success(request, 'Valor da hora atualizado com sucesso!')
 
@@ -447,9 +433,11 @@ def consulta_pontos(request):
 
     # Calculando o total a pagar para o usuário selecionado
     total_a_pagar = 0
-    for registro in registros:
-        if registro.total_trabalhado:
-            total_a_pagar += (registro.total_trabalhado.total_seconds() / 3600) * valor_hora
+    if usuario_id or data_inicio or data_fim:
+        for registro in registros:
+            if registro.total_trabalhado:
+                horas_trabalhadas = registro.total_trabalhado.total_seconds() / 3600
+                total_a_pagar += horas_trabalhadas * valor_hora
 
     # Obter a lista de usuários para o filtro
     usuarios = CustomUser.objects.all()
@@ -461,7 +449,7 @@ def consulta_pontos(request):
         'data_inicio': data_inicio,
         'data_fim': data_fim,
         'valor_hora': valor_hora,
-        'total_a_pagar': total_a_pagar,
+        'total_a_pagar': total_a_pagar if (usuario_id or data_inicio or data_fim) else None,
     }
 
     return TemplateResponse(request, 'core/consulta_pontos.html', context)

@@ -42,18 +42,30 @@
             </div>
         </form>
 
+        {% if usuario_id or data_inicio or data_fim %}
         <form method="POST" class="mb-4">
             {% csrf_token %}
-            <div class="form-row">
-                <div class="form-group col-md-2">
-                    <label for="valor_hora">Valor da Hora (R$):</label>
+            <div class="form-row align-items-center">
+                <div class="form-group col-md-2 d-flex align-items-center">
+                    <label for="valor_hora" class="mr-2">Valor da Hora (R$):</label>
                     <input type="text" id="valor_hora" name="valor_hora" value="{{ valor_hora | floatformat:2 }}" class="form-control" required>
                 </div>
-                <div class="form-group col-md-2 d-flex align-items-end">
+                <div class="form-group col-md-2">
                     <button type="submit" name="atualizar_valor_hora" class="btn btn-danger">Atualizar Valor da Hora</button>
                 </div>
+
+                    <div class="form-group col-md-8 d-flex">
+                        <div id="total-a-pagar">
+                            {% if total_a_pagar %}
+                                <div class="alert alert-info">
+                                    <strong>Total a Pagar:</strong> R$ {{ total_a_pagar|floatformat:2 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
             </div>
         </form>
+        {% endif %}
 
         {% if registros %}
             <h2 class="text-center">Registros de Ponto</h2>
@@ -137,5 +149,6 @@ $(document).ready(function(){
         numericInput: true,
         max: 999999.99
     });
-    });
+
+});
 {% endblock %}
