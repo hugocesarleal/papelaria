@@ -59,7 +59,7 @@
   <div class="wrapper">
     <!-- Sidebar  -->
     <nav id="sidebar" class="active">
-      <div class="sidebar-header" style="cursor: pointer;" onclick="window.location.href='{% url 'listar-estoque' %}'">
+      <div class="sidebar-header" style="cursor: pointer;" onclick="window.location.href='{% url 'core:home' %}'">
       <h3 style="text-align: center; line-height: 1.5;">
         Papelaria<br>DCE
       </h3>
@@ -73,55 +73,55 @@
 
       <ul class="list-unstyled components">
         <li class="{% if request.path == '/' %}active{% endif %}">
-          <a href="{% url 'listar-estoque' %}">
+          <a href="{% url 'core:home' %}">
             <i class="fas fa-home"></i>
             Home
           </a>
         </li>
         <li class="{% if request.path == '/usuarios/' %}active{% endif %}">
-          <a href="{% url 'usuarios' %}">
+          <a href="{% url 'usuarios:usuarios' %}">
             <i class="fas fa-user"></i>
             Usuários
           </a>
         </li>
         <li class="{% if request.path == '/estoque/' %}active{% endif %}">
-          <a href="{% url 'listar-estoque-admin' %}">
+          <a href="{% url 'estoque:listar-estoque-admin' %}">
             <i class="fas fa-boxes"></i>
             Estoque
           </a>
         </li>
         <li class="{% if request.path == '/admin-dashboard-clientes/' %}active{% endif %}">
-          <a href="{% url 'admin-dashboard-clientes' %}">
+          <a href="{% url 'clientes:admin-clientes' %}">
             <i class="fas fa-users"></i>
             Clientes
           </a>
         </li>
         <li class="{% if request.path == '/consulta-pontos/' %}active{% endif %}">
-          <a href="{% url 'consulta_pontos' %}">
+          <a href="{% url 'pontos:consulta_pontos' %}">
             <i class="fas fa-receipt"></i>
             Pontos
           </a>
         </li>
         <li class="{% if request.path == '/vendas-admin/' %}active{% endif %}">
-          <a href="{% url 'vendas-admin' %}">
+          <a href="{% url 'vendas:vendas-admin' %}">
             <i class="fas fa-shopping-cart"></i>
             Vendas
           </a>
         </li>
         <li class="{% if request.path == '/avisos/' %}active{% endif %}">
-          <a href="{% url 'listar-avisos' %}">
+          <a href="{% url 'avisos:listar-avisos' %}">
             <i class="fas fa-bell"></i>
             Avisos
           </a>
         </li>
         <li class="{% if request.path == '/horarios/' %}active{% endif %}">
-          <a href="{% url 'gerenciar-horarios' %}">
+          <a href="{% url 'horarios:gerenciar-horarios' %}">
             <i class="fas fa-clock"></i>
             Horários
           </a>
         </li>
         <li class="{% if request.path == '/responder-duvidas/' %}active{% endif %}">
-          <a href="{% url 'responder_duvidas' %}">
+          <a href="{% url 'duvidas:responder_duvidas' %}">
             <i class="fas fa-question-circle"></i>
             Dúvidas
           </a>
@@ -130,7 +130,7 @@
     
       <ul class="list-unstyled CTAs">
         <li>
-          <a href="{% url 'logout' %}">
+          <a href="{% url 'core:logout' %}">
             <i class="fas fa-sign-out-alt"></i>
             Logout
           </a>
@@ -140,19 +140,19 @@
       {% elif user.is_authenticated %}
         <ul class="list-unstyled components">
           <li class="{% if request.path == '/' %}active{% endif %}">
-            <a href="{% url 'listar-estoque' %}"><i class="fas fa-home"></i>Home</a>
+            <a href="{% url 'core:home' %}"><i class="fas fa-home"></i>Home</a>
           </li>
           <li class="{% if request.path == '/user-dashboard/' %}active{% endif %}">
-            <a href="{% url 'painel-vendas' %}"><i class="fas fa-cash-register"></i>Caixa</a>
+            <a href="{% url 'vendas:painel-vendas' %}"><i class="fas fa-cash-register"></i>Caixa</a>
           </li>
           <li class="{% if request.path == '/registrar-ponto/' %}active{% endif %}">
-            <a href="{% url 'registrar-ponto' %}"><i class="fas fa-receipt"></i>Ponto</a>
+            <a href="{% url 'ponto:registrar-ponto' %}"><i class="fas fa-receipt"></i>Ponto</a>
           </li>
         </ul>
       
         <ul class="list-unstyled CTAs">
           <li>
-            <a href="{% url 'logout' %}">
+            <a href="{% url 'core:logout' %}">
               <i class="fas fa-sign-out-alt"></i>
               Logout
             </a>
@@ -163,7 +163,7 @@
 
         <ul class="list-unstyled components">
           <li class="{% if request.path == '/' %}active{% endif %}">
-            <a href="{% url 'listar-estoque' %}">
+            <a href="{% url 'core:home' %}">
               <i class="fas fa-home"></i>
               Home
             </a>
@@ -185,7 +185,7 @@
         <ul class="list-unstyled CTAs">
           <li>
             <div class="container" style="background-color: rgb(76, 75, 185); padding: 1px; border-radius: 10px;">
-              <form method="POST" class="px-4 py-3" action="{% url 'login' %}">
+              <form method="POST" class="px-4 py-3" action="{% url 'core:login' %}">
                 {% csrf_token %}
                 <div class="mb-3">
                   <label for="username" class="form-label text-white">Usuário:</label>
@@ -224,32 +224,37 @@
 
     <div class="modal fade" id="modalHorarios" tabindex="-1" aria-labelledby="modalHorariosLabel" aria-hidden="true">
       <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="modalHorariosLabel">Horários</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </div>
-          <div class="modal-body">
-            <table class="table table-striped table-sm table-hover">
-              <thead class="table-dark">
-                <tr>
-                  <th style="width: 20%; font-size: 0.9rem;">Dia</th>
-                  <th style="width: 40%; font-size: 0.9rem;">Horário de Abertura</th>
-                  <th style="width: 40%; font-size: 0.9rem;">Horário de Fechamento</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for horario in horarios %}
-                <tr>
-                  <td style="font-size: 0.9rem;">{{ horario.get_dia_semana_display }}</td>
-                  <td style="font-size: 0.9rem;">{{ horario.abertura }}</td>
-                  <td style="font-size: 0.9rem;">{{ horario.fechamento }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
+      <div class="modal-content">
+        <div class="modal-header">
+        <h5 class="modal-title" id="modalHorariosLabel">Horários</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
+        <div class="modal-body">
+        <table class="table table-striped table-sm table-hover">
+          <thead class="table-dark text-center align-middle">
+          <tr>
+            <th style="width: 20%; font-size: 0.9rem; border-left: 2px solid gray; border-top: 2px solid gray; border-bottom: 2px solid gray;">Dia</th>
+            <th style="width: 40%; font-size: 0.9rem; border-top: 2px solid gray; border-bottom: 2px solid gray;">Horário de Abertura</th>
+            <th style="width: 40%; font-size: 0.9rem; border-right: 2px solid gray; border-top: 2px solid gray; border-bottom: 2px solid gray;">Horário de Fechamento</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% regroup horarios by get_dia_semana_display as grouped_horarios %}
+          {% for group in grouped_horarios %}
+            {% for horario in group.list %}
+            <tr style="border-left: 2px solid gray; border-right: 2px solid gray; {% if forloop.last %}border-bottom: 2px solid gray;{% endif %}">
+              {% if forloop.first %}
+              <td class="text-center align-middle" style="font-size: 0.9rem;" rowspan="{{ group.list|length }}">{{ group.grouper }}</td>
+              {% endif %}
+              <td class="text-center align-middle" style="font-size: 0.9rem;">{{ horario.abertura }}</td>
+              <td class="text-center align-middle" style="font-size: 0.9rem;">{{ horario.fechamento }}</td>
+            </tr>
+            {% endfor %}
+          {% endfor %}
+          </tbody>
+        </table>
+        </div>
+      </div>
       </div>
     </div>
   

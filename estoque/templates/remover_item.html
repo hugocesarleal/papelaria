@@ -1,0 +1,65 @@
+<style>
+    .body-container {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        text-align: center;
+    }
+    .header-text {
+        color: #333;
+        font-size: 18px;
+        text-align: center; /* Centraliza o texto do cabeçalho */
+    }
+    .item-name {
+        font-weight: bold;
+    }
+    .form-container {
+        margin-top: 10px;
+        text-align: center; /* Centraliza os botões dentro do formulário */
+    }
+    .btn-confirm, .btn-cancel {
+        border-radius: 5px; /* Arredonda as bordas dos botões */
+        padding: 10px 20px;
+        cursor: pointer;
+        transition: background-color 0.3s ease; /* Animação de hover */
+    }
+    .btn-confirm {
+        background-color: #d9534f;
+        color: white;
+        border: none;
+    }
+    .btn-confirm:hover {
+        background-color: #c9302c; /* Cor ao passar o mouse */
+    }
+    .btn-cancel {
+        background-color: #5bc0de;
+        color: white;
+        border: none;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    .btn-cancel:hover {
+        background-color: #31b0d5; /* Cor ao passar o mouse */
+    }
+    .cancel-container {
+        text-align: center; /* Centraliza o link de cancelamento */
+    }
+</style>
+
+<body class="body-container">
+    <h4 class="header-text">Tem certeza de que deseja remover o item <strong class="item-name">"{{ item.nome }}"</strong>?</h4>
+    {% if item.foto %}
+            <div class="text-center">
+                <img src="{{ item.foto.url }}" alt="{{ item.nome }}" style="width: 200px; height: 200px;">
+            </div>
+    {% endif %}
+    <form method="POST" action="{% url 'estoque:remover-item' item.pk %}" class="form-container">
+        {% csrf_token %}
+        <button type="submit" class="btn-confirm">Sim, remover</button>
+    </form>
+    <div class="cancel-container">
+        <button type="button" class="btn-cancel" data-dismiss="modal" aria-label="Close">
+            Cancelar
+        </button>
+    </div>
+</body>

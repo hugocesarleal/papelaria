@@ -1,0 +1,141 @@
+{% extends base_template %}
+
+{% block title %}Listar Avisos{% endblock %}
+
+{% block body %}
+    <div class="container mt-5">
+        <h1 class="mb-4">Listar Avisos</h1>
+        <form method="POST" class="needs-validation" novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% for error in field.errors %}
+                        <div class="invalid-feedback">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Criar Aviso</button>
+        </form>
+
+        <h2 class="mt-5">Avisos Ativos</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Texto</th>
+                    <th>Data Início</th>
+                    <th>Data Fim</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if avisos %}
+                    {% for aviso in avisos %}
+                        <tr>
+                            <td>{{ aviso.id }}</td>
+                            <td>{{ aviso.texto }}</td>
+                            <td>{{ aviso.data_inicio }}</td>
+                            <td>{{ aviso.data_fim }}</td>
+                            <td>
+                                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editarModal" data-id="{{ aviso.id }}"><i class="fas fa-edit"></i></button>
+                                <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#excluirModal{{ aviso.id }}"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>   
+                                            <!-- Modal Excluir -->
+                        <div class="modal fade" id="excluirModal{{ aviso.id }}" tabindex="-1" aria-labelledby="excluirModalLabel{{ aviso.id }}" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="excluirModalLabel{{ aviso.id }}">Excluir Aviso</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p>Tem certeza que deseja excluir o aviso "{{ aviso.texto }}"?</p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <form method="POST" action="{% url 'avisos:excluir-aviso' aviso.id %}">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-danger">Excluir</button>
+                                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Cancelar</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="5" class="text-center">Nenhum aviso ativo.</td>
+                    </tr>
+                {% endif %}
+
+
+                    
+
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal Editar -->
+    <div class="modal fade" id="editarModal" tabindex="-1" aria-labelledby="editarModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editarModalLabel">Editar Aviso</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div id="editarAvisoFormContainer"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            $('#editarModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget);
+                var avisoId = button.data('id');
+                var modal = $(this);
+                $.ajax({
+                    url: '{% url "avisos:editar-aviso" 0 %}'.replace('0', avisoId),
+                    type: 'GET',
+                    success: function (data) {
+                        modal.find('#editarAvisoFormContainer').html(data);
+                    }
+                });
+            });
+
+            $(document).on('submit', '#editarAvisoForm', function (event) {
+                event.preventDefault();
+                var form = $(this);
+                $.ajax({
+                    url: form.attr('action'),
+                    type: 'POST',
+                    data: form.serialize(),
+                    success: function (data) {
+                        if (data.success) {
+                            location.reload();
+                        } else {
+                            form.find('.invalid-feedback').remove();
+                            $.each(data.errors, function (field, errors) {
+                                var fieldElement = form.find('[name=' + field + ']');
+                                fieldElement.addClass('is-invalid');
+                                $.each(errors, function (index, error) {
+                                    fieldElement.after('<div class="invalid-feedback">' + error + '</div>');
+                                });
+                            });
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

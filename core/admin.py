@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser
-from .models import ItemEstoque
+from estoque.models import ItemEstoque
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser

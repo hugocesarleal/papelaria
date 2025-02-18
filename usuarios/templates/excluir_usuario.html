@@ -1,0 +1,64 @@
+<style>
+.body-excluir {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    text-align: center;
+}
+.header-text {
+    color: #333;
+    font-size: 18px;
+    text-align: center; /* Centraliza o texto do cabeçalho */
+}
+.usuario-name {
+    font-weight: bold;
+}
+.form-container {
+    margin-top: 10px;
+    text-align: center; /* Centraliza os botões dentro do formulário */
+}
+.btn-confirm, .btn-cancel {
+    border-radius: 5px; /* Arredonda as bordas dos botões */
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Animação de hover */
+}
+.btn-confirm {
+    background-color: #d9534f;
+    color: white;
+    border: none;
+}
+.btn-confirm:hover {
+    background-color: #c9302c; /* Cor ao passar o mouse */
+}
+.btn-cancel {
+    background-color: #5bc0de;
+    color: white;
+    border: none;
+    text-decoration: none;
+    display: inline-block;
+    margin-top: 10px;
+}
+.btn-cancel:hover {
+    background-color: #31b0d5; /* Cor ao passar o mouse */
+}
+.cancel-container {
+    text-align: center; /* Centraliza o link de cancelamento */
+}
+
+.confirm-container {
+    text-align: center; /* Centraliza o link de cancelamento */
+}
+</style>
+
+<body class="body-excluir">
+    <form method="POST" action="{% url 'usuarios:excluir-usuario' user.pk %}">
+        {% csrf_token %}
+        <h4 class="header-text">Tem certeza de que deseja excluir o usuário <strong class="usuario-name">{{ user.username }}</strong>?</h4>
+        <div class="confirm-container">
+            <button type="submit" class="btn-confirm">Excluir</button>
+        </div>
+        <div class="cancel-container">
+            <button type="button" class="btn-cancel" data-dismiss="modal">Cancelar</button>
+        </div>
+    </form>
+</body>

@@ -1,5 +1,5 @@
 from django import template
-from ..views import papelaria_aberta
+from core.utils import papelaria_aberta
 
 register = template.Library()
 

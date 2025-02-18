@@ -1,0 +1,11 @@
+
+<form method="POST" action="{% url 'clientes:editar-cliente' cliente.id %}" class="mt-3">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+<div class="modal-footer justify-content-center">
+    <button type="submit" class="btn btn-primary">Salvar</button>
+    <button type="button" class="btn btn-danger" data-dismiss="modal">Cancelar</button>
+    
+</div>
+</form>

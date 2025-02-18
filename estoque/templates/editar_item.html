@@ -1,0 +1,36 @@
+<form method="POST" enctype="multipart/form-data" action="{% url 'estoque:editar-item' item.pk %}">
+    {% csrf_token %}
+
+    <div class="mb-2">
+        <label for="nome" class="form-label">Nome:</label>
+        {{ form.nome}}
+    </div>
+
+    <div class="mb-3">
+        <label for="foto" class="form-label">Foto Atual:</label>
+        {% if item.foto %}
+            <div class="mb-3">
+                <img src="{{ item.foto.url }}" alt="{{ item.nome }}" class="img-fluid" style="max-width: 150px; max-height: 150px;">
+            </div>
+        {% endif %}
+        <label for="foto" class="form-label">Alterar Foto (opcional):</label>
+        {{ form.foto}}
+    </div>
+    
+    <div class="mb-3">
+        <label for="valor" class="form-label">Valor:</label>
+        {{ form.valor}}
+    </div>
+    
+    <div class="mb-3">
+        <label for="quantidade" class="form-label">Quantidade:</label>
+        {{ form.quantidade}}
+    </div>
+
+    <div class="mb-3">
+        <label for="prioridade" class="form-label">Prioridade:</label>
+        {{ form.prioridade}}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+</form>

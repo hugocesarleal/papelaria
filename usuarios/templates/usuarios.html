@@ -1,0 +1,191 @@
+<!-- filepath: /c:/Users/Hugo/Desktop/django/papelaria/core/templates/core/usuarios.html -->
+{% extends base_template %}
+
+{% block title %}Usuários{% endblock %}
+
+{% block style %}
+    .usuarios-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .usuarios-container h2 {
+        text-align: center;
+        color: #333;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group input[type="password"] {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+    }
+
+    .form-group input[type="checkbox"] {
+        margin-right: 10px;
+    }
+
+    .form-group button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+
+    .form-group button:hover {
+        background-color: #0056b3;
+    }
+
+    .usuarios-container ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .usuarios-container ul li {
+        padding: 10px;
+        border-bottom: 1px solid #ccc;
+    }
+{% endblock %}
+
+{% block body %}
+<div class="usuarios-container">
+    <h2>Cadastrar Novo Usuário</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="id_username">Nome de Usuário:</label>
+            {{ form.username }}
+        </div>
+        <div class="form-group">
+            <label for="id_email">Email:</label>
+            {{ form.email }}
+        </div>
+        <div class="form-group">
+            <label for="id_password1">Senha:</label>
+            {{ form.password1 }}
+        </div>
+        <div class="form-group">
+            <label for="id_password2">Confirme a Senha:</label>
+            {{ form.password2 }}
+        </div>
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label for="id_is_admin">
+                <input type="checkbox" id="id_is_admin" name="is_admin" {{ form.is_admin }}> É Administrador?
+                </label>
+            </div>
+            <div class="form-group col-md-6">
+                <label for="id_primeiro_acesso">
+                <input type="checkbox" id="id_primeiro_acesso" name="primeiro_acesso" {{ form.primeiro_acesso }}> Primeiro Acesso?
+                </label>
+            </div>
+        </div>
+        <button class="btn btn-primary my-4" type="submit">Cadastrar</button>
+    </form>
+
+    <hr>
+
+    <h2>Lista de Usuários</h2>
+    <ul>
+        {% for user in users %}
+            <li>
+                {{ user.username }} - {{ user.email }}
+                <button class="btn btn-ExcluirUsuario float-right" data-toggle="modal" data-target="#modalExcluirUsuario" data-id="{{ user.pk }}">
+                    <i class="fas fa-trash-alt"></i></button>
+                <button class="btn btn-EditarUsuario float-right" data-toggle="modal" data-target="#modalEditarUsuario" data-id="{{ user.pk }}">
+                    <i class="fas fa-edit"></i></button>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" role="dialog" aria-labelledby="modalEditarUsuario" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarUsuarioLabel">Editar Usuário</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- O conteúdo do formulário será carregado aqui via AJAX -->
+                <div id="EditarUsuarioFormContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modalExcluirUsuario" tabindex="-1" role="dialog" aria-labelledby="modalExcluirUsuario" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalExcluirUsuarioLabel">Excluir Usuário</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- O conteúdo do formulário será carregado aqui via AJAX -->
+                <div id="ExcluirUsuarioFormContainer"></div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block script %}
+$(document).ready(function() {
+    $('.btn-ExcluirUsuario').click(function() {
+        const userPk = $(this).data('id');
+        const url = "{% url 'usuarios:excluir-usuario' 0 %}".replace('0', userPk);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                $('#ExcluirUsuarioFormContainer').html(response);
+            },
+            error: function(xhr) {
+                console.error('Erro ao carregar o formulário de exclusão:', xhr);
+            }
+        });
+    });
+
+    $('.btn-EditarUsuario').click(function() {
+        const userPk = $(this).data('id');
+        const url = "{% url 'usuarios:editar-usuario' 0 %}".replace('0', userPk);
+
+        $.ajax({
+            url: url,
+            type: 'GET',
+            success: function(response) {
+                $('#EditarUsuarioFormContainer').html(response);
+            },
+            error: function(xhr) {
+                console.error('Erro ao carregar o formulário de edição:', xhr);
+            }
+        });
+    });
+});
+{% endblock %}

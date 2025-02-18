@@ -1,0 +1,23 @@
+<!-- filepath: /c:/Users/Hugo/Desktop/django/papelaria/core/templates/core/editar_usuario_form.html -->
+<form method="POST" action="{% url 'usuarios:editar-usuario' user.pk %}">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="id_username">Nome de Usuário:</label>
+        {{ form.username }}
+    </div>
+    <div class="form-group">
+        <label for="id_email">Email:</label>
+        {{ form.email }}
+    </div>
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label for="id_is_staff">É Administrador?</label>
+            {{ form.is_staff }}
+        </div>
+        <div class="form-group col-md-6">
+            <label for="id_primeiro_acesso">Primeiro Acesso?</label>
+            {{ form.primeiro_acesso }}
+        </div>
+    </div>
+    <button type="submit" class="btn btn-primary">Salvar</button>
+</form>

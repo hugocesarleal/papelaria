@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block title %}Registro de Ponto{% endblock %}
+
+{% block style %}
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        h2 {
+            color: #333;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table th, .table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .table th {
+            background-color: #f8f9fa;
+        }
+        
+        
+{% endblock %}
+
+{% block body %}
+    <div class="container">
+        <h2>Registrar Ponto</h2>
+
+        <!-- Formulário para registrar ponto -->
+        <form method="post" action="{% url 'pontos:registrar-ponto' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="valor_em_caixa">Valor em Caixa:</label>
+                <input type="text" id="valor_em_caixa" name="valor_em_caixa" placeholder="Informe o valor em caixa" required>
+            </div>
+            
+
+            {% if registro_atual %}
+                <!-- Exibe o botão de saída se o usuário já registrou entrada -->
+                <button type="submit" name="saida" class="btn btn-danger">Registrar Saída</button>
+            {% else %}
+                <!-- Exibe o botão de entrada se ainda não houver registro -->
+                <button type="submit" name="entrada" class="btn btn-primary">Registrar Entrada</button>
+            {% endif %}
+        </form>
+        
+
+        <!-- Lista de Registros -->
+        <h3>Seus Registros</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Entrada</th>
+                    <th>Saída</th>
+                    <th>Valor em Caixa (Entrada)</th>
+                    <th>Valor em Caixa (Saída)</th>
+                    <th>Total Trabalhado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for registro in registros %}
+                <tr>
+                    <td>{{ registro.data }}</td>
+                    <td>{{ registro.entrada }}</td>
+                    <td>{{ registro.saida|default:"-" }}</td>
+                    <td>{{ registro.valor_em_caixa_entrada|default:"-" }}</td>
+                    <td>{{ registro.valor_em_caixa_saida|default:"-" }}</td>
+                    <td>
+                        {% if registro.total_trabalhado %}
+                            {{ registro.total_trabalhado }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Adicione os scripts do jQuery e Inputmask -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.inputmask/5.0.6-beta.15/jquery.inputmask.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            // Aplique a máscara no campo de entrada
+            $('#valor_em_caixa').inputmask({
+                alias: 'currency',
+                prefix: 'R$ ',
+                groupSeparator: '.',
+                radixPoint: ',',
+                digits: 2,
+                autoGroup: true,
+                rightAlign: false,
+                digitsOptional: false,
+                placeholder: '0',
+                clearMaskOnLostFocus: false,
+                numericInput: true,
+                max: 999999.99
+            });
+        });
+    </script>
+{% endblock %}
