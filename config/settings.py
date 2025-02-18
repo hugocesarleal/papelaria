@@ -91,9 +91,9 @@ TEMPLATES = [
 ]
 
 #URL de redirecionamento apos login
-LOGIN_REDIRECT_URL = 'core:main'
-LOGOUT_REDIRECT_URL = 'listar-estoque'
-LOGIN_URL = 'listar-estoque'
+LOGIN_REDIRECT_URL = 'core:home'
+LOGOUT_REDIRECT_URL = 'core:home'
+LOGIN_URL = 'core:home'
 
 WSGI_APPLICATION = "config.wsgi.application"
 
