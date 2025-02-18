@@ -90,19 +90,19 @@
             Estoque
           </a>
         </li>
-        <li class="{% if request.path == '/admin-dashboard-clientes/' %}active{% endif %}">
+        <li class="{% if request.path == '/clientes/' %}active{% endif %}">
           <a href="{% url 'clientes:admin-clientes' %}">
             <i class="fas fa-users"></i>
             Clientes
           </a>
         </li>
-        <li class="{% if request.path == '/consulta-pontos/' %}active{% endif %}">
+        <li class="{% if request.path == '/pontos/consulta-pontos/' %}active{% endif %}">
           <a href="{% url 'pontos:consulta_pontos' %}">
             <i class="fas fa-receipt"></i>
             Pontos
           </a>
         </li>
-        <li class="{% if request.path == '/vendas-admin/' %}active{% endif %}">
+        <li class="{% if request.path == '/vendas/' %}active{% endif %}">
           <a href="{% url 'vendas:vendas-admin' %}">
             <i class="fas fa-shopping-cart"></i>
             Vendas
@@ -120,7 +120,7 @@
             Horários
           </a>
         </li>
-        <li class="{% if request.path == '/responder-duvidas/' %}active{% endif %}">
+        <li class="{% if request.path == '/duvidas/' %}active{% endif %}">
           <a href="{% url 'duvidas:responder_duvidas' %}">
             <i class="fas fa-question-circle"></i>
             Dúvidas
@@ -142,10 +142,10 @@
           <li class="{% if request.path == '/' %}active{% endif %}">
             <a href="{% url 'core:home' %}"><i class="fas fa-home"></i>Home</a>
           </li>
-          <li class="{% if request.path == '/user-dashboard/' %}active{% endif %}">
+          <li class="{% if request.path == '/vendas/painel-vendas/' %}active{% endif %}">
             <a href="{% url 'vendas:painel-vendas' %}"><i class="fas fa-cash-register"></i>Caixa</a>
           </li>
-          <li class="{% if request.path == '/registrar-ponto/' %}active{% endif %}">
+          <li class="{% if request.path == '/pontos/registrar-ponto/' %}active{% endif %}">
             <a href="{% url 'pontos:registrar-ponto' %}"><i class="fas fa-receipt"></i>Ponto</a>
           </li>
         </ul>

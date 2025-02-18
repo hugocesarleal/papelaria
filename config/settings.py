@@ -199,7 +199,7 @@ EMAIL_USE_SSL = False
 EMAIL_USE_TLS = True
 EMAIL_HOST_2 = "pop.gmail.com"  # Substitua pelo servidor IMAP do seu provedor
 EMAIL_PORT_2 = 995
-DEFAULT_FROM_EMAIL = 'dce.guytorres@gmail.com.com'
+DEFAULT_FROM_EMAIL = 'dce.guytorres@gmail.com'
 
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')

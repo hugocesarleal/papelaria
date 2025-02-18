@@ -67,13 +67,13 @@
                             <a class="nav-link {% if request.path == '/estoque/' %}active{% endif %}" href="{% url 'estoque:listar-estoque-admin' %}"><i class="fas fa-boxes"></i> Estoque</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/admin-dashboard-clientes/' %}active{% endif %}" href="{% url 'clientes:admin-clientes' %}"><i class="fas fa-users"></i> Clientes</a>
+                            <a class="nav-link {% if request.path == '/clientes/' %}active{% endif %}" href="{% url 'clientes:admin-clientes' %}"><i class="fas fa-users"></i> Clientes</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/consulta-pontos/' %}active{% endif %}" href="{% url 'pontos:consulta_pontos' %}"><i class="fas fa-receipt"></i> Pontos</a>
+                            <a class="nav-link {% if request.path == '/pontos/consulta-pontos/' %}active{% endif %}" href="{% url 'pontos:consulta_pontos' %}"><i class="fas fa-receipt"></i> Pontos</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/vendas-admin/' %}active{% endif %}" href="{% url 'vendas:vendas-admin' %}"><i class="fas fa-shopping-cart"></i> Vendas</a>
+                            <a class="nav-link {% if request.path == '/vendas/' %}active{% endif %}" href="{% url 'vendas:vendas-admin' %}"><i class="fas fa-shopping-cart"></i> Vendas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link {% if request.path == '/avisos/' %}active{% endif %}" href="{% url 'avisos:listar-avisos' %}"><i class="fas fa-bell"></i> Avisos</a>
@@ -82,7 +82,7 @@
                             <a class="nav-link {% if request.path == '/horarios/' %}active{% endif %}" href="{% url 'horarios:gerenciar-horarios' %}"><i class="fas fa-clock"></i> Horários</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/responder-duvidas/' %}active{% endif %}" href="{% url 'duvidas:responder_duvidas' %}"><i class="fas fa-question-circle"></i> Dúvidas</a>
+                            <a class="nav-link {% if request.path == '/duvidas/' %}active{% endif %}" href="{% url 'duvidas:responder_duvidas' %}"><i class="fas fa-question-circle"></i> Dúvidas</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'core:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -96,7 +96,7 @@
                             <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link {% if request.path == '/painel-mobile/' %}active{% endif %}" href="{% url 'vendas:painel-mobile' %}"><i class="fas fa-upload"></i> Upload Comprovante</a>
+                            <a class="nav-link {% if request.path == '/vendas/painel-mobile/' %}active{% endif %}" href="{% url 'vendas:painel-mobile' %}"><i class="fas fa-upload"></i> Upload Comprovante</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'core:logout' %}"><i class="fas fa-sign-out-alt"></i> Logout</a>
