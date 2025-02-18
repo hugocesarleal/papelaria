@@ -92,11 +92,11 @@ def consulta_pontos(request):
 @login_required
 def registrar_ponto(request):
     ip_requisitante = request.META.get('REMOTE_ADDR')
-    print(ip_requisitante)
+    #print(ip_requisitante)
     # Verificar se o IP da requisição é o IP permitido
-    if ip_requisitante not in settings.ALLOWED_IP:
-        messages.error(request, "Dispositivo não autorizado para registrar ponto.")
-        return redirect('vendas:painel-vendas')
+    #if ip_requisitante not in settings.ALLOWED_IP:
+        #messages.error(request, "Dispositivo não autorizado para registrar ponto.")
+        #return redirect('vendas:painel-vendas')
     
     user = request.user
 
