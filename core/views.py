@@ -13,6 +13,7 @@ from .models import Visita
 from core.utils import papelaria_aberta
 
 def home(request):
+    # Anota os itens do estoque com um campo 'esgotado' baseado na quantidade
     itens = ItemEstoque.objects.annotate(
         esgotado=Case(
             When(quantidade=0, then=1),
@@ -22,29 +23,33 @@ def home(request):
     ).order_by('-prioridade', 'esgotado', 'nome')
 
     agora = timezone.now()
+    # Filtra avisos ativos com base na data atual
     avisos_ativos = Aviso.objects.filter(data_inicio__lte=agora, data_fim__gte=agora)
     
+    # Verifica se a papelaria está aberta
     aberta = papelaria_aberta()
+    # Obtém todos os horários de funcionamento ordenados por dia da semana e horário de abertura
     horarios = HorarioFuncionamento.objects.all().order_by('dia_semana', 'abertura')
     for horario in horarios:
+        # Formata os horários de abertura e fechamento
         horario.abertura = horario.abertura.strftime('%H:%M')
         horario.fechamento = horario.fechamento.strftime('%H:%M')
 
     data_atual = timezone.now().date()
 
-    # Verifica se já existe um registro de visita para a data atual
+    # Obtém ou cria um registro de visita para a data atual
     visita, created = Visita.objects.get_or_create(data=data_atual)
 
-    # Verifica o cookie de última visita
     ultima_visita = request.COOKIES.get('ultima_visita')
     
+    # Verifica se a última visita foi há mais de uma hora
     if not ultima_visita or (timezone.now() - datetime.fromisoformat(ultima_visita)) > timedelta(hours=1):
-        # Incrementa a contagem de visitas
+        # Incrementa a contagem de visitas e salva
         visita.contagem += 1
         visita.save()
 
+        # Calcula o total de visitas
         total_visitas = Visita.objects.aggregate(total=models.Sum('contagem'))['total']
-        # Define o cookie de última visita
         response = TemplateResponse(request, 'home.html', {
             'itens': itens,
             'avisos_ativos': avisos_ativos,
@@ -52,10 +57,11 @@ def home(request):
             'horarios': horarios,
             'total_visitas': total_visitas
         })
+        # Define um cookie para registrar a última visita
         response.set_cookie('ultima_visita', timezone.now().isoformat(), max_age=3600)
         return response
 
-    # Obtém a contagem total de visitas
+    # Calcula o total de visitas
     total_visitas = Visita.objects.aggregate(total=models.Sum('contagem'))['total']
 
     return TemplateResponse(request, 'home.html', {
@@ -68,8 +74,9 @@ def home(request):
 
 
 def custom_logout(request):
+    # Limpa a sessão e faz logout do usuário
     request.session.flush()
-    auth_logout(request)  # Isso faz o logout do usuário
+    auth_logout(request)
     return redirect('core:login')
 
 
@@ -77,28 +84,28 @@ def login_view(request):
     if request.method == "POST":
         username = request.POST['username']
         password = request.POST['password']
-        remember_me = request.POST.get('remember_me')  # Obtém o valor do checkbox
+        remember_me = request.POST.get('remember_me')
+        # Autentica o usuário
         user = authenticate(request, username=username, password=password)
         if user is not None:
+            # Faz login do usuário
             login(request, user)
             
+            # Define a expiração da sessão com base na opção 'remember_me'
             if remember_me:
-                # Define a duração da sessão para 30 dias
                 request.session.set_expiry(60 * 60 * 24 * 30)
             else:
-                # Define a duração da sessão para o padrão (navegador fechado)
                 request.session.set_expiry(0)
 
+            # Redireciona o usuário com base no tipo de usuário
             if user.is_superuser:
                 return redirect('usuarios:usuarios')
             else:
                 return redirect('vendas:painel-vendas')
         else:
+            # Exibe mensagem de erro se a autenticação falhar
             messages.error(request, 'Usuário ou senha inválidos.')
 
             return redirect('core:home')
         
     return redirect('core:home')
-
-
-

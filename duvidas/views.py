@@ -12,12 +12,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.template.response import TemplateResponse
 
+# Função para verificar se o usuário é administrador
 def is_admin(user):
     return user.is_staff
 
+# View para responder dúvidas, acessível apenas para administradores
 @user_passes_test(is_admin)
 def responder_duvidas(request):
-    duvidas = Duvida.objects.filter(respondida=False)
+    duvidas = Duvida.objects.filter(respondida=False)  # Filtra dúvidas não respondidas
     if request.method == 'POST':
         form = ResponderDuvidaForm(request.POST)
         if form.is_valid():
@@ -26,7 +28,6 @@ def responder_duvidas(request):
             duvida.resposta = form.cleaned_data['resposta']
             duvida.respondida = True
             duvida.save()
-            # Enviar email para o cliente
             subject = 'Resposta à sua dúvida'
             message = f"""
             Olá {duvida.nome},
@@ -63,13 +64,13 @@ def responder_duvidas(request):
         form = ResponderDuvidaForm()
     return TemplateResponse(request, 'responder_duvidas.html', {'duvidas': duvidas, 'form': form})
 
+# View para o chatbot, que responde perguntas frequentes
 @csrf_exempt
 def chatbot(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         message = data.get('message', '').lower()
 
-        # Respostas padronizadas
         respostas = {
             'horário de funcionamento': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
             'abrem': '🕒 Consulte nossos horários de funcionamento clicando no ícone no menu lateral ou superior.',
@@ -97,12 +98,10 @@ def chatbot(request):
             'duvida': '❓ Se tiver alguma dúvida, entre em contato conosco pelo email dce.guytorres@gmail.com.'
         }
 
-        # Verifica se a mensagem contém alguma palavra-chave ou similar
         for chave, resposta in respostas.items():
             if re.search(r'\b' + re.escape(chave) + r'\b', message):
                 return JsonResponse({'response': resposta})
 
-        # Filtragem com difflib para encontrar a resposta mais próxima
         palavras_chave = list(respostas.keys())
         melhor_correspondencia = difflib.get_close_matches(message, palavras_chave, n=1, cutoff=0.6)
         if melhor_correspondencia:
@@ -111,6 +110,7 @@ def chatbot(request):
         return JsonResponse({'response': None})
     return JsonResponse({'response': 'Método não permitido.'}, status=405)
 
+# View para salvar uma nova dúvida enviada pelo usuário
 @csrf_exempt
 def save_question(request):
     if request.method == 'POST':
@@ -120,15 +120,12 @@ def save_question(request):
             email = data.get('email')
             message = data.get('message')
 
-            # Verifica se os dados foram recebidos corretamente
             if not name or not email or not message:
                 return JsonResponse({'success': False, 'error': 'Dados incompletos'}, status=400)
 
-            # Salva a dúvida no banco de dados
             duvida = Duvida(nome=name, email=email, mensagem=message)
             duvida.save()
 
-            # Enviar notificação para o administrador
             subject = 'Nova dúvida registrada'
             notification_message = f"""
             Uma nova dúvida foi registrada no sistema.

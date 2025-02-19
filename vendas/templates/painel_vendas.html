@@ -374,7 +374,7 @@ function calcularTroco() {
 mostrarValorRecebido();
 
 function atualizarComprovantes(carrinhoId) {
-    fetch(`/buscar-comprovantes-pix/${carrinhoId}`)
+    fetch(`/vendas/buscar-comprovantes-pix/${carrinhoId}`)
         .then(response => response.json())
         .then(data => {
             const comprovantesContainer = document.getElementById('comprovantes-container');

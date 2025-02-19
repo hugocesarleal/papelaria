@@ -13,37 +13,31 @@ def admin_dashboard_clientes(request):
     clientes = Cliente.objects.all()
 
     nome_cliente = request.GET.get('nome_cliente')
-    if nome_cliente:
+    if (nome_cliente):
         clientes = clientes.filter(nome__icontains=nome_cliente)
 
-    # Paginação
-    paginator = Paginator(clientes, 10)  # Mostra 10 clientes por página
+    paginator = Paginator(clientes, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
 
-    if request.method == "POST":
+    if (request.method == "POST"):
         assunto = request.POST.get("assunto")
         mensagem = request.POST.get("mensagem")
         destinatarios = [cliente.email for cliente in clientes]
-        arquivos = request.FILES.getlist('arquivos')  # Obtém os arquivos enviados
+        arquivos = request.FILES.getlist('arquivos')
 
-        if assunto and mensagem:
-            # Criando a mensagem de e-mail
+        if (assunto and mensagem):
             email = EmailMessage(
                 subject=assunto,
                 body=mensagem,
-                from_email='seu_email@dominio.com',  # Substitua pelo e-mail do remetente
+                from_email='seu_email@dominio.com',
             )
-            # Usando BCC para enviar para múltiplos destinatários sem mostrar seus e-mails
             email.bcc = destinatarios
             
-            # Anexando arquivos, se houver
             for arquivo in arquivos:
                 email.attach(arquivo.name, arquivo.read(), arquivo.content_type)
 
-            # Enviando o e-mail
             email.send(fail_silently=False)
-            # Redireciona após o envio
             return redirect('clientes:admin-clientes')
 
     return TemplateResponse(request, 'admin_dashboard_clientes.html', {'clientes': page_obj})
@@ -51,9 +45,9 @@ def admin_dashboard_clientes(request):
 @user_passes_test(is_admin)
 def editar_cliente(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
-    if request.method == 'POST':
+    if (request.method == 'POST'):
         form = ClienteForm(request.POST, instance=cliente)
-        if form.is_valid():
+        if (form.is_valid()):
             form.save()
             messages.success(request, 'Cliente atualizado com sucesso!')
             return redirect('clientes:admin-clientes')
@@ -64,7 +58,7 @@ def editar_cliente(request, pk):
 @user_passes_test(is_admin)
 def excluir_cliente(request, pk):
     cliente = get_object_or_404(Cliente, pk=pk)
-    if request.method == 'POST':
+    if (request.method == 'POST'):
         cliente.delete()
         messages.success(request, 'Cliente excluído com sucesso!')
         return redirect('admin-dashboard-clientes')
@@ -72,16 +66,11 @@ def excluir_cliente(request, pk):
     return render(request, 'excluir_cliente.html', {'cliente': cliente})
 
 def cadastrar_cliente(request):
-    if request.method == 'POST':
+    if (request.method == 'POST'):
         form = ClienteForm(request.POST)
-        if form.is_valid():
-            # Salva os dados do cliente no banco
+        if (form.is_valid()):
             form.save()
-
-            # Define o cookie "email_cadastrado" para garantir que o formulário não será mostrado novamente
-            response = redirect('core:home')  # Volta para a página de estoque
-
-            # Define o cookie "email_cadastrado" por 1 ano
+            response = redirect('core:home')
             response.set_cookie('email_cadastrado', 'true', max_age=60*60*24*365)
             messages.success(request, "Cadastro feito com sucesso!")
             return response
