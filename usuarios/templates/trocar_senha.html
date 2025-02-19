@@ -5,15 +5,25 @@
     <h2 class="text-center">Trocar Senha</h2>
     <form method="post" class="mt-4">
         {% csrf_token %}
-        {{ form.as_p }}
+        <div class="form-group">
+            <label for="{{ form.new_password1.id_for_label }}">Nova senha</label>
+            {{ form.new_password1 }}
+            {% if form.new_password1.errors %}
+                {% for error in form.new_password1.errors %}
+                    <p class="text-danger"><strong>{{ error }}</strong></p>
+                {% endfor %}
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.new_password2.id_for_label }}">Confirme a nova senha</label>
+            {{ form.new_password2 }}
+            {% if form.new_password2.errors %}
+                {% for error in form.new_password2.errors %}
+                    <p class="text-danger mt-3"><strong>{{ error }}</strong></p>
+                {% endfor %}
+            {% endif %}
+        </div>
         <button type="submit" class="btn btn-primary btn-block">Trocar senha</button>
     </form>
-    {% if messages %}
-        <ul class="messages mt-3">
-            {% for message in messages %}
-                <li class="alert {% if message.tags %}alert-{{ message.tags }}{% else %}alert-info{% endif %}">{{ message }}</li>
-            {% endfor %}
-        </ul>
-    {% endif %}
 </div>
 {% endblock %}

@@ -56,7 +56,10 @@ def usuarios(request):
     if request.method == "POST":
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            form.save()
+            user = form.save(commit=False)
+            user.is_staff = form.cleaned_data['is_admin']
+            user.is_superuser = form.cleaned_data['is_admin']
+            user.save()
             messages.success(request, 'Usuário criado com sucesso!')
             return redirect('usuarios:usuarios')
     else:

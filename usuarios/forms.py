@@ -5,6 +5,15 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import SetPasswordForm
 
 class NovoPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(
+        label="Nova senha",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Nova senha'}),
+    )
+    new_password2 = forms.CharField(
+        label="Confirme a nova senha",
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Confirme a nova senha'}),
+    )
+
     class Meta:
         model = User
         fields = ['new_password1', 'new_password2']
