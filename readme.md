@@ -1,4 +1,10 @@
 
+## Descrição
+
+Este projeto é um sistema de gestão de vendas desenvolvido em Django para uma papelaria. Ele permite gerenciar itens em estoque, adicionar itens ao carrinho, concluir vendas e gerar comprovantes de pagamento. O sistema também possui um painel de administração para gerenciar vendas e usuários.
+
+Este projeto é o trabalho final da disciplina de Desenvolvimento Web e será utilizado pelo Diretório Central dos Estudantes (DCE) Guy Torres do IFMG *Campus* Bambuí. O sistema será hospedado no site [dceguytorres.com](https://dceguytorres.com).
+
 ## Requisitos
 
 - Python 3.8+
