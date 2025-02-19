@@ -523,9 +523,15 @@
 {% block script %}
     document.getElementById("closeForm").onclick = function() {
         document.getElementById("formContainer").style.display = "none";
+        
+        // Define o cookie para que o formulário não apareça novamente por 3 minutos
+        var date = new Date();
+        date.setTime(date.getTime() + (3 * 60 * 1000)); // 3 minutos
+        var expires = "expires=" + date.toUTCString();
+        document.cookie = "form_exibido=true; " + expires + "; path=/";
     };
 
-    if (document.cookie.indexOf("email_cadastrado=true") !== -1) {
+    if (document.cookie.indexOf("email_cadastrado=true") !== -1 || document.cookie.indexOf("form_exibido=true") !== -1) {
         document.getElementById("formContainer").style.display = "none";
     }
     
