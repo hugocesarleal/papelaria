@@ -18,6 +18,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.shortcuts import get_object_or_404
 
+# Função para remover um item do carrinho
 @login_required
 def remover_item_carrinho(request, item_id):
     carrinho = get_object_or_404(Carrinho, user=request.user, ativo=True)
@@ -26,6 +27,7 @@ def remover_item_carrinho(request, item_id):
     messages.success(request, f"Item {item.item_estoque.nome} removido do carrinho.")
     return redirect('vendas:painel-vendas')
 
+# Função para limpar o carrinho
 @login_required
 def limpar_carrinho(request):
     carrinho = get_object_or_404(Carrinho, user=request.user, ativo=True)
@@ -33,6 +35,7 @@ def limpar_carrinho(request):
     messages.success(request, "Carrinho limpo com sucesso.")
     return redirect('vendas:painel-vendas')
 
+# Função para concluir a venda
 @login_required
 def concluir_venda(request):
     carrinho = Carrinho.objects.get(user=request.user, ativo=True)
@@ -104,6 +107,7 @@ def concluir_venda(request):
 
     return render(request, 'painel_vendas.html', {'carrinho': carrinho})
 
+# Função para buscar comprovantes
 @login_required
 def buscar_comprovantes(request, carrinho_id):
     # Calcular a data limite (5 minutos atrás)
@@ -134,6 +138,7 @@ def buscar_comprovantes(request, carrinho_id):
     # Retorna o caminho completo do arquivo e outras informações necessárias
     return JsonResponse({"comprovantes": [{"arquivo": ultimo_comprovante}]})
 
+# Função para fazer upload de comprovante
 @login_required
 def upload_comprovante(request):
     if request.method == 'POST' and request.FILES.get('imagem'):
@@ -161,6 +166,7 @@ def upload_comprovante(request):
 
     return render(request, 'painel_mobile.html')
 
+# Função para exibir o painel de vendas
 @login_required
 def painel_vendas(request):
     # Obtém ou cria o carrinho ativo do usuário
@@ -237,6 +243,7 @@ def painel_vendas(request):
             'comprovantes': comprovantes,
         })
 
+# Função para exibir o painel de vendas para administradores
 @user_passes_test(is_admin)
 def vendas_admin(request):
     if 'limpar_filtros' in request.GET:

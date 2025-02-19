@@ -9,7 +9,7 @@ from core.utils import is_admin
 from django.template.response import TemplateResponse
 from django.db.models import Case, When, IntegerField
 
-
+# Função para buscar itens no estoque com base em uma query
 def buscar_itens(request):
     query = request.GET.get('q', '')
     itens = ItemEstoque.objects.filter(nome__icontains=query)[:10]  # Retorna no máximo 10 itens
@@ -25,6 +25,7 @@ def buscar_itens(request):
 
     return JsonResponse(resultados, safe=False)
 
+# Função para listar itens do estoque para administradores
 @user_passes_test(is_admin)
 def listar_estoque_admin(request):
     itens = ItemEstoque.objects.annotate(
@@ -37,6 +38,7 @@ def listar_estoque_admin(request):
     
     return TemplateResponse(request, 'listar_estoque_admin.html', {'itens': itens})
 
+# Função para adicionar um novo item ao estoque
 @user_passes_test(is_admin)
 def adicionar_item(request):
     if request.method == 'POST':
@@ -48,6 +50,7 @@ def adicionar_item(request):
         form = ItemEstoqueForm()
     return render(request, 'adicionar_item.html', {'form': form})
 
+# Função para editar um item existente no estoque
 @user_passes_test(is_admin)
 def editar_item(request, pk):
     item = get_object_or_404(ItemEstoque, pk=pk)
@@ -60,9 +63,9 @@ def editar_item(request, pk):
         form = ItemEstoqueForm(instance=item)
     return render(request, 'editar_item.html', {'form': form, 'item': item})
 
+# Função para remover um item do estoque
 @user_passes_test(is_admin)
 def remover_item(request, pk):
-    
     item = get_object_or_404(ItemEstoque, pk=pk)
     
     if request.method == 'POST':

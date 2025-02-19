@@ -11,19 +11,20 @@ from .forms import NovoPasswordForm
 from django.contrib.auth import update_session_auth_hash
 from core.utils import is_admin
 
+# Função para trocar a senha do usuário logado
 @login_required
 def trocar_senha(request):
     user = request.user
-    if user.primeiro_acesso:  # Verifica se é o primeiro acesso
+    if user.primeiro_acesso:
         if request.method == 'POST':
             form = NovoPasswordForm(user, request.POST)
             if form.is_valid():
-                form.save()  # Salva a nova senha
-                user.primeiro_acesso = False  # Marca como false após a troca de senha
-                user.save()  # Salva o usuário com a nova informação
-                update_session_auth_hash(request, user)  # Atualiza a sessão
+                form.save()
+                user.primeiro_acesso = False
+                user.save()
+                update_session_auth_hash(request, user)
                 messages.success(request, 'Senha alterada com sucesso!')
-                return redirect('core:home')  # Redireciona para a página de sua escolha
+                return redirect('core:home')
             else:
                 messages.error(request, 'Por favor, corrija os erros abaixo.')
         else:
@@ -32,8 +33,9 @@ def trocar_senha(request):
         return TemplateResponse(request, 'trocar_senha.html', {'form': form})
 
     else:
-        return redirect('core:home')  # Se não for primeiro acesso, redireciona para outra página
+        return redirect('core:home')
 
+# Função para editar um usuário, acessível apenas para administradores
 @user_passes_test(is_admin)
 def editar_usuario(request, pk):
     user = get_object_or_404(CustomUser, pk=pk)
@@ -47,6 +49,7 @@ def editar_usuario(request, pk):
         form = CustomUserChangeForm(instance=user)
     return render(request, 'editar_usuario_form.html', {'form': form, 'user': user})
 
+# Função para listar e criar usuários, acessível apenas para administradores
 @user_passes_test(is_admin)
 def usuarios(request):
     
@@ -69,6 +72,7 @@ def usuarios(request):
 
     return TemplateResponse(request, 'usuarios.html', {'form': form, 'users': users})
 
+# Função para excluir um usuário, acessível apenas para administradores
 @user_passes_test(is_admin)
 def excluir_usuario(request, pk):
     user = get_object_or_404(get_user_model(), pk=pk)
