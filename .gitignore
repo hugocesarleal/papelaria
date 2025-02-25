@@ -8,8 +8,6 @@ __pycache__/
 # C extensions
 *.so
 
-db_papelaria.sqlite3
-
 # Distribution / packaging
 .Python
 build/
@@ -63,6 +61,7 @@ cover/
 *.log
 local_settings.py
 db.sqlite3
+db_papelaria.sqlite3
 db.sqlite3-journal
 
 # Flask stuff:
