@@ -76,6 +76,9 @@
                             <a class="nav-link {% if request.path == '/vendas/' %}active{% endif %}" href="{% url 'vendas:vendas-admin' %}"><i class="fas fa-shopping-cart"></i> Vendas</a>
                         </li>
                         <li class="nav-item">
+                            <a class="nav-link {% if request.path == '/impressao/consultar/' %}active{% endif %}" href="{% url 'impressao:consultar_impressoes' %}"><i class="fas fa-print"></i> Impressões</a>
+                        </li>
+                        <li class="nav-item">
                             <a class="nav-link {% if request.path == '/avisos/' %}active{% endif %}" href="{% url 'avisos:listar-avisos' %}"><i class="fas fa-bell"></i> Avisos</a>
                         </li>
                         <li class="nav-item">
@@ -111,11 +114,18 @@
                             <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'core:home' %}"><i class="fas fa-home"></i> Home</a>
                         </li>
                         <li class="nav-item mt-1">
+                            <a class="nav-link {% if request.path == '/impressao/enviar/' %}active{% endif %}" href="{% url 'impressao:enviar_documento' %}"><i class="fas fa-print"></i>
+                                Impressão
+                              </a>
+                        </li>
+                        {% if request.path == '/' %}
+                        <li class="nav-item mt-1">
                             <a class="nav-link" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo"><i class="fas fa-bell"></i> Avisos</a>
                         </li>
                         <li class="nav-item mt-1">
                             <a class="nav-link" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalHorarios"><i class="fas fa-clock"></i> Horários</a>
                         </li>
+                        {% endif %}
                     </ul>
                     <div class="d-flex align-items-center mt-2">
                         <i class="fas fa-user user-icon text-light"></i>

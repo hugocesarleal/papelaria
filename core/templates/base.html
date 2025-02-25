@@ -108,6 +108,12 @@
             Vendas
           </a>
         </li>
+        <li class="{% if request.path == '/impressao/consultar/' %}active{% endif %}">
+          <a href="{% url 'impressao:consultar_impressoes' %}">
+            <i class="fas fa-print"></i>
+            Impressões
+          </a>
+        </li>
         <li class="{% if request.path == '/avisos/' %}active{% endif %}">
           <a href="{% url 'avisos:listar-avisos' %}">
             <i class="fas fa-bell"></i>
@@ -142,6 +148,9 @@
           <li class="{% if request.path == '/' %}active{% endif %}">
             <a href="{% url 'core:home' %}"><i class="fas fa-home"></i>Home</a>
           </li>
+          <li class="{% if request.path == '/impressao/fila/' %}active{% endif %}">
+            <a href="{% url 'impressao:documentos_fila' %}"><i class="fas fa-print"></i>Impressão</a>
+          </li>
           <li class="{% if request.path == '/vendas/painel-vendas/' %}active{% endif %}">
             <a href="{% url 'vendas:painel-vendas' %}"><i class="fas fa-cash-register"></i>Caixa</a>
           </li>
@@ -168,6 +177,13 @@
               Home
             </a>
           </li>
+          <li class="{% if request.path == '/impressao/enviar/' %}active{% endif %}">
+            <a href="{% url 'impressao:enviar_documento' %}">
+              <i class="fas fa-print"></i>
+              Impressão
+            </a>
+          </li>
+          {% if request.path == '/' %}
             <li>
             <a style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#modalExemplo">
               <i class="fas fa-bell"></i>
@@ -180,6 +196,7 @@
                 Horários
               </a>
             </li>
+          {% endif %}
             <li><hr class="custom-divider"></li>
         </ul>
         <ul class="list-unstyled CTAs">

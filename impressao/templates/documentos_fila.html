@@ -1,0 +1,113 @@
+{% extends base_template %}
+
+{% block title %}
+    Fila de Documentos
+{% endblock %}
+
+{% block body %}
+<div class="container mt-5">
+    <h1 class="mb-4">Fila de Documentos</h1>
+
+    <h2>Fila de Impressão</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="text-center align-middle">Nome do Cliente</th>
+                <th class="text-center align-middle">Nome do Arquivo</th>
+                <th class="text-center align-middle">Data e Hora de Envio</th>
+                <th class="text-center align-middle">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for documento in documentos_nao_impressos %}
+            <tr>
+                <td class="text-center align-middle">{{ documento.nome_cliente }}</td>
+                <td class="text-center align-middle">
+                    <a href="{% url 'impressao:visualizar_documento' documento.pk %}" target="_blank" class="btn btn-link btn-sm">{{ documento.documento.name|cut:"documentos/" }}</a>
+                </td>
+                <td class="text-center align-middle">{{ documento.data_envio|date:"d/m/Y H:i" }}</td>
+                <td class="text-center align-middle">
+                    <button class="btn btn-primary btn-sm" onclick="imprimirDocumento('{% url 'impressao:visualizar_documento' documento.pk %}')">
+                        <i class="fas fa-print"></i>
+                    </button>
+                    <a href="{% url 'impressao:marcar_como_impresso' documento.pk %}" class="btn btn-success btn-sm">
+                        <i class="fas fa-check"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <hr class="my-5">
+
+    <h2>Arquivos Impressos</h2>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th class="text-center align-middle">Nome do Cliente</th>
+                <th class="text-center align-middle">Nome do Arquivo</th>
+                <th class="text-center align-middle">Data e Hora de Envio</th>
+                <th class="text-center align-middle">Usuário que Concluiu</th>
+                <th class="text-center align-middle">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for documento in documentos_impressos %}
+            <tr class="text-muted" style="opacity: 0.5;">
+                <td class="text-center align-middle">{{ documento.nome_cliente }}</td>
+                <td class="text-center align-middle">
+                    <a href="{% url 'impressao:visualizar_documento' documento.pk %}" target="_blank" class="btn btn-link btn-sm">{{ documento.documento.name|cut:"documentos/" }}</a>
+                </td>
+                <td class="text-center align-middle">{{ documento.data_envio|date:"d/m/Y H:i" }}</td>
+                <td class="text-center align-middle">{{ documento.usuario_impresso.username }}</td>
+                <td class="text-center align-middle">
+                    <button class="btn btn-primary btn-sm" onclick="imprimirDocumento('{% url 'impressao:visualizar_documento' documento.pk %}')">
+                        <i class="fas fa-print"></i>
+                    </button>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Paginação -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination">
+                {% if documentos_impressos.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documentos_impressos.previous_page_number }}" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+                {% for num in documentos_impressos.paginator.page_range %}
+                    <li class="page-item {% if documentos_impressos.number == num %}active{% endif %}">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                {% endfor %}
+                {% if documentos_impressos.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ documentos_impressos.next_page_number }}" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<script>
+function imprimirDocumento(url) {
+    var printWindow = window.open(url, '_blank');
+    printWindow.addEventListener('load', function() {
+        printWindow.print();
+        printWindow.onafterprint = function() {
+            printWindow.close();
+        };
+    }, true);
+}
+</script>
+{% endblock %}

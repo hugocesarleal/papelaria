@@ -29,6 +29,7 @@ urlpatterns = [
     path('usuarios/', include('usuarios.urls', namespace='usuarios')),
     path('vendas/', include('vendas.urls', namespace='vendas')),
     path('clientes/', include('clientes.urls', namespace='clientes')),
+    path('impressao/', include('impressao.urls', namespace='impressao')),
     path('', include('core.urls', namespace='core')),  # Mantenha o core se ainda houver conteúdo nele
     path('media/<path:path>', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
