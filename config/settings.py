@@ -25,7 +25,7 @@ SECRET_KEY = os.getenv('SECRET_KEY')
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ["82.29.57.23", "dceguytorres.com", "127.0.0.1", "192.168.1.96"]
 
@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     "vendas",
     "clientes",
     "impressao",
+    "errors",
 ]
 
 MIDDLEWARE = [

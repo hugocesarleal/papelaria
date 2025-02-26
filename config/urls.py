@@ -18,6 +18,11 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include  # Importando 'include' corretamente
 from django.views.static import serve
+from django.conf.urls import handler404, handler500
+from errors import views as error_views
+
+handler404 = error_views.handler404
+handler500 = error_views.handler500
 
 urlpatterns = [
     path('admin/', admin.site.urls),
