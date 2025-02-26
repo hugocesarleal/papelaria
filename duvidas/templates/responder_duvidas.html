@@ -97,7 +97,7 @@
         <div class="modal-content">
             <div class="modal-body text-center">
                 <span class="loader"></span>
-                <p style="margin-top: 10px;">Enviando a resposta<span id="loadingDots">...</span></p>
+                <p style="margin-top: 10px;">Enviando o documento<span id="loadingDots">...</span></p>
             </div>
         </div>
     </div>
@@ -110,5 +110,17 @@ $(document).ready(function() {
     $('form').submit(function() {
         $('#loadingModal').modal('show');
     });
+
+    function animateDots() {
+        let dots = $('#loadingDots');
+        setInterval(function() {
+            if (dots.text().length < 3) {
+                dots.text(dots.text() + '.');
+            } else {
+                dots.text('');
+            }
+        }, 300);
+    }
+    animateDots();
 });
 {% endblock %}
