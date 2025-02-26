@@ -18,6 +18,7 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.contrib.auth.decorators import user_passes_test
 from core.utils import is_admin
 from core.models import CustomUser
+import platform
 
 def enviar_documento(request):
     if request.method == 'POST':
@@ -39,7 +40,10 @@ def enviar_documento(request):
                                 temp_doc_file.write(chunk)
                         # Convert docx or doc to pdf using LibreOffice
                         temp_pdf_path = temp_doc_path.replace('.docx', '.pdf').replace('.doc', '.pdf')
-                        libreoffice_path = r"C:\Program Files\LibreOffice\program\soffice.exe"
+                        if platform.system() == 'Windows':
+                            libreoffice_path = r"C:\Program Files\LibreOffice\program\soffice.exe"
+                        else:
+                            libreoffice_path = 'libreoffice'
                         subprocess.run([libreoffice_path, '--headless', '--convert-to', 'pdf', '--outdir', settings.MEDIA_ROOT, temp_doc_path])
                         with open(temp_pdf_path, 'rb') as temp_pdf_file:
                             documento.documento.save(f"{uploaded_file.name}.pdf", temp_pdf_file)
