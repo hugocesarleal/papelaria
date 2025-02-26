@@ -21,6 +21,7 @@ from django.views.static import serve
 from django.conf.urls import handler404, handler500
 from errors import views as error_views
 
+handler400 = error_views.handler400
 handler404 = error_views.handler404
 handler500 = error_views.handler500
 
